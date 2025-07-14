@@ -51,10 +51,10 @@
     <label for="notas">Notas:</label>
     <textarea id="notas" rows="4"></textarea>
 
-    <button onclick="generarPDF()">Generar PDF</button>
+    <button class= "button" onclick="generatePDF()">Generar PDF</button>
 
     <script>
-        async function generarPDF() {
+        async function generatePDF() {
             const {{ jsPDF }} = window.jspdf;
             const doc = new jsPDF();
 
