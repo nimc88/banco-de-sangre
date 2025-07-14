@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Despacho de Unidad</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label, select, input, textarea, button {
+            display: block;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .checkmark {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>Despacho de Unidad</h2>
+
+    <label for="unidad">Unidad Recibida:</label>
+    <select id="unidad">
+        <option value="Unidad 001 - PRBC - ±250 mL - A+">Unidad 001 - PRBC - ±250 mL - A+</option>
+        <option value="Unidad 002 - PRBC fraccionada - ±125 mL - O-">Unidad 002 - PRBC fraccionada - ±125 mL - O-</option>
+    </select>
+
+    <label for="fecha">Fecha de Despacho:</label>
+    <input type="date" id="fecha">
+
+    <label for="hora">Hora de Despacho:</label>
+    <input type="time" id="hora">
+
+    <label for="enfermera">Enfermera Notificada:</label>
+    <input type="text" id="enfermera">
+
+    <label for="mt">Tecnólogo Médico (MT):</label>
+    <input type="text" id="mt">
+
+    <label for="inspeccion">¿Unidad en Buenas Condiciones?</label>
+    <select id="inspeccion">
+        <option value="Sí">✅ Sí</option>
+        <option value="No">❌ No</option>
+    </select>
+
+    <label for="notas">Notas:</label>
+    <textarea id="notas" rows="4"></textarea>
+
+    <button onclick="generarPDF()">Generar PDF</button>
+
+    <script>
+        async function generarPDF() {
+            const {{ jsPDF }} = window.jspdf;
+            const doc = new jsPDF();
+
+            const unidad = document.getElementById('unidad').value;
+            const fecha = document.getElementById('fecha').value;
+            const hora = document.getElementById('hora').value;
+            const enfermera = document.getElementById('enfermera').value;
+            const mt = document.getElementById('mt').value;
+            const inspeccion = document.getElementById('inspeccion').value;
+            const notas = document.getElementById('notas').value;
+
+            doc.setFontSize(12);
+            doc.text("Registro de Despacho de Unidad - Banco de Sangre", 10, 10);
+            doc.text("Unidad Seleccionada: " + unidad, 10, 20);
+            doc.text("Fecha de Despacho: " + fecha, 10, 30);
+            doc.text("Hora de Despacho: " + hora, 10, 40);
+            doc.text("Enfermera Notificada: " + enfermera, 10, 50);
+            doc.text("Tecnólogo Médico (MT): " + mt, 10, 60);
+            doc.text("Inspección: " + inspeccion, 10, 70);
+            doc.text("Notas: " + notas, 10, 80);
+
+            doc.save("despacho_unidad.pdf");
+        }
+    </script>
+</body>
+</html>
