@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Historial de Transfusión</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff5f5;
+      padding: 30px;
+    }
+    .container {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 950px;
+      margin: auto;
+      padding: 30px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #990000;
+      margin-bottom: 25px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #ffe6e6;
+    }
+    button {
+      background-color: #cc0000;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #a30000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Historial de Transfusión por Paciente</h2>
+
+    <label for="nombre">Nombre del Paciente:</label>
+    <input type="text" id="nombre" placeholder="Ej. Ana Martínez">
+
+    <label for="record">Número de Récord:</label>
+    <input type="text" id="record" placeholder="Ej. 00012345">
+
+    <label for="sangre">Tipo de Sangre:</label>
+    <select id="sangre">
+      <option>Seleccionar</option>
+      <option>O+</option>
+      <option>O−</option>
+      <option>A+</option>
+      <option>A−</option>
+      <option>B+</option>
+      <option>B−</option>
+      <option>AB+</option>
+      <option>AB−</option>
+    </select>
+
+    <label for="desde">Desde:</label>
+    <input type="date" id="desde">
+
+    <label for="hasta">Hasta:</label>
+    <input type="date" id="hasta">
+
+    <button>Buscar Historial</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo de Componente</th>
+          <th>Volumen</th>
+          <th>ID del Componente</th>
+          <th>Doctor</th>
+          <th>Área</th>
+          <th>Observaciones</th>
+          <th>Anticuerpos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2025-06-14</td>
+          <td>PRBC</td>
+          <td>±250 mL</td>
+          <td>A11234</td>
+          <td>Dr. Vega</td>
+          <td>Intensivo</td>
+          <td>Sin complicaciones</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>2025-07-03</td>
+          <td>Plaquetas</td>
+          <td>200 mL</td>
+          <td>B44122</td>
+          <td>Dra. Nieves</td>
+          <td>Medicina</td>
+          <td>Observación post-transfusión</td>
+          <td>Sí</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

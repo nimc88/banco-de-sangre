@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Componentes Devueltos</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    .container {
+      background: white; padding: 25px; max-width: 700px; margin: auto;
+      border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 { color: #800000; text-align: center; }
+    label { margin-top: 12px; display: block; font-weight: bold; }
+    select, input, textarea {
+      width: 100%; padding: 8px; margin-top: 5px;
+      border: 1px solid #ccc; border-radius: 6px;
+    }
+    .checklist label {
+      font-weight: normal;
+      display: block;
+      margin-top: 6px;
+    }
+    button {
+      margin-top: 20px; width: 100%; padding: 12px;
+      background-color: #800000; color: white;
+      border: none; border-radius: 6px; font-size: 16px;
+    }
+    .confirmacion {
+      margin-top: 15px;
+      padding: 12px;
+      background: #e6ffe6;
+      border: 1px solid #66cc66;
+      border-radius: 6px;
+      color: #336633;
+      text-align: center;
+      display: none;
+    }
+    table {
+      width: 100%; margin-top: 25px; border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ccc; padding: 8px; text-align: left;
+    }
+    th { background-color: #f0f0f0; }
+  </style>
+  <script>
+    function mostrarConfirmacion() {
+      document.getElementById("confirmacion").style.display = "block";
+      document.getElementById("formulario").reset();
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h2>Componentes Devueltos</h2>
+    <form id="formulario" onsubmit="event.preventDefault(); mostrarConfirmacion();">
+      <label>Seleccionar unidad recibida</label>
+      <select>
+        <option value="A123">ID: A123 - PRBC - O+</option>
+        <option value="B456">ID: B456 - Plaquetas - AB-</option>
+        <option value="C789">ID: C789 - Plasma - A+</option>
+      </select>
+
+      <label>Razón de devolución</label>
+      <div class="checklist">
+        <label><input type="checkbox"> Unidad mal despachada desde banco de sangre</label>
+        <label><input type="checkbox"> Paciente dado de alta</label>
+        <label><input type="checkbox"> Otro:</label>
+        <input type="text" placeholder="Especificar otra razón">
+      </div>
+
+      <label>Fecha de devolución</label>
+      <input type="date">
+
+      <label>Fecha de alta del paciente (si aplica)</label>
+      <input type="date">
+
+      <label>Notas / Comentarios</label>
+      <textarea rows="3"></textarea>
+
+      <label>Tecnólogo Médico (MT)</label>
+      <input type="text" value="Norma I. Medina">
+
+      <button type="submit">Guardar registro</button>
+    </form>
+
+    <div class="confirmacion" id="confirmacion">
+      ✅ Registro de devolución guardado exitosamente.
+    </div>
+
+    <h3 style="margin-top: 40px;">Historial de devoluciones</h3>
+    <table>
+      <tr>
+        <th>ID</th><th>Componente</th><th>Razón</th><th>Fecha</th><th>MT</th>
+      </tr>
+      <tr>
+        <td>A123</td><td>PRBC</td><td>Paciente dado de alta</td><td>2025-07-13</td><td>Norma</td>
+      </tr>
+      <tr>
+        <td>C789</td><td>Plasma</td><td>Unidad mal despachada</td><td>2025-07-12</td><td>Norma</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

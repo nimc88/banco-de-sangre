@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar Unidad Recibida</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px; }
+    .container {
+      max-width: 480px; margin: auto; background: white; padding: 20px;
+      border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label { display: block; margin-top: 10px; }
+    select, input { width: 100%; padding: 8px; margin-top: 4px; }
+    button {
+      margin-top: 20px; width: 100%; background-color: #a00000; color: white;
+      padding: 10px; border: none; border-radius: 5px; font-size: 16px;
+    }
+    #registro_plaquetas {
+      display: none; margin-top: 20px; padding: 10px;
+      border: 1px dashed #a00000; background: #fff5f5;
+    }
+  </style>
+  <script>
+    function mostrarRegistro() {
+      const tipo = document.getElementById("tipo_componente").value;
+      const volumen = document.getElementById("volumen");
+      const tempDiv = document.getElementById("temp_options");
+      const registroPlaquetas = document.getElementById("registro_plaquetas");
+
+      let opciones = "";
+      if (tipo === "PRBC") {
+        volumen.value = "±250 mL";
+        opciones = ["1 °C", "2 °C", "3 °C", "4 °C", "5 °C", "6 °C"];
+        registroPlaquetas.style.display = "none";
+      } else if (tipo === "PRBC fraccionada") {
+        volumen.value = "±125 mL";
+        opciones = ["1 °C", "2 °C", "3 °C", "4 °C", "5 °C", "6 °C"];
+        registroPlaquetas.style.display = "none";
+      } else if (tipo === "Plaquetas") {
+        volumen.value = "";
+        opciones = ["20 °C", "21 °C", "22 °C", "23 °C", "24 °C"];
+        registroPlaquetas.style.display = "block";
+      } else if (tipo === "Plasma" || tipo === "Crioprecipitado") {
+        volumen.value = "";
+        opciones = ["-18 °C", "-19 °C", "-20 °C", "-21 °C", "-22 °C", "-23 °C", "-24 °C", "-25 °C", "-26 °C", "-27 °C", "-28 °C", "-29 °C", "-30 °C"];
+        registroPlaquetas.style.display = "none";
+      } else {
+        volumen.value = "";
+        opciones = [];
+        registroPlaquetas.style.display = "none";
+      }
+
+      tempDiv.innerHTML = '<label>Temperatura:</label><select>' +
+        opciones.map(t => `<option>${t}</option>`).join('') +
+        '</select>';
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h2 style="text-align:center;color:#800000;">Registrar Unidad Recibida</h2>
+
+    <label>ID del Componente:</label>
+    <input type="text" />
+
+    <label>Tipo de Componente:</label>
+    <select id="tipo_componente" onchange="mostrarRegistro()">
+      <option>PRBC</option>
+      <option>PRBC fraccionada</option>
+      <option>Plaquetas</option>
+      <option>Plasma</option>
+      <option>Crioprecipitado</option>
+    </select>
+
+    <label>Tipo de Sangre:</label>
+    <select>
+      <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+      <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+    </select>
+
+    <label>Volumen:</label>
+    <input id="volumen" placeholder="± mL" />
+
+    <div id="temp_options"></div>
+
+    <label>Fecha y Hora de Recibo:</label>
+    <input type="datetime-local" />
+
+    <label>Nombre del Paciente:</label>
+    <input type="text" />
+    <label>Número de Récord:</label>
+    <input type="text" />
+    <label>Tipo de Sangre del Paciente:</label>
+    <select>
+      <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+      <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+    </select>
+    <label>Doctor:</label>
+    <input type="text" />
+
+    <label>Tecnólogo Médico (MT):</label>
+    <input type="text" />
+    <label>Enfermero(a) Notificado:</label>
+    <input type="text" />
+    <label>Fecha y Hora de Notificación:</label>
+    <input type="datetime-local" />
+
+    <label>Observaciones (marcar si aplica):</label>
+    <input type="checkbox" /> Mal etiquetado del componente<br>
+    <input type="checkbox" /> Mal etiquetado del ID del paciente<br>
+    <input type="checkbox" /> Rotura<br>
+
+    <div id="registro_plaquetas">
+      <h4>🕓 Registro cada 4 horas</h4>
+      <label>ID del componente:</label>
+      <input type="text" />
+      <label>Fecha:</label>
+      <input type="date" />
+      <label>Hora:</label>
+      <input type="time" />
+      <label>Temperatura (20–24 °C):</label>
+      <select>
+        <option>20 °C</option><option>21 °C</option><option>22 °C</option>
+        <option>23 °C</option><option>24 °C</option>
+      </select>
+      <label>Tipo de plaquetas:</label>
+      <select>
+        <option>Pool platelets</option>
+        <option>Apheresis platelet</option>
+      </select>
+    </div>
+
+    
+    <button onclick="simularEnvio()">Guardar Registro</button>
+    <script>
+      function simularEnvio() {
+        alert("✅ Registro guardado exitosamente (simulado)");
+        document.querySelectorAll('input').forEach(el => el.value = "");
+        document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+        document.getElementById("temp_options").innerHTML = "";
+        document.getElementById("registro_plaquetas").style.display = "none";
+      }
+    </script>
+    
+  </div>
+</body>
+</html>

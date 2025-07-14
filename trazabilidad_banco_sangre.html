@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Trazabilidad Banco de Sangre</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fdfafa;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      padding: 25px;
+      max-width: 900px;
+      margin: auto;
+      border-radius: 16px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      color: #800000;
+      text-align: center;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    select {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #ffe6e6;
+    }
+    .resumen {
+      background: #fff3f3;
+      border: 1px solid #e6b3b3;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 20px;
+    }
+    .resumen h4 {
+      margin-top: 0;
+      color: #990000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Trazabilidad - Banco de Sangre</h2>
+
+    <label for="mes">Mes:</label>
+    <select id="mes">
+      <option>Julio</option>
+      <option>Junio</option>
+      <option>Mayo</option>
+    </select>
+
+    <label for="anio">Año:</label>
+    <select id="anio">
+      <option>2025</option>
+      <option>2024</option>
+    </select>
+
+    <div class="resumen">
+      <h4>Resumen Julio 2025</h4>
+      <p><strong>Recibidas:</strong> 20</p>
+      <p><strong>Despachadas:</strong> 15</p>
+      <p><strong>Completadas:</strong> 10</p>
+      <p><strong>Devueltas:</strong> 2</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>ID del Componente</th>
+          <th>Tipo</th>
+          <th>Movimiento</th>
+          <th>Área destino</th>
+          <th>Paciente</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2025-07-10</td>
+          <td>A123</td>
+          <td>PRBC</td>
+          <td>Recibido</td>
+          <td>—</td>
+          <td>—</td>
+          <td>Disponible</td>
+        </tr>
+        <tr>
+          <td>2025-07-11</td>
+          <td>A123</td>
+          <td>PRBC</td>
+          <td>Despachado</td>
+          <td>Medicina</td>
+          <td>Ana M.</td>
+          <td>Despachada</td>
+        </tr>
+        <tr>
+          <td>2025-07-13</td>
+          <td>A123</td>
+          <td>PRBC</td>
+          <td>Completada</td>
+          <td>Medicina</td>
+          <td>Ana M.</td>
+          <td>Completada</td>
+        </tr>
+        <tr>
+          <td>2025-07-13</td>
+          <td>B456</td>
+          <td>Plasma</td>
+          <td>Devuelta</td>
+          <td>Emergencia</td>
+          <td>Roberto T.</td>
+          <td>Devuelta</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

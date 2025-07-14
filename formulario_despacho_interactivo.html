@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulario Despachar Unidad</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
+    .container {
+      max-width: 600px; margin: auto; background: #fff; padding: 25px;
+      border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 { text-align: center; color: #800000; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    input, select {
+      width: 100%; padding: 8px; margin-top: 4px;
+      border: 1px solid #ccc; border-radius: 5px;
+    }
+    button {
+      width: 100%; background-color: #800000; color: white;
+      padding: 12px; font-size: 16px; border: none; border-radius: 6px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Despachar Unidad</h2>
+    <form method="get" action="https://example.com/generar_pdf_despacho" target="_blank">
+      <label>ID del componente</label>
+      <input type="text" name="id_componente" placeholder="Ej: A12345678">
+
+      <label>Tipo de componente</label>
+      <select name="tipo_componente">
+        <option>PRBC</option>
+        <option>PRBC fraccionada</option>
+        <option>Plaquetas</option>
+        <option>Plasma</option>
+        <option>Crioprecipitado</option>
+      </select>
+
+      <label>Tipo de sangre de la unidad</label>
+      <select name="sangre_unidad">
+        <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+        <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+      </select>
+
+      <label>Volumen</label>
+      <input type="text" name="volumen" placeholder="Ej: ±250 mL">
+
+      <label>Nombre del paciente</label>
+      <input type="text" name="paciente" placeholder="Ej: Juan Rivera">
+
+      <label>Tipo de sangre del paciente</label>
+      <select name="sangre_paciente">
+        <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+        <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+      </select>
+
+      <label>Número de récord</label>
+      <input type="text" name="record" placeholder="Ej: 00123456">
+
+      <label>Doctor</label>
+      <input type="text" name="doctor" placeholder="Ej: Dra. Pérez">
+
+      <label>Área de destino</label>
+      <select name="area">
+        <option>Emergencia</option>
+        <option>Intensivo</option>
+        <option>Medicina</option>
+        <option>OBG</option>
+        <option>Sala de Operaciones</option>
+      </select>
+
+      <label>Fecha y hora de despacho</label>
+      <input type="datetime-local" name="fecha_despacho">
+
+      <label>Enfermero(a) (RN)</label>
+      <input type="text" name="rn" placeholder="Ej: María López">
+
+      <label>Tecnólogo Médico (MT)</label>
+      <input type="text" name="mt" value="Norma I. Medina">
+
+      <button type="submit">Generar PDF de Despacho</button>
+    </form>
+  </div>
+</body>
+</html>
