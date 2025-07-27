@@ -816,5 +816,225 @@
 
       signatureMTData = canvasMT.toDataURL();
       isSignedMT = true;
-      can
+      canvasMT.classList.add('signed');
+      updateSignatureStatus('signed', 'mt');
+    }
+
+    function isCanvasEmpty(canvasEl) {
+      const blank = document.createElement('canvas');
+      blank.width = canvasEl.width;
+      blank.height = canvasEl.height;
+      return canvasEl.toDataURL() === blank.toDataURL();
+    }
+
+    function updateSignatureStatus(status, type) {
+      const statusEl = document.getElementById(type === 'mt' ? 'signatureMTStatus' : 'signatureStatus');
+      statusEl.className = `signature-status ${status}`;
       
+      if (status === 'pending') {
+        statusEl.innerHTML = '📝 Por favor, firme en el área de arriba';
+      } else if (status === 'signed') {
+        const now = new Date().toLocaleString('es-PR');
+        const role = type === 'mt' ? 'Tecnólogo Médico' : 'Enfermero(a)';
+        statusEl.innerHTML = `✅ ${role} firmó el ${now}`;
+      }
+    }
+
+    async function generarPDF() {
+      // Validar campos requeridos
+      const requiredFields = document.querySelectorAll('[required]');
+      let allValid = true;
+
+      requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          field.style.borderColor = '#ef4444';
+          allValid = false;
+        } else {
+          field.style.borderColor = '#10b981';
+        }
+      });
+
+      // Validar firmas
+      if (!isSignedMT) {
+        alert('⚠️ La firma del Tecnólogo Médico es requerida.');
+        return;
+      }
+
+      if (!isSigned) {
+        alert('⚠️ La firma del Enfermero(a) es requerida.');
+        return;
+      }
+
+      if (!allValid) {
+        alert('⚠️ Por favor, complete todos los campos requeridos.');
+        return;
+      }
+
+      // Generar PDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // Header
+      doc.setFillColor(220, 38, 38);
+      doc.rect(0, 0, 210, 30, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.setFont(undefined, 'bold');
+      doc.text("🚨 REGISTRO DE TRANSFUSIÓN - UNIDAD DE EMERGENCIA", 105, 15, { align: 'center' });
+      doc.setFontSize(12);
+      doc.text("Sistema Bludee - Protocolo de Emergencia", 105, 22, { align: 'center' });
+
+      // Resetear color de texto
+      doc.setTextColor(0, 0, 0);
+      doc.setFont(undefined, 'normal');
+
+      // Datos del registro
+      const grupoComponente = document.getElementById("grupo_sangre").value;
+      const rhComponente = document.getElementById("rh_componente").value;
+      const grupoPaciente = document.getElementById("grupo_sangre_paciente").value;
+      const rhPaciente = document.getElementById("rh_paciente").value;
+
+      const data = [
+        ["ID del Componente", document.getElementById("id_componente").value],
+        ["Tipo de Componente", document.getElementById("tipo_componente").value],
+        ["Volumen", document.getElementById("volumen").value],
+        ["Temperatura", document.getElementById("temperatura").value],
+        ["Tipo de Sangre del Componente", `${grupoComponente}${rhComponente}`],
+        ["Tecnólogo Médico (MT)", document.getElementById("tecnologo").value],
+        ["Paciente", document.getElementById("paciente").value],
+        ["Número de Expediente", document.getElementById("expediente").value],
+        ["Tipo de Sangre del Paciente", `${grupoPaciente}${rhPaciente}`],
+        ["Doctor", document.getElementById("doctor").value],
+        ["Enfermero (RN)", document.getElementById("enfermero").value],
+        ["Área de Destino", document.getElementById("area_destino").value],
+        ["Fecha de Despacho", document.getElementById("fecha_despacho").value],
+        ["Hora de Despacho", document.getElementById("hora_despacho").value],
+        ["Observaciones", document.getElementById("observaciones").value || "Sin observaciones"],
+      ];
+
+      // Tabla con los datos
+      doc.autoTable({
+        head: [["Campo", "Valor"]],
+        body: data,
+        startY: 35,
+        theme: 'grid',
+        styles: { 
+          fontSize: 10, 
+          cellPadding: 3,
+          halign: 'left'
+        },
+        headStyles: {
+          fillColor: [220, 38, 38],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold'
+        },
+        columnStyles: {
+          0: { cellWidth: 70, fontStyle: 'bold' },
+          1: { cellWidth: 110 }
+        }
+      });
+
+      // Sección de firmas
+      const finalY = doc.lastAutoTable.finalY + 20;
+      
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text("FIRMAS DE AUTORIZACIÓN", 105, finalY, { align: 'center' });
+      
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      
+      // Líneas para firmas
+      const leftX = 20;
+      const rightX = 120;
+      const signY = finalY + 30;
+      
+      doc.line(leftX, signY, leftX + 70, signY);
+      doc.line(rightX, signY, rightX + 70, signY);
+      
+      doc.text("Firma del Tecnólogo Médico (MT)", leftX, signY + 8);
+      doc.text(`${document.getElementById("tecnologo").value}`, leftX, signY + 15);
+      doc.text(`Fecha: ${new Date().toLocaleDateString('es-PR')}`, leftX, signY + 22);
+      
+      doc.text("Firma del Enfermero(a) Receptor", rightX, signY + 8);
+      doc.text(`${document.getElementById("enfermero").value}`, rightX, signY + 15);
+      doc.text(`Fecha: ${new Date().toLocaleDateString('es-PR')}`, rightX, signY + 22);
+
+      // Footer
+      const pageHeight = doc.internal.pageSize.height;
+      doc.setFontSize(8);
+      doc.setTextColor(128, 128, 128);
+      doc.text(`Generado el ${new Date().toLocaleString('es-PR')} - Sistema Bludee`, 105, pageHeight - 10, { align: 'center' });
+      doc.text("⚡ PROTOCOLO DE EMERGENCIA ACTIVADO ⚡", 105, pageHeight - 5, { align: 'center' });
+
+      // Guardar PDF
+      const fileName = `Emergencia_${document.getElementById("id_componente").value}_${new Date().toISOString().slice(0, 10)}.pdf`;
+      doc.save(fileName);
+
+      // Mostrar mensaje de éxito
+      const successMessage = document.getElementById('successMessage');
+      successMessage.classList.add('show');
+      
+      successMessage.scrollIntoView({ behavior: 'smooth' });
+
+      setTimeout(() => {
+        successMessage.classList.remove('show');
+      }, 3000);
+    }
+
+    function limpiarFormulario() {
+      // Limpiar todos los campos excepto algunos predeterminados
+      document.querySelectorAll('input, select, textarea').forEach(field => {
+        if (!['tecnologo', 'enfermero'].includes(field.id)) {
+          if (field.type === 'text' || field.type === 'number') {
+            field.value = '';
+          } else if (field.type === 'select-one') {
+            field.selectedIndex = 0;
+          } else if (field.type === 'textarea') {
+            field.value = '';
+          }
+          field.style.borderColor = '#e5e7eb';
+        }
+      });
+
+      // Limpiar ambas firmas
+      clearSignature();
+      clearMTSignature();
+
+      // Restablecer algunos valores por defecto
+      document.getElementById('id_componente').value = 'PRBC-75122822';
+      document.getElementById('tipo_componente').value = 'PRBC';
+      document.getElementById('volumen').value = '±250 mL';
+      document.getElementById('temperatura').value = '4 °C';
+      document.getElementById('grupo_sangre').value = 'O';
+      document.getElementById('rh_componente').value = '+';
+      document.getElementById('paciente').value = 'Juan Pérez';
+      document.getElementById('expediente').value = '12345678';
+      document.getElementById('grupo_sangre_paciente').value = 'A';
+      document.getElementById('rh_paciente').value = '+';
+      document.getElementById('doctor').value = 'Dr. Rivera';
+      document.getElementById('area_destino').value = 'Emergencia';
+      document.getElementById('observaciones').value = 'Unidad entregada sin incidencias';
+
+      document.getElementById('successMessage').classList.remove('show');
+    }
+
+    // Auto-completar fecha y hora actual e inicializar
+    window.addEventListener('load', function() {
+      const now = new Date();
+      document.getElementById('fecha_despacho').value = now.toISOString().slice(0, 10);
+      document.getElementById('hora_despacho').value = now.toTimeString().slice(0, 5);
+      
+      // Inicializar canvas de firmas
+      initSignature();
+      updateSignatureStatus('pending', 'nurse');
+      updateSignatureStatus('pending', 'mt');
+    });
+
+    // Redimensionar canvas cuando cambia el tamaño de ventana
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+</body>
+</html>
+      can
