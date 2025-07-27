@@ -1,148 +1,746 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registrar Unidad Recibida</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bludee - Registrar Unidad Recibida</title>
   <style>
-    body { font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
     .container {
-      max-width: 480px; margin: auto; background: white; padding: 20px;
-      border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 900px;
+      margin: 0 auto;
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      border-radius: 20px;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      overflow: hidden;
     }
-    label { display: block; margin-top: 10px; }
-    select, input { width: 100%; padding: 8px; margin-top: 4px; }
-    button {
-      margin-top: 20px; width: 100%; background-color: #a00000; color: white;
-      padding: 10px; border: none; border-radius: 5px; font-size: 16px;
+
+    .header {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
     }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+    }
+
+    .breadcrumb {
+      background: #f1f5f9;
+      padding: 15px 30px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .breadcrumb a {
+      color: #1e40af;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .form-container {
+      padding: 40px;
+    }
+
+    .form-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    .form-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--section-color);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .section-component { --section-color: linear-gradient(135deg, #dc2626, #ef4444); }
+    .section-patient { --section-color: linear-gradient(135deg, #1e40af, #3b82f6); }
+    .section-medical { --section-color: linear-gradient(135deg, #0891b2, #06b6d4); }
+    .section-temperature { --section-color: linear-gradient(135deg, #ea580c, #f97316); }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .required {
+      color: #dc2626;
+    }
+
+    input, select, textarea {
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    input:invalid {
+      border-color: #ef4444;
+    }
+
+    input:valid {
+      border-color: #10b981;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+
+    .checkbox-item:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .temperature-display {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 2px solid #f59e0b;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      font-weight: 600;
+      color: #92400e;
+      margin-top: 10px;
+    }
+
     #registro_plaquetas {
-      display: none; margin-top: 20px; padding: 10px;
-      border: 1px dashed #a00000; background: #fff5f5;
+      display: none;
+      margin-top: 25px;
+      padding: 20px;
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
+      border: 2px solid #f87171;
+      border-radius: 12px;
+      animation: slideDown 0.3s ease;
+    }
+
+    #registro_plaquetas.show {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .plaquetas-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #dc2626;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 160px;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f8fafc;
+      color: #374151;
+      border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    .success-message {
+      display: none;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border: 2px solid #10b981;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: center;
+      color: #065f46;
+      font-weight: 600;
+      animation: slideDown 0.3s ease;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #e5e7eb;
+      border-radius: 50px;
+      padding: 12px 20px;
+      color: #374151;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .back-button:hover {
+      background: white;
+      border-color: #3b82f6;
+      color: #1e40af;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 16px;
+      }
+
+      .header {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .form-container {
+        padding: 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .button-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 300px;
+      }
     }
   </style>
+</head>
+<body>
+  <a href="index.html" class="back-button">
+    ← Volver al Menú
+  </a>
+
+  <div class="container">
+    <div class="header">
+      <h1>📥 Registrar Unidad Recibida</h1>
+      <p>Sistema Bludee - Gestión de Componentes Sanguíneos</p>
+    </div>
+
+    <div class="breadcrumb">
+      <a href="index.html">🗃️ Bludee</a> / 
+      <a href="index.html">Gestión de Componentes</a> / 
+      <span>Registro de Unidad Recibida</span>
+    </div>
+
+    <div class="form-container">
+      <!-- Información del Componente -->
+      <div class="form-section section-component">
+        <h2 class="section-title">
+          <span class="section-icon">🩸</span>
+          Información del Componente <span class="required">*</span>
+        </h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="id_componente">ID del Componente <span class="required">*</span></label>
+            <input type="text" id="id_componente" placeholder="Ej: PRBC-001234" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="tipo_componente">Tipo de Componente <span class="required">*</span></label>
+            <select id="tipo_componente" onchange="mostrarRegistro()" required>
+              <option value="">Seleccionar tipo...</option>
+              <option value="PRBC">PRBC (Glóbulos Rojos)</option>
+              <option value="PRBC fraccionada">PRBC Fraccionada</option>
+              <option value="Plaquetas">Plaquetas</option>
+              <option value="Plasma">Plasma</option>
+              <option value="Crioprecipitado">Crioprecipitado</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="grupo_sangre">Grupo Sanguíneo <span class="required">*</span></label>
+            <select id="grupo_sangre" required>
+              <option value="">Seleccionar...</option>
+              <option value="O">O</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="AB">AB</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="rh_componente">Factor Rh <span class="required">*</span></label>
+            <select id="rh_componente" required>
+              <option value="">Seleccionar...</option>
+              <option value="+">Positivo (+)</option>
+              <option value="-">Negativo (−)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="volumen">Volumen <span class="required">*</span></label>
+            <input type="text" id="volumen" placeholder="Ingrese volumen en mL" required>
+            <small style="color: #6b7280; font-size: 0.85rem; margin-top: 5px; display: block;">
+              Ejemplo: 250 mL, 300 mL, etc.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="fecha_recibo">Fecha y Hora de Recibo <span class="required">*</span></label>
+            <input type="datetime-local" id="fecha_recibo" required>
+          </div>
+        </div>
+        
+        <div id="temp_options"></div>
+      </div>
+
+      <!-- Información del Paciente -->
+      <div class="form-section section-patient">
+        <h2 class="section-title">
+          <span class="section-icon">👤</span>
+          Información del Paciente <span class="required">*</span>
+        </h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="nombre_paciente">Nombre del Paciente <span class="required">*</span></label>
+            <input type="text" id="nombre_paciente" placeholder="Nombre completo" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="numero_record">Número de Récord <span class="required">*</span></label>
+            <input type="text" id="numero_record" placeholder="00000000" pattern="[0-9]{8}" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="grupo_sangre_paciente">Grupo Sanguíneo <span class="required">*</span></label>
+            <select id="grupo_sangre_paciente" required>
+              <option value="">Seleccionar...</option>
+              <option value="O">O</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="AB">AB</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="rh_paciente">Factor Rh <span class="required">*</span></label>
+            <select id="rh_paciente" required>
+              <option value="">Seleccionar...</option>
+              <option value="+">Positivo (+)</option>
+              <option value="-">Negativo (−)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="doctor">Doctor Solicitante <span class="required">*</span></label>
+            <input type="text" id="doctor" placeholder="Dr./Dra. Apellido" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Médico -->
+      <div class="form-section section-medical">
+        <h2 class="section-title">
+          <span class="section-icon">🏥</span>
+          Personal Médico
+        </h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="tecnologo">Tecnólogo Médico (MT) <span class="required">*</span></label>
+            <input type="text" id="tecnologo" value="Norma I. Medina" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="enfermero">Enfermero(a) Notificado</label>
+            <input type="text" id="enfermero" placeholder="Lic. Apellido">
+          </div>
+          
+          <div class="form-group">
+            <label for="fecha_notificacion">Fecha y Hora de Notificación</label>
+            <input type="datetime-local" id="fecha_notificacion">
+          </div>
+        </div>
+      </div>
+
+      <!-- Observaciones -->
+      <div class="form-section section-temperature">
+        <h2 class="section-title">
+          <span class="section-icon">⚠️</span>
+          Observaciones y Control de Calidad
+        </h2>
+        <div class="form-group full-width">
+          <label>Marcar si aplica:</label>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="mal_etiquetado_componente">
+              <label for="mal_etiquetado_componente">Mal etiquetado del componente</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="mal_etiquetado_paciente">
+              <label for="mal_etiquetado_paciente">Mal etiquetado del ID del paciente</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="rotura">
+              <label for="rotura">Rotura o daño en el contenedor</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Registro especial para plaquetas -->
+      <div id="registro_plaquetas">
+        <h3 class="plaquetas-title">
+          🕓 Registro de Control Cada 4 Horas (Plaquetas)
+        </h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="plaquetas_id">ID del Componente</label>
+            <input type="text" id="plaquetas_id" readonly>
+          </div>
+          <div class="form-group">
+            <label for="plaquetas_fecha">Fecha</label>
+            <input type="date" id="plaquetas_fecha">
+          </div>
+          <div class="form-group">
+            <label for="plaquetas_hora">Hora</label>
+            <input type="time" id="plaquetas_hora">
+          </div>
+          <div class="form-group">
+            <label for="plaquetas_temp">Temperatura (20–24 °C)</label>
+            <select id="plaquetas_temp">
+              <option>20 °C</option>
+              <option>21 °C</option>
+              <option>22 °C</option>
+              <option>23 °C</option>
+              <option>24 °C</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="tipo_plaquetas">Tipo de Plaquetas</label>
+            <select id="tipo_plaquetas">
+              <option>Pool platelets</option>
+              <option>Apheresis platelet</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-container">
+        <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
+          🔄 Limpiar
+        </button>
+        <button type="button" class="btn btn-primary" onclick="guardarRegistro()">
+          💾 Guardar Registro
+        </button>
+      </div>
+
+      <div class="success-message" id="successMessage">
+        ✅ Registro guardado exitosamente. La unidad ha sido registrada en el sistema.
+      </div>
+    </div>
+  </div>
+
   <script>
     function mostrarRegistro() {
       const tipo = document.getElementById("tipo_componente").value;
       const volumen = document.getElementById("volumen");
       const tempDiv = document.getElementById("temp_options");
       const registroPlaquetas = document.getElementById("registro_plaquetas");
+      const plaquetasId = document.getElementById("plaquetas_id");
 
       let opciones = "";
+      let displayTemp = "";
+      let placeholder = "";
+      let readonly = false;
+      
       if (tipo === "PRBC") {
-        volumen.value = "±250 mL";
+        volumen.value = "250 mL";
+        volumen.readOnly = true;
+        volumen.style.backgroundColor = "#f9fafb";
         opciones = ["1 °C", "2 °C", "3 °C", "4 °C", "5 °C", "6 °C"];
-        registroPlaquetas.style.display = "none";
+        displayTemp = "1-6 °C (Refrigeración)";
+        registroPlaquetas.classList.remove("show");
       } else if (tipo === "PRBC fraccionada") {
-        volumen.value = "±125 mL";
+        volumen.value = "125 mL";
+        volumen.readOnly = true;
+        volumen.style.backgroundColor = "#f9fafb";
         opciones = ["1 °C", "2 °C", "3 °C", "4 °C", "5 °C", "6 °C"];
-        registroPlaquetas.style.display = "none";
+        displayTemp = "1-6 °C (Refrigeración)";
+        registroPlaquetas.classList.remove("show");
       } else if (tipo === "Plaquetas") {
         volumen.value = "";
+        volumen.readOnly = false;
+        volumen.style.backgroundColor = "#fafafa";
+        volumen.placeholder = "Ej: 250 mL, 300 mL";
         opciones = ["20 °C", "21 °C", "22 °C", "23 °C", "24 °C"];
-        registroPlaquetas.style.display = "block";
-      } else if (tipo === "Plasma" || tipo === "Crioprecipitado") {
+        displayTemp = "20-24 °C (Temperatura Ambiente)";
+        registroPlaquetas.classList.add("show");
+        plaquetasId.value = document.getElementById("id_componente").value;
+      } else if (tipo === "Plasma") {
         volumen.value = "";
+        volumen.readOnly = false;
+        volumen.style.backgroundColor = "#fafafa";
+        volumen.placeholder = "Ej: 200 mL, 250 mL";
         opciones = ["-18 °C", "-19 °C", "-20 °C", "-21 °C", "-22 °C", "-23 °C", "-24 °C", "-25 °C", "-26 °C", "-27 °C", "-28 °C", "-29 °C", "-30 °C"];
-        registroPlaquetas.style.display = "none";
+        displayTemp = "≤-18 °C (Congelación)";
+        registroPlaquetas.classList.remove("show");
+      } else if (tipo === "Crioprecipitado") {
+        volumen.value = "";
+        volumen.readOnly = false;
+        volumen.style.backgroundColor = "#fafafa";
+        volumen.placeholder = "Ej: 15 mL, 20 mL";
+        opciones = ["-18 °C", "-19 °C", "-20 °C", "-21 °C", "-22 °C", "-23 °C", "-24 °C", "-25 °C", "-26 °C", "-27 °C", "-28 °C", "-29 °C", "-30 °C"];
+        displayTemp = "≤-18 °C (Congelación)";
+        registroPlaquetas.classList.remove("show");
       } else {
         volumen.value = "";
+        volumen.readOnly = false;
+        volumen.style.backgroundColor = "#fafafa";
+        volumen.placeholder = "Ingrese volumen en mL";
         opciones = [];
-        registroPlaquetas.style.display = "none";
+        displayTemp = "";
+        registroPlaquetas.classList.remove("show");
       }
 
-      tempDiv.innerHTML = '<label>Temperatura:</label><select>' +
-        opciones.map(t => `<option>${t}</option>`).join('') +
-        '</select>';
+      if (opciones.length > 0) {
+        tempDiv.innerHTML = `
+          <div class="form-group">
+            <label for="temperatura">Temperatura de Almacenamiento <span class="required">*</span></label>
+            <select id="temperatura" required>
+              ${opciones.map(t => `<option value="${t}">${t}</option>`).join('')}
+            </select>
+          </div>
+          <div class="temperature-display">
+            📡 Rango requerido: ${displayTemp}
+          </div>
+        `;
+      } else {
+        tempDiv.innerHTML = '';
+      }
     }
-  </script>
-</head>
-<body>
-  <div class="container">
-    <h2 style="text-align:center;color:#800000;">Registrar Unidad Recibida</h2>
 
-    <label>ID del Componente:</label>
-    <input type="text" />
+    function guardarRegistro() {
+      // Validar campos requeridos
+      const requiredFields = document.querySelectorAll('[required]');
+      let allValid = true;
 
-    <label>Tipo de Componente:</label>
-    <select id="tipo_componente" onchange="mostrarRegistro()">
-      <option>PRBC</option>
-      <option>PRBC fraccionada</option>
-      <option>Plaquetas</option>
-      <option>Plasma</option>
-      <option>Crioprecipitado</option>
-    </select>
+      requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          field.style.borderColor = '#ef4444';
+          allValid = false;
+        } else {
+          field.style.borderColor = '#10b981';
+        }
+      });
 
-    <label>Tipo de Sangre:</label>
-    <select>
-      <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
-      <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
-    </select>
-
-    <label>Volumen:</label>
-    <input id="volumen" placeholder="± mL" />
-
-    <div id="temp_options"></div>
-
-    <label>Fecha y Hora de Recibo:</label>
-    <input type="datetime-local" />
-
-    <label>Nombre del Paciente:</label>
-    <input type="text" />
-    <label>Número de Récord:</label>
-    <input type="text" />
-    <label>Tipo de Sangre del Paciente:</label>
-    <select>
-      <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
-      <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
-    </select>
-    <label>Doctor:</label>
-    <input type="text" />
-
-    <label>Tecnólogo Médico (MT):</label>
-    <input type="text" />
-    <label>Enfermero(a) Notificado:</label>
-    <input type="text" />
-    <label>Fecha y Hora de Notificación:</label>
-    <input type="datetime-local" />
-
-    <label>Observaciones (marcar si aplica):</label>
-    <input type="checkbox" /> Mal etiquetado del componente<br>
-    <input type="checkbox" /> Mal etiquetado del ID del paciente<br>
-    <input type="checkbox" /> Rotura<br>
-
-    <div id="registro_plaquetas">
-      <h4>🕓 Registro cada 4 horas</h4>
-      <label>ID del componente:</label>
-      <input type="text" />
-      <label>Fecha:</label>
-      <input type="date" />
-      <label>Hora:</label>
-      <input type="time" />
-      <label>Temperatura (20–24 °C):</label>
-      <select>
-        <option>20 °C</option><option>21 °C</option><option>22 °C</option>
-        <option>23 °C</option><option>24 °C</option>
-      </select>
-      <label>Tipo de plaquetas:</label>
-      <select>
-        <option>Pool platelets</option>
-        <option>Apheresis platelet</option>
-      </select>
-    </div>
-
-    
-    <button onclick="simularEnvio()">Guardar Registro</button>
-    <script>
-      function simularEnvio() {
-        alert("✅ Registro guardado exitosamente (simulado)");
-        document.querySelectorAll('input').forEach(el => el.value = "");
-        document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
-        document.getElementById("temp_options").innerHTML = "";
-        document.getElementById("registro_plaquetas").style.display = "none";
+      if (!allValid) {
+        alert('⚠️ Por favor, complete todos los campos requeridos.');
+        return;
       }
-    </script>
-    
-  </div>
+
+      // Simular guardado
+      const successMessage = document.getElementById('successMessage');
+      successMessage.classList.add('show');
+      
+      // Scroll to success message
+      successMessage.scrollIntoView({ behavior: 'smooth' });
+
+      // Auto-limpiar después de 3 segundos
+      setTimeout(() => {
+        limpiarFormulario();
+        successMessage.classList.remove('show');
+      }, 3000);
+    }
+
+    function limpiarFormulario() {
+      // Limpiar todos los campos
+      document.querySelectorAll('input, select, textarea').forEach(field => {
+        if (field.id !== 'tecnologo') { // Mantener el nombre del tecnólogo
+          field.value = '';
+          field.style.borderColor = '#e5e7eb';
+        }
+      });
+      
+      // Limpiar checkboxes
+      document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+      });
+
+      // Ocultar secciones especiales
+      document.getElementById("temp_options").innerHTML = '';
+      document.getElementById("registro_plaquetas").classList.remove("show");
+      document.getElementById("successMessage").classList.remove("show");
+    }
+
+    // Auto-completar fecha actual
+    window.addEventListener('load', function() {
+      const now = new Date();
+      const datetime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      document.getElementById('fecha_recibo').value = datetime;
+    });
+  </script>
 </body>
 </html>
