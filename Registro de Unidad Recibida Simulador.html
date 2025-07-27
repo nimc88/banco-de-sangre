@@ -316,6 +316,100 @@
       display: block;
     }
 
+    /* Firma Digital */
+    .signature-container {
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 15px;
+      background: #fafafa;
+      margin-top: 8px;
+    }
+
+    #signatureCanvas {
+      border: 2px dashed #cbd5e1;
+      border-radius: 6px;
+      background: white;
+      cursor: crosshair;
+      width: 100%;
+      max-width: 400px;
+      height: 150px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    #signatureCanvas.signed {
+      border-color: #10b981;
+      border-style: solid;
+    }
+
+    .signature-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .btn-signature {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-clear {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn-clear:hover {
+      background: #e5e7eb;
+      border-color: #9ca3af;
+    }
+
+    .btn-confirm {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+
+    .btn-confirm:hover {
+      background: linear-gradient(135deg, #059669, #047857);
+      transform: translateY(-1px);
+    }
+
+    .btn-confirm:disabled {
+      background: #d1d5db;
+      color: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .signature-status {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .signature-status.pending {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+    }
+
+    .signature-status.signed {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+
     .back-button {
       position: fixed;
       top: 20px;
@@ -512,10 +606,46 @@
             <label for="tecnologo">Tecnólogo Médico (MT) <span class="required">*</span></label>
             <input type="text" id="tecnologo" value="Norma I. Medina" required>
           </div>
+
+          <div class="form-group full-width">
+            <label>Firma del Tecnólogo Médico (MT) <span class="required">*</span></label>
+            <div class="signature-container">
+              <canvas id="signatureMTCanvas" width="400" height="150"></canvas>
+              <div class="signature-controls">
+                <button type="button" class="btn-signature btn-clear" onclick="clearMTSignature()">
+                  🗑️ Limpiar
+                </button>
+                <button type="button" class="btn-signature btn-confirm" onclick="confirmMTSignature()">
+                  ✓ Confirmar Firma
+                </button>
+              </div>
+              <div class="signature-status" id="signatureMTStatus">
+                📝 Por favor, firme en el área de arriba
+              </div>
+            </div>
+          </div>
           
           <div class="form-group">
             <label for="enfermero">Enfermero(a) Notificado</label>
             <input type="text" id="enfermero" placeholder="Lic. Apellido">
+          </div>
+          
+          <div class="form-group full-width">
+            <label>Firma del Enfermero(a) (Opcional)</label>
+            <div class="signature-container">
+              <canvas id="signatureCanvas" width="400" height="150"></canvas>
+              <div class="signature-controls">
+                <button type="button" class="btn-signature btn-clear" onclick="clearSignature()">
+                  🗑️ Limpiar
+                </button>
+                <button type="button" class="btn-signature btn-confirm" onclick="confirmSignature()">
+                  ✓ Confirmar Firma
+                </button>
+              </div>
+              <div class="signature-status" id="signatureStatus">
+                📝 Por favor, firme en el área de arriba (si aplica)
+              </div>
+            </div>
           </div>
           
           <div class="form-group">
@@ -604,6 +734,212 @@
   </div>
 
   <script>
+    // Variables para las firmas digitales
+    let canvas, ctx, canvasMT, ctxMT;
+    let isDrawing = false, isDrawingMT = false;
+    let isSigned = false, isSignedMT = false;
+    let signatureData = null, signatureMTData = null;
+
+    // Inicializar canvas de firmas
+    function initSignature() {
+      // Canvas del enfermero
+      canvas = document.getElementById('signatureCanvas');
+      ctx = canvas.getContext('2d');
+      setupCanvas(canvas, ctx);
+
+      // Canvas del tecnólogo médico
+      canvasMT = document.getElementById('signatureMTCanvas');
+      ctxMT = canvasMT.getContext('2d');
+      setupCanvas(canvasMT, ctxMT);
+
+      // Eventos del enfermero
+      setupCanvasEvents(canvas, 'nurse');
+      
+      // Eventos del tecnólogo médico
+      setupCanvasEvents(canvasMT, 'mt');
+
+      // Ajustar el tamaño de ambos canvas
+      resizeCanvas();
+    }
+
+    function setupCanvas(canvasEl, context) {
+      context.strokeStyle = '#1f2937';
+      context.lineWidth = 2;
+      context.lineCap = 'round';
+      context.lineJoin = 'round';
+    }
+
+    function setupCanvasEvents(canvasEl, type) {
+      // Eventos del mouse
+      canvasEl.addEventListener('mousedown', (e) => startDrawing(e, type));
+      canvasEl.addEventListener('mousemove', (e) => draw(e, type));
+      canvasEl.addEventListener('mouseup', (e) => stopDrawing(e, type));
+      canvasEl.addEventListener('mouseout', (e) => stopDrawing(e, type));
+
+      // Eventos táctiles para móviles
+      canvasEl.addEventListener('touchstart', (e) => handleTouch(e, type));
+      canvasEl.addEventListener('touchmove', (e) => handleTouch(e, type));
+      canvasEl.addEventListener('touchend', (e) => stopDrawing(e, type));
+    }
+
+    function resizeCanvas() {
+      // Redimensionar canvas del enfermero
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      setupCanvas(canvas, ctx);
+
+      // Redimensionar canvas del MT
+      const rectMT = canvasMT.getBoundingClientRect();
+      canvasMT.width = rectMT.width;
+      canvasMT.height = rectMT.height;
+      setupCanvas(canvasMT, ctxMT);
+    }
+
+    function getEventPos(e, canvasEl) {
+      const rect = canvasEl.getBoundingClientRect();
+      const scaleX = canvasEl.width / rect.width;
+      const scaleY = canvasEl.height / rect.height;
+      
+      if (e.touches) {
+        return {
+          x: (e.touches[0].clientX - rect.left) * scaleX,
+          y: (e.touches[0].clientY - rect.top) * scaleY
+        };
+      }
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    function startDrawing(e, type) {
+      e.preventDefault();
+      const currentCanvas = type === 'mt' ? canvasMT : canvas;
+      const currentCtx = type === 'mt' ? ctxMT : ctx;
+      
+      if (type === 'mt') {
+        isDrawingMT = true;
+      } else {
+        isDrawing = true;
+      }
+      
+      const pos = getEventPos(e, currentCanvas);
+      currentCtx.beginPath();
+      currentCtx.moveTo(pos.x, pos.y);
+    }
+
+    function draw(e, type) {
+      const isCurrentlyDrawing = type === 'mt' ? isDrawingMT : isDrawing;
+      if (!isCurrentlyDrawing) return;
+      
+      e.preventDefault();
+      const currentCanvas = type === 'mt' ? canvasMT : canvas;
+      const currentCtx = type === 'mt' ? ctxMT : ctx;
+      
+      const pos = getEventPos(e, currentCanvas);
+      currentCtx.lineTo(pos.x, pos.y);
+      currentCtx.stroke();
+    }
+
+    function stopDrawing(e, type) {
+      const isCurrentlyDrawing = type === 'mt' ? isDrawingMT : isDrawing;
+      if (!isCurrentlyDrawing) return;
+      
+      e.preventDefault();
+      const currentCtx = type === 'mt' ? ctxMT : ctx;
+      
+      if (type === 'mt') {
+        isDrawingMT = false;
+      } else {
+        isDrawing = false;
+      }
+      
+      currentCtx.beginPath();
+    }
+
+    function handleTouch(e, type) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                       e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      });
+      
+      const currentCanvas = type === 'mt' ? canvasMT : canvas;
+      currentCanvas.dispatchEvent(mouseEvent);
+    }
+
+    // Funciones para firma del enfermero
+    function clearSignature() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      isSigned = false;
+      signatureData = null;
+      canvas.classList.remove('signed');
+      updateSignatureStatus('pending', 'nurse');
+    }
+
+    function confirmSignature() {
+      if (isCanvasEmpty(canvas)) {
+        alert('⚠️ Por favor, firme antes de confirmar.');
+        return;
+      }
+
+      signatureData = canvas.toDataURL();
+      isSigned = true;
+      canvas.classList.add('signed');
+      updateSignatureStatus('signed', 'nurse');
+      
+      const now = new Date();
+      document.getElementById('fecha_notificacion').value = 
+        new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    }
+
+    // Funciones para firma del tecnólogo médico
+    function clearMTSignature() {
+      ctxMT.clearRect(0, 0, canvasMT.width, canvasMT.height);
+      isSignedMT = false;
+      signatureMTData = null;
+      canvasMT.classList.remove('signed');
+      updateSignatureStatus('pending', 'mt');
+    }
+
+    function confirmMTSignature() {
+      if (isCanvasEmpty(canvasMT)) {
+        alert('⚠️ Por favor, firme antes de confirmar.');
+        return;
+      }
+
+      signatureMTData = canvasMT.toDataURL();
+      isSignedMT = true;
+      canvasMT.classList.add('signed');
+      updateSignatureStatus('signed', 'mt');
+    }
+
+    function isCanvasEmpty(canvasEl) {
+      const blank = document.createElement('canvas');
+      blank.width = canvasEl.width;
+      blank.height = canvasEl.height;
+      return canvasEl.toDataURL() === blank.toDataURL();
+    }
+
+    function updateSignatureStatus(status, type) {
+      const statusEl = document.getElementById(type === 'mt' ? 'signatureMTStatus' : 'signatureStatus');
+      statusEl.className = `signature-status ${status}`;
+      
+      if (status === 'pending') {
+        const message = type === 'mt' ? 
+          '📝 Por favor, firme en el área de arriba' : 
+          '📝 Por favor, firme en el área de arriba (si aplica)';
+        statusEl.innerHTML = message;
+      } else if (status === 'signed') {
+        const now = new Date().toLocaleString('es-PR');
+        const role = type === 'mt' ? 'Tecnólogo Médico' : 'Enfermero(a)';
+        statusEl.innerHTML = `✅ ${role} firmó el ${now}`;
+      }
+    }
+
     function mostrarRegistro() {
       const tipo = document.getElementById("tipo_componente").value;
       const volumen = document.getElementById("volumen");
@@ -696,19 +1032,40 @@
         }
       });
 
+      // Validar firma del tecnólogo médico (requerida)
+      if (!isSignedMT) {
+        alert('⚠️ La firma del Tecnólogo Médico es requerida.');
+        return;
+      }
+
+      // Validar firma del enfermero si hay nombre
+      const enfermero = document.getElementById('enfermero').value.trim();
+      if (enfermero && !isSigned) {
+        alert('⚠️ Por favor, confirme la firma del enfermero.');
+        return;
+      }
+
       if (!allValid) {
         alert('⚠️ Por favor, complete todos los campos requeridos.');
         return;
       }
 
-      // Simular guardado
+      // Simular guardado con ambas firmas
+      const registroData = {
+        firmaMT: signatureMTData,
+        firmaEnfermero: signatureData,
+        tecnologo: document.getElementById('tecnologo').value,
+        enfermero: enfermero,
+        timestamp: new Date().toISOString()
+      };
+
+      console.log('Registro guardado:', registroData);
+
       const successMessage = document.getElementById('successMessage');
       successMessage.classList.add('show');
       
-      // Scroll to success message
       successMessage.scrollIntoView({ behavior: 'smooth' });
 
-      // Auto-limpiar después de 3 segundos
       setTimeout(() => {
         limpiarFormulario();
         successMessage.classList.remove('show');
@@ -718,7 +1075,7 @@
     function limpiarFormulario() {
       // Limpiar todos los campos
       document.querySelectorAll('input, select, textarea').forEach(field => {
-        if (field.id !== 'tecnologo') { // Mantener el nombre del tecnólogo
+        if (field.id !== 'tecnologo') {
           field.value = '';
           field.style.borderColor = '#e5e7eb';
         }
@@ -729,18 +1086,56 @@
         checkbox.checked = false;
       });
 
+      // Limpiar ambas firmas
+      clearSignature();
+      clearMTSignature();
+
       // Ocultar secciones especiales
       document.getElementById("temp_options").innerHTML = '';
       document.getElementById("registro_plaquetas").classList.remove("show");
       document.getElementById("successMessage").classList.remove("show");
     }
 
-    // Auto-completar fecha actual
+    // Auto-completar fecha actual e inicializar
     window.addEventListener('load', function() {
       const now = new Date();
       const datetime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
       document.getElementById('fecha_recibo').value = datetime;
+      
+      // Inicializar canvas de firmas
+      initSignature();
+      updateSignatureStatus('pending', 'nurse');
+      updateSignatureStatus('pending', 'mt');
     });
+
+    // Redimensionar canvas cuando cambia el tamaño de ventana
+    window.addEventListener('resize', resizeCanvas);
+  </script>').forEach(checkbox => {
+        checkbox.checked = false;
+      });
+
+      // Limpiar firma
+      clearSignature();
+
+      // Ocultar secciones especiales
+      document.getElementById("temp_options").innerHTML = '';
+      document.getElementById("registro_plaquetas").classList.remove("show");
+      document.getElementById("successMessage").classList.remove("show");
+    }
+
+    // Auto-completar fecha actual e inicializar
+    window.addEventListener('load', function() {
+      const now = new Date();
+      const datetime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      document.getElementById('fecha_recibo').value = datetime;
+      
+      // Inicializar canvas de firma
+      initSignature();
+      updateSignatureStatus('pending');
+    });
+
+    // Redimensionar canvas cuando cambia el tamaño de ventana
+    window.addEventListener('resize', resizeCanvas);
   </script>
 </body>
 </html>
