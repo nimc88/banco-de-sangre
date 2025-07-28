@@ -1,106 +1,503 @@
+import React, { useState } from 'react';
+import { Package, ArrowLeft, Calendar, User, MessageSquare, CheckCircle, Search, Filter } from 'lucide-react';
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Componentes Devueltos</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-    .container {
-      background: white; padding: 25px; max-width: 700px; margin: auto;
-      border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h2 { color: #800000; text-align: center; }
-    label { margin-top: 12px; display: block; font-weight: bold; }
-    select, input, textarea {
-      width: 100%; padding: 8px; margin-top: 5px;
-      border: 1px solid #ccc; border-radius: 6px;
-    }
-    .checklist label {
-      font-weight: normal;
-      display: block;
-      margin-top: 6px;
-    }
-    button {
-      margin-top: 20px; width: 100%; padding: 12px;
-      background-color: #800000; color: white;
-      border: none; border-radius: 6px; font-size: 16px;
-    }
-    .confirmacion {
-      margin-top: 15px;
-      padding: 12px;
-      background: #e6ffe6;
-      border: 1px solid #66cc66;
-      border-radius: 6px;
-      color: #336633;
-      text-align: center;
-      display: none;
-    }
-    table {
-      width: 100%; margin-top: 25px; border-collapse: collapse;
-    }
-    th, td {
-      border: 1px solid #ccc; padding: 8px; text-align: left;
-    }
-    th { background-color: #f0f0f0; }
-  </style>
-  <script>
-    function mostrarConfirmacion() {
-      document.getElementById("confirmacion").style.display = "block";
-      document.getElementById("formulario").reset();
-    }
-  </script>
-</head>
-<body>
-  <div class="container">
-    <h2>Componentes Devueltos</h2>
-    <form id="formulario" onsubmit="event.preventDefault(); mostrarConfirmacion();">
-      <label>Seleccionar unidad recibida</label>
-      <select>
-        <option value="A123">ID: A123 - PRBC - O+</option>
-        <option value="B456">ID: B456 - Plaquetas - AB-</option>
-        <option value="C789">ID: C789 - Plasma - A+</option>
-      </select>
+const ComponentesDevueltos = () => {
+  const [formData, setFormData] = useState({
+    unidadSeleccionada: '',
+    razonDevolucion: [],
+    otraRazon: '',
+    fechaDevolucion: '',
+    fechaAlta: '',
+    notas: '',
+    tecnologoMedico: 'Norma I. Medina'
+  });
+  
+  const [showConfirmacion, setShowConfirmacion] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
-      <label>Razón de devolución</label>
-      <div class="checklist">
-        <label><input type="checkbox"> Unidad mal despachada desde banco de sangre</label>
-        <label><input type="checkbox"> Paciente dado de alta</label>
-        <label><input type="checkbox"> Otro:</label>
-        <input type="text" placeholder="Especificar otra razón">
+  const unidadesDisponibles = [
+    { id: 'A123', tipo: 'PRBC', grupoSangre: 'O+', estado: 'Disponible' },
+    { id: 'B456', tipo: 'Plaquetas', grupoSangre: 'AB-', estado: 'Disponible' },
+    { id: 'C789', tipo: 'Plasma', grupoSangre: 'A+', estado: 'Disponible' },
+    { id: 'D012', tipo: 'PRBC', grupoSangre: 'B+', estado: 'Disponible' }
+  ];
+
+  const historialDevoluciones = [
+    { id: 'A123', componente: 'PRBC', razon: 'Paciente dado de alta', fecha: '2025-07-13', mt: 'Norma I. Medina' },
+    { id: 'C789', componente: 'Plasma', razon: 'Unidad mal despachada', fecha: '2025-07-12', mt: 'Norma I. Medina' },
+    { id: 'B234', componente: 'Plaquetas', razon: 'Fecha de vencimiento', fecha: '2025-07-11', mt: 'Carlos Pérez' }
+  ];
+
+  const razonesDevolucion = [
+    'Unidad mal despachada desde banco de sangre',
+    'Paciente dado de alta',
+    'Fecha de vencimiento próxima',
+    'Daño en la unidad',
+    'Cambio en orden médica'
+  ];
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleRazonChange = (razon, checked) => {
+    setFormData(prev => ({
+      ...prev,
+      razonDevolucion: checked 
+        ? [...prev.razonDevolucion, razon]
+        : prev.razonDevolucion.filter(r => r !== razon)
+    }));
+  };
+
+  const handleSubmit = () => {
+    setShowConfirmacion(true);
+    setTimeout(() => {
+      setShowConfirmacion(false);
+      setFormData({
+        unidadSeleccionada: '',
+        razonDevolucion: [],
+        otraRazon: '',
+        fechaDevolucion: '',
+        fechaAlta: '',
+        notas: '',
+        tecnologoMedico: 'Norma I. Medina'
+      });
+    }, 3000);
+  };
+
+  const filteredHistorial = historialDevoluciones.filter(item =>
+    item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.componente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.razon.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen" style={{
+      background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%)'
+    }}>
+      
+      {/* Botón de regreso */}
+      <button className="fixed top-5 left-5 z-50 flex items-center gap-2 px-5 py-3 rounded-full text-gray-700 font-semibold transition-all duration-300 hover:text-blue-700 hover:transform hover:-translate-y-0.5 hover:shadow-lg"
+        style={{
+          background: 'rgba(255, 255, 255, 0.9)',
+          border: '2px solid #e5e7eb',
+          backdropFilter: 'blur(10px)'
+        }}>
+        <ArrowLeft className="w-4 h-4" />
+        Volver al Menú
+      </button>
+
+      {/* Contenedor principal */}
+      <div className="max-w-4xl mx-auto p-5">
+        <div className="rounded-3xl overflow-hidden shadow-2xl"
+          style={{
+            background: 'linear-gradient(145deg, #ffffff, #f8fafc)',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)'
+          }}>
+          
+          {/* Header */}
+          <div className="relative p-8 text-center text-white"
+            style={{
+              background: 'linear-gradient(135deg, #dc2626, #ef4444)'
+            }}>
+            <div className="absolute inset-0 opacity-30"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><pattern id='grid' width='10' height='10' patternUnits='userSpaceOnUse'><path d='M 10 0 L 0 0 0 10' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='0.5'/></pattern></defs><rect width='100' height='100' fill='url(%23grid)'/></svg>")`
+              }}>
+            </div>
+            <div className="relative z-10">
+              <h1 className="text-4xl font-bold mb-2">📦 Componentes Devueltos</h1>
+              <p className="text-lg opacity-90">Sistema Bludee - Gestión de Devoluciones</p>
+            </div>
+          </div>
+
+          {/* Breadcrumb */}
+          <div className="px-8 py-4 border-b border-gray-200"
+            style={{ background: '#f1f5f9' }}>
+            <span className="text-blue-600 font-medium hover:underline cursor-pointer">🗃️ Bludee</span>
+            <span className="mx-2">/</span>
+            <span className="text-blue-600 font-medium hover:underline cursor-pointer">Gestión de Componentes</span>
+            <span className="mx-2">/</span>
+            <span className="text-gray-600">Componentes Devueltos</span>
+          </div>
+
+          <div className="p-10">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              {/* Formulario principal */}
+              <div className="lg:col-span-2 space-y-6">
+                
+                {/* Información del Componente */}
+                <div className="relative bg-white rounded-xl p-6 border shadow-md"
+                  style={{
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid #e2e8f0'
+                  }}>
+                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
+                    style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)' }}>
+                  </div>
+                  
+                  <h2 className="text-xl font-semibold text-gray-800 mb-5 flex items-center gap-3">
+                    <span className="text-2xl">🩸</span>
+                    Información de la Devolución
+                    <span className="text-red-600">*</span>
+                  </h2>
+
+                  <div className="space-y-5">
+                    {/* Selección de Unidad */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Unidad a Devolver <span className="text-red-600">*</span>
+                      </label>
+                      <select 
+                        value={formData.unidadSeleccionada}
+                        onChange={(e) => handleInputChange('unidadSeleccionada', e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
+                        style={{ background: '#fafafa' }}
+                      >
+                        <option value="">Seleccionar unidad...</option>
+                        {unidadesDisponibles.map(unidad => (
+                          <option key={unidad.id} value={unidad.id}>
+                            ID: {unidad.id} - {unidad.tipo} - {unidad.grupoSangre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Fecha de Devolución */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        📅 Fecha de Devolución <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.fechaDevolucion}
+                        onChange={(e) => handleInputChange('fechaDevolucion', e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
+                        style={{ background: '#fafafa' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Razones de Devolución */}
+                <div className="relative bg-white rounded-xl p-6 border shadow-md"
+                  style={{
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid #e2e8f0'
+                  }}>
+                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
+                    style={{ background: 'linear-gradient(135deg, #1e40af, #3b82f6)' }}>
+                  </div>
+                  
+                  <h2 className="text-xl font-semibold text-gray-800 mb-5 flex items-center gap-3">
+                    <span className="text-2xl">📋</span>
+                    Razón de Devolución
+                    <span className="text-red-600">*</span>
+                  </h2>
+
+                  <div className="space-y-3">
+                    {razonesDevolucion.map(razon => (
+                      <div key={razon} className="flex items-center gap-3 p-3 rounded-lg border transition-all duration-300 hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
+                        style={{ 
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0'
+                        }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.razonDevolucion.includes(razon)}
+                          onChange={(e) => handleRazonChange(razon, e.target.checked)}
+                          className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <label className="text-sm font-medium text-gray-700 cursor-pointer flex-1">
+                          {razon}
+                        </label>
+                      </div>
+                    ))}
+                    
+                    {/* Otra razón */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 p-3 rounded-lg border transition-all duration-300 hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
+                        style={{ 
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0'
+                        }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.razonDevolucion.includes('Otro')}
+                          onChange={(e) => handleRazonChange('Otro', e.target.checked)}
+                          className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <label className="text-sm font-medium text-gray-700 cursor-pointer">
+                          Otra razón
+                        </label>
+                      </div>
+                      
+                      {formData.razonDevolucion.includes('Otro') && (
+                        <input
+                          type="text"
+                          value={formData.otraRazon}
+                          onChange={(e) => handleInputChange('otraRazon', e.target.value)}
+                          placeholder="Especificar otra razón..."
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
+                          style={{ background: '#fafafa' }}
+                        />
+                      )}
+                    </div>
+
+                    {/* Fecha de Alta del Paciente */}
+                    <div className="mt-5">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        📅 Fecha de Alta del Paciente (si aplica)
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.fechaAlta}
+                        onChange={(e) => handleInputChange('fechaAlta', e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
+                        style={{ background: '#fafafa' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Personal Médico y Notas */}
+                <div className="relative bg-white rounded-xl p-6 border shadow-md"
+                  style={{
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid #e2e8f0'
+                  }}>
+                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
+                    style={{ background: 'linear-gradient(135deg, #0891b2, #06b6d4)' }}>
+                  </div>
+                  
+                  <h2 className="text-xl font-semibold text-gray-800 mb-5 flex items-center gap-3">
+                    <span className="text-2xl">🏥</span>
+                    Personal Médico y Observaciones
+                  </h2>
+
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        👨‍⚕️ Tecnólogo Médico (MT) <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.tecnologoMedico}
+                        onChange={(e) => handleInputChange('tecnologoMedico', e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
+                        style={{ background: '#fafafa' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        💬 Notas / Comentarios
+                      </label>
+                      <textarea
+                        value={formData.notas}
+                        onChange={(e) => handleInputChange('notas', e.target.value)}
+                        rows="4"
+                        placeholder="Observaciones adicionales..."
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300 resize-none"
+                        style={{ background: '#fafafa' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botones */}
+                <div className="flex gap-4 justify-center">
+                  <button
+                    onClick={() => setFormData({
+                      unidadSeleccionada: '',
+                      razonDevolucion: [],
+                      otraRazon: '',
+                      fechaDevolucion: '',
+                      fechaAlta: '',
+                      notas: '',
+                      tecnologoMedico: 'Norma I. Medina'
+                    })}
+                    className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:transform hover:-translate-y-0.5 min-w-40 justify-center"
+                    style={{
+                      background: '#f8fafc',
+                      color: '#374151',
+                      border: '2px solid #e5e7eb'
+                    }}
+                  >
+                    🔄 Limpiar
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-white transition-all duration-300 hover:transform hover:-translate-y-0.5 min-w-40 justify-center"
+                    style={{
+                      background: 'linear-gradient(135deg, #dc2626, #ef4444)',
+                      boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)'
+                    }}
+                  >
+                    💾 Guardar Registro
+                  </button>
+                </div>
+              </div>
+
+              {/* Panel Lateral */}
+              <div className="space-y-6">
+                {/* Estadísticas */}
+                <div className="relative bg-white rounded-xl p-6 border shadow-md"
+                  style={{
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid #e2e8f0'
+                  }}>
+                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
+                    style={{ background: 'linear-gradient(135deg, #ea580c, #f97316)' }}>
+                  </div>
+                  
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <span className="text-xl">📊</span>
+                    Estadísticas del Día
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Devoluciones Hoy</span>
+                      <span className="text-2xl font-bold text-red-600">3</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Unidades Disponibles</span>
+                      <span className="text-2xl font-bold text-green-600">45</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Total Mes</span>
+                      <span className="text-2xl font-bold text-blue-600">28</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Razones Comunes */}
+                <div className="relative bg-white rounded-xl p-6 border shadow-md"
+                  style={{
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid #e2e8f0'
+                  }}>
+                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
+                    style={{ background: 'linear-gradient(135deg, #1e40af, #3b82f6)' }}>
+                  </div>
+                  
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <span className="text-xl">📈</span>
+                    Razones Más Comunes
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Paciente dado de alta</span>
+                      <span className="text-sm font-medium text-gray-900">45%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Unidad mal despachada</span>
+                      <span className="text-sm font-medium text-gray-900">25%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Fecha de vencimiento</span>
+                      <span className="text-sm font-medium text-gray-900">20%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Historial de Devoluciones */}
+            <div className="mt-8">
+              <div className="relative bg-white rounded-xl border shadow-md overflow-hidden"
+                style={{
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                  border: '1px solid #e2e8f0'
+                }}>
+                <div className="absolute top-0 left-0 right-0 h-1"
+                  style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)' }}>
+                </div>
+                
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
+                        <span className="text-2xl">📋</span>
+                        Historial de Devoluciones
+                      </h2>
+                      <p className="text-sm text-gray-500 mt-1">Registro completo de devoluciones recientes</p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                        <input
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          placeholder="Buscar..."
+                          className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                      <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <Filter className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead style={{ background: '#f1f5f9' }}>
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Unidad</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Componente</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Razón</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tecnólogo</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredHistorial.map((item, index) => (
+                        <tr key={index} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="text-sm font-medium text-gray-900">{item.id}</span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {item.componente}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-sm text-gray-600">{item.razon}</span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {item.fecha}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {item.mt}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <label>Fecha de devolución</label>
-      <input type="date">
-
-      <label>Fecha de alta del paciente (si aplica)</label>
-      <input type="date">
-
-      <label>Notas / Comentarios</label>
-      <textarea rows="3"></textarea>
-
-      <label>Tecnólogo Médico (MT)</label>
-      <input type="text" value="Norma I. Medina">
-
-      <button type="submit">Guardar registro</button>
-    </form>
-
-    <div class="confirmacion" id="confirmacion">
-      ✅ Registro de devolución guardado exitosamente.
+      {/* Notificación de Confirmación */}
+      {showConfirmacion && (
+        <div className="fixed bottom-6 right-6 p-5 rounded-xl shadow-lg flex items-center space-x-3 text-green-800 font-semibold animate-pulse"
+          style={{
+            background: 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
+            border: '2px solid #10b981'
+          }}>
+          <CheckCircle className="w-5 h-5" />
+          <span>✅ Registro guardado exitosamente (simulado)</span>
+        </div>
+      )}
     </div>
+  );
+};
 
-    <h3 style="margin-top: 40px;">Historial de devoluciones</h3>
-    <table>
-      <tr>
-        <th>ID</th><th>Componente</th><th>Razón</th><th>Fecha</th><th>MT</th>
-      </tr>
-      <tr>
-        <td>A123</td><td>PRBC</td><td>Paciente dado de alta</td><td>2025-07-13</td><td>Norma</td>
-      </tr>
-      <tr>
-        <td>C789</td><td>Plasma</td><td>Unidad mal despachada</td><td>2025-07-12</td><td>Norma</td>
-      </tr>
-    </table>
-  </div>
-</body>
-</html>
+export default ComponentesDevueltos;
