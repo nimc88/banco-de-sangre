@@ -4,7 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bludee - Despacho de Unidad</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Cambiar la forma de cargar jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+    <script>
+        // Verificar inmediatamente si jsPDF se cargó
+        window.addEventListener('load', function() {
+            console.log('Página cargada, verificando jsPDF...');
+            console.log('window.jspdf existe:', !!window.jspdf);
+            console.log('window.jsPDF existe:', !!window.jsPDF);
+            if (window.jspdf) {
+                console.log('jsPDF cargado correctamente via window.jspdf');
+            } else if (window.jsPDF) {
+                console.log('jsPDF cargado correctamente via window.jsPDF');
+            } else {
+                console.error('jsPDF NO se cargó correctamente');
+            }
+        });
+    </script>
     <style>
         * {
             margin: 0;
@@ -406,7 +422,7 @@
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-button">
+    <a href="#" class="back-button">
         ← Volver al Menú
     </a>
 
@@ -541,16 +557,85 @@
                 <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
                     🔄 Limpiar Todo
                 </button>
-                <button type="button" class="btn btn-primary" onclick="generarPDF()">
-                    📄 Generar PDF
+                <button type="button" class="btn btn-primary" onclick="generarPDFSimple()">
+                    📄 Ver PDF
                 </button>
+                <button type="button" class="btn btn-secondary" onclick="generarTexto()" style="background: linear-gradient(135deg, #059669, #10b981);">
+                    📝 Generar Texto
+                </button>
+            </div>
+
+            <!-- Área para mostrar el PDF o texto -->
+            <div id="pdfViewer" style="display: none; margin-top: 30px; padding: 20px; background: white; border-radius: 12px; border: 2px solid #e5e7eb;">
+                <div style="text-align: right; margin-bottom: 15px;">
+                    <button onclick="document.getElementById('pdfViewer').style.display='none'" style="background: #dc2626; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Cerrar</button>
+                    <button id="descargarBtn" onclick="descargarPDFDirecto()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px;">Descargar</button>
+                </div>
+                <div id="pdfContent"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // Variables globales para las firmas
+        // Variables globales para las firmas y PDF
         let firmas = {};
+        let pdfDocumento = null;
+
+        // Base de datos simulada de unidades recibidas
+        const unidadesRecibidas = {
+            "Unidad 001 - PRBC - ±250 mL - A+": {
+                id: "PRBC-001",
+                tipo: "PRBC (Glóbulos Rojos)",
+                volumen: "250 mL",
+                grupoSanguineo: "A+",
+                fechaRecepcion: "2025-01-25",
+                horaRecepcion: "08:30",
+                temperatura: "4°C",
+                donante: "DON-2025-001",
+                fechaVencimiento: "2025-02-25",
+                doctorSolicitante: "Dr. González",
+                numeroRecord: "12345678"
+            },
+            "Unidad 002 - PRBC fraccionada - ±125 mL - O-": {
+                id: "PRBC-002",
+                tipo: "PRBC Fraccionada",
+                volumen: "125 mL",
+                grupoSanguineo: "O-",
+                fechaRecepcion: "2025-01-24",
+                horaRecepcion: "14:15",
+                temperatura: "4°C",
+                donante: "DON-2025-002",
+                fechaVencimiento: "2025-02-24",
+                doctorSolicitante: "Dra. Martínez",
+                numeroRecord: "87654321"
+            },
+            "Unidad 003 - Plasma Fresco Congelado - ±200 mL - AB+": {
+                id: "PLASMA-003",
+                tipo: "Plasma Fresco Congelado",
+                volumen: "200 mL",
+                grupoSanguineo: "AB+",
+                fechaRecepcion: "2025-01-23",
+                horaRecepcion: "10:45",
+                temperatura: "-18°C",
+                donante: "DON-2025-003",
+                fechaVencimiento: "2026-01-23",
+                doctorSolicitante: "Dr. Rodríguez",
+                numeroRecord: "11223344"
+            },
+            "Unidad 004 - Plaquetas - ±50 mL - O+": {
+                id: "PLT-004",
+                tipo: "Plaquetas",
+                volumen: "50 mL",
+                grupoSanguineo: "O+",
+                fechaRecepcion: "2025-01-26",
+                horaRecepcion: "16:20",
+                temperatura: "22°C",
+                donante: "DON-2025-004",
+                fechaVencimiento: "2025-01-31",
+                doctorSolicitante: "Dra. López",
+                numeroRecord: "55667788"
+            }
+        };
 
         // Configurar fecha y hora actuales al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
@@ -561,6 +646,15 @@
             // Configurar las firmas
             setupSignature('firmaMT');
             setupSignature('firmaEnfermera');
+
+            // Agregar evento para auto-completar información cuando se seleccione una unidad
+            document.getElementById('unidad').addEventListener('change', function() {
+                const unidadSeleccionada = this.value;
+                if (unidadSeleccionada && unidadesRecibidas[unidadSeleccionada]) {
+                    const info = unidadesRecibidas[unidadSeleccionada];
+                    mostrarAlerta(`✅ Unidad cargada: ${info.tipo} - ${info.grupoSanguineo} - Vence: ${info.fechaVencimiento}`, 'success');
+                }
+            });
         });
 
         function setupSignature(canvasId) {
@@ -669,11 +763,106 @@
             return true;
         }
         
-        function generarPDF() {
+        function generarPDFSimple() {
+            console.log("Iniciando PDF simple...");
+            
             if (!validarFormulario()) return;
             
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const datos = {
+                    unidad: document.getElementById('unidad').value,
+                    paciente: document.getElementById('paciente').value || 'N/A',
+                    fecha: document.getElementById('fecha').value,
+                    hora: document.getElementById('hora').value,
+                    enfermera: document.getElementById('enfermera').value,
+                    mt: document.getElementById('mt').value,
+                    inspeccion: document.getElementById('inspeccion').value,
+                    notas: document.getElementById('notas').value || 'Sin observaciones'
+                };
+
+                const infoUnidad = unidadesRecibidas[datos.unidad] || null;
+                
+                // Contenido muy simple
+                doc.setFontSize(16);
+                doc.text("DESPACHO DE UNIDAD", 20, 20);
+                
+                doc.setFontSize(10);
+                let y = 40;
+                
+                doc.text("Unidad: " + datos.unidad, 20, y); y += 8;
+                doc.text("Paciente: " + datos.paciente, 20, y); y += 8;
+                doc.text("Fecha: " + datos.fecha + " Hora: " + datos.hora, 20, y); y += 8;
+                doc.text("Estado: " + datos.inspeccion, 20, y); y += 8;
+                doc.text("Enfermera: " + datos.enfermera, 20, y); y += 8;
+                doc.text("Tecnologo: " + datos.mt, 20, y); y += 12;
+
+                if (infoUnidad) {
+                    doc.text("INFORMACION DE LA UNIDAD:", 20, y); y += 8;
+                    doc.text("ID: " + infoUnidad.id, 20, y); y += 6;
+                    doc.text("Donante: " + infoUnidad.donante, 20, y); y += 6;
+                    doc.text("Recibida: " + infoUnidad.fechaRecepcion, 20, y); y += 6;
+                    doc.text("Vence: " + infoUnidad.fechaVencimiento, 20, y); y += 6;
+                    doc.text("Doctor: " + infoUnidad.doctorSolicitante, 20, y); y += 10;
+                }
+                
+                doc.text("Observaciones: " + datos.notas, 20, y);
+                
+                // Guardar referencia del documento
+                pdfDocumento = doc;
+                
+                // Mostrar PDF en iframe
+                const pdfDataUri = doc.output('dataurlstring');
+                document.getElementById('pdfContent').innerHTML = `
+                    <iframe src="${pdfDataUri}" style="width: 100%; height: 600px; border: 1px solid #ccc; border-radius: 8px;"></iframe>
+                `;
+                document.getElementById('pdfViewer').style.display = 'block';
+                
+                mostrarAlerta('✅ PDF generado y mostrado correctamente', 'success');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarAlerta('❌ Error al generar PDF: ' + error.message, 'warning');
+            }
+        }
+
+        function descargarPDFDirecto() {
+            if (!pdfDocumento) {
+                mostrarAlerta('❌ No hay PDF para descargar', 'warning');
+                return;
+            }
+            
+            try {
+                // Crear enlace directo
+                const pdfBlob = pdfDocumento.output('blob');
+                const url = URL.createObjectURL(pdfBlob);
+                
+                // Crear enlace temporal
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'Despacho_' + new Date().getTime() + '.pdf';
+                
+                // Agregar al DOM, hacer clic y remover
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                // Limpiar URL
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                
+                mostrarAlerta('✅ Descarga iniciada', 'success');
+                
+            } catch (error) {
+                console.error('Error al descargar:', error);
+                mostrarAlerta('❌ Error en la descarga. Usa clic derecho > Guardar en el PDF mostrado arriba.', 'warning');
+            }
+        }
+
+        function generarTexto() {
+            if (!validarFormulario()) return;
             
             const datos = {
                 unidad: document.getElementById('unidad').value,
@@ -685,84 +874,92 @@
                 inspeccion: document.getElementById('inspeccion').value,
                 notas: document.getElementById('notas').value || 'Sin observaciones'
             };
+
+            const infoUnidad = unidadesRecibidas[datos.unidad] || null;
             
-            // Encabezado
-            doc.setFont("helvetica");
-            doc.setFontSize(18);
-            doc.setTextColor(220, 38, 38);
-            doc.text("REGISTRO DE DESPACHO DE UNIDAD", 105, 20, { align: 'center' });
-            doc.setFontSize(12);
-            doc.setTextColor(100, 100, 100);
-            doc.text("Sistema Bludee - Gestión de Componentes Sanguíneos", 105, 28, { align: 'center' });
-            
-            // Línea separadora
-            doc.setDrawColor(220, 38, 38);
-            doc.setLineWidth(2);
-            doc.line(20, 35, 190, 35);
-            
-            // Información
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(11);
-            let y = 50;
-            
-            const info = [
-                ['Unidad:', datos.unidad],
-                ['Paciente:', datos.paciente],
-                ['Fecha de Despacho:', datos.fecha],
-                ['Hora de Despacho:', datos.hora],
-                ['Estado de la Unidad:', datos.inspeccion],
-                ['Enfermera Responsable:', datos.enfermera],
-                ['Tecnólogo Médico:', datos.mt]
-            ];
-            
-            info.forEach(([etiqueta, valor]) => {
-                doc.setFont("helvetica", "bold");
-                doc.text(etiqueta, 20, y);
-                doc.setFont("helvetica", "normal");
-                doc.text(valor, 70, y);
-                y += 8;
-            });
-            
-            // Observaciones
-            y += 5;
-            doc.setFont("helvetica", "bold");
-            doc.text("Observaciones:", 20, y);
-            y += 8;
-            doc.setFont("helvetica", "normal");
-            const lineasNotas = doc.splitTextToSize(datos.notas, 150);
-            doc.text(lineasNotas, 20, y);
-            y += lineasNotas.length * 6 + 15;
-            
-            // Firmas
-            if (firmas.firmaMT || firmas.firmaEnfermera) {
-                doc.setFont("helvetica", "bold");
-                doc.text("FIRMAS DIGITALES:", 20, y);
-                y += 15;
-                
-                if (firmas.firmaMT) {
-                    doc.addImage(firmas.firmaMT, 'PNG', 20, y, 60, 25);
-                    doc.setFont("helvetica", "normal");
-                    doc.text("_______________________", 20, y + 30);
-                    doc.text("Tecnólogo Médico", 20, y + 35);
-                }
-                
-                if (firmas.firmaEnfermera) {
-                    doc.addImage(firmas.firmaEnfermera, 'PNG', 110, y, 60, 25);
-                    doc.setFont("helvetica", "normal");
-                    doc.text("_______________________", 110, y + 30);
-                    doc.text("Enfermera Responsable", 110, y + 35);
-                }
+            let texto = `
+REGISTRO DE DESPACHO DE UNIDAD
+Sistema Bludee - Puerto Rico
+============================================
+
+INFORMACIÓN DE LA UNIDAD:
+- Unidad: ${datos.unidad}
+- Paciente: ${datos.paciente}
+- Estado: ${datos.inspeccion}
+
+INFORMACIÓN DEL DESPACHO:
+- Fecha: ${datos.fecha}
+- Hora: ${datos.hora}
+- Enfermera: ${datos.enfermera}
+- Tecnólogo Médico: ${datos.mt}
+`;
+
+            if (infoUnidad) {
+                texto += `
+INFORMACIÓN DE LA UNIDAD RECIBIDA:
+- ID del Componente: ${infoUnidad.id}
+- Donante: ${infoUnidad.donante}
+- Fecha de Recepción: ${infoUnidad.fechaRecepcion}
+- Hora de Recepción: ${infoUnidad.horaRecepcion}
+- Temperatura: ${infoUnidad.temperatura}
+- Fecha de Vencimiento: ${infoUnidad.fechaVencimiento}
+- Doctor Solicitante: ${infoUnidad.doctorSolicitante}
+- Número de Récord: ${infoUnidad.numeroRecord}
+`;
             }
+
+            texto += `
+OBSERVACIONES:
+${datos.notas}
+
+============================================
+Generado el: ${new Date().toLocaleString()}
+`;
+
+            document.getElementById('pdfContent').innerHTML = `
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; font-family: monospace; white-space: pre-line; font-size: 13px; line-height: 1.4;">
+                    ${texto}
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button onclick="copiarTexto('${btoa(texto)}')" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                        📋 Copiar Texto
+                    </button>
+                    <button onclick="descargarTexto('${btoa(texto)}')" style="background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-left: 10px;">
+                        💾 Descargar TXT
+                    </button>
+                </div>
+            `;
+            document.getElementById('pdfViewer').style.display = 'block';
             
-            // Pie de página
-            doc.setFontSize(8);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Generado el: ${new Date().toLocaleString('es-PR')}`, 105, 280, { align: 'center' });
-            
-            const nombreArchivo = `Despacho_${datos.fecha}_${datos.hora.replace(':', '')}.pdf`;
-            doc.save(nombreArchivo);
-            
-            mostrarAlerta('✅ PDF generado exitosamente', 'success');
+            mostrarAlerta('✅ Registro generado en formato texto', 'success');
+        }
+
+        function copiarTexto(textoBase64) {
+            try {
+                const texto = atob(textoBase64);
+                navigator.clipboard.writeText(texto);
+                mostrarAlerta('✅ Texto copiado al portapapeles', 'success');
+            } catch (error) {
+                console.error('Error al copiar:', error);
+                mostrarAlerta('❌ No se pudo copiar automáticamente. Selecciona y copia manualmente.', 'warning');
+            }
+        }
+
+        function descargarTexto(textoBase64) {
+            try {
+                const texto = atob(textoBase64);
+                const blob = new Blob([texto], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Despacho_' + new Date().getTime() + '.txt';
+                a.click();
+                URL.revokeObjectURL(url);
+                mostrarAlerta('✅ Archivo de texto descargado', 'success');
+            } catch (error) {
+                console.error('Error al descargar texto:', error);
+                mostrarAlerta('❌ Error al descargar texto', 'warning');
+            }
         }
         
         function limpiarFormulario() {
