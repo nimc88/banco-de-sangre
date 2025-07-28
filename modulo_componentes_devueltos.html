@@ -1,503 +1,773 @@
-import React, { useState } from 'react';
-import { Package, ArrowLeft, Calendar, User, MessageSquare, CheckCircle, Search, Filter } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bludee - Componentes Devueltos</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-const ComponentesDevueltos = () => {
-  const [formData, setFormData] = useState({
-    unidadSeleccionada: '',
-    razonDevolucion: [],
-    otraRazon: '',
-    fechaDevolucion: '',
-    fechaAlta: '',
-    notas: '',
-    tecnologoMedico: 'Norma I. Medina'
-  });
-  
-  const [showConfirmacion, setShowConfirmacion] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
 
-  const unidadesDisponibles = [
-    { id: 'A123', tipo: 'PRBC', grupoSangre: 'O+', estado: 'Disponible' },
-    { id: 'B456', tipo: 'Plaquetas', grupoSangre: 'AB-', estado: 'Disponible' },
-    { id: 'C789', tipo: 'Plasma', grupoSangre: 'A+', estado: 'Disponible' },
-    { id: 'D012', tipo: 'PRBC', grupoSangre: 'B+', estado: 'Disponible' }
-  ];
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      border-radius: 20px;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      overflow: hidden;
+    }
 
-  const historialDevoluciones = [
-    { id: 'A123', componente: 'PRBC', razon: 'Paciente dado de alta', fecha: '2025-07-13', mt: 'Norma I. Medina' },
-    { id: 'C789', componente: 'Plasma', razon: 'Unidad mal despachada', fecha: '2025-07-12', mt: 'Norma I. Medina' },
-    { id: 'B234', componente: 'Plaquetas', razon: 'Fecha de vencimiento', fecha: '2025-07-11', mt: 'Carlos Pérez' }
-  ];
+    .header {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
 
-  const razonesDevolucion = [
-    'Unidad mal despachada desde banco de sangre',
-    'Paciente dado de alta',
-    'Fecha de vencimiento próxima',
-    'Daño en la unidad',
-    'Cambio en orden médica'
-  ];
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+      opacity: 0.3;
+    }
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+    .header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+    }
 
-  const handleRazonChange = (razon, checked) => {
-    setFormData(prev => ({
-      ...prev,
-      razonDevolucion: checked 
-        ? [...prev.razonDevolucion, razon]
-        : prev.razonDevolucion.filter(r => r !== razon)
-    }));
-  };
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+    }
 
-  const handleSubmit = () => {
-    setShowConfirmacion(true);
-    setTimeout(() => {
-      setShowConfirmacion(false);
-      setFormData({
-        unidadSeleccionada: '',
-        razonDevolucion: [],
-        otraRazon: '',
-        fechaDevolucion: '',
-        fechaAlta: '',
-        notas: '',
-        tecnologoMedico: 'Norma I. Medina'
-      });
-    }, 3000);
-  };
+    .breadcrumb {
+      background: #f1f5f9;
+      padding: 15px 30px;
+      border-bottom: 1px solid #e2e8f0;
+    }
 
-  const filteredHistorial = historialDevoluciones.filter(item =>
-    item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.componente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.razon.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    .breadcrumb a {
+      color: #1e40af;
+      text-decoration: none;
+      font-weight: 500;
+    }
 
-  return (
-    <div className="min-h-screen" style={{
-      background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%)'
-    }}>
-      
-      {/* Botón de regreso */}
-      <button className="fixed top-5 left-5 z-50 flex items-center gap-2 px-5 py-3 rounded-full text-gray-700 font-semibold transition-all duration-300 hover:text-blue-700 hover:transform hover:-translate-y-0.5 hover:shadow-lg"
-        style={{
-          background: 'rgba(255, 255, 255, 0.9)',
-          border: '2px solid #e5e7eb',
-          backdropFilter: 'blur(10px)'
-        }}>
-        <ArrowLeft className="w-4 h-4" />
-        Volver al Menú
-      </button>
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
 
-      {/* Contenedor principal */}
-      <div className="max-w-4xl mx-auto p-5">
-        <div className="rounded-3xl overflow-hidden shadow-2xl"
-          style={{
-            background: 'linear-gradient(145deg, #ffffff, #f8fafc)',
-            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)'
-          }}>
-          
-          {/* Header */}
-          <div className="relative p-8 text-center text-white"
-            style={{
-              background: 'linear-gradient(135deg, #dc2626, #ef4444)'
-            }}>
-            <div className="absolute inset-0 opacity-30"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><pattern id='grid' width='10' height='10' patternUnits='userSpaceOnUse'><path d='M 10 0 L 0 0 0 10' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='0.5'/></pattern></defs><rect width='100' height='100' fill='url(%23grid)'/></svg>")`
-              }}>
+    .form-container {
+      padding: 40px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .form-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    .form-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--section-color);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .section-component { --section-color: linear-gradient(135deg, #dc2626, #ef4444); }
+    .section-reason { --section-color: linear-gradient(135deg, #1e40af, #3b82f6); }
+    .section-medical { --section-color: linear-gradient(135deg, #0891b2, #06b6d4); }
+    .section-stats { --section-color: linear-gradient(135deg, #ea580c, #f97316); }
+    .section-history { --section-color: linear-gradient(135deg, #dc2626, #ef4444); }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .required {
+      color: #dc2626;
+    }
+
+    input, select, textarea {
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .checkbox-item:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      font-weight: 500;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 160px;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f8fafc;
+      color: #374151;
+      border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #e5e7eb;
+      border-radius: 50px;
+      padding: 12px 20px;
+      color: #374151;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .back-button:hover {
+      background: white;
+      border-color: #3b82f6;
+      color: #1e40af;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .stat-red { color: #dc2626; }
+    .stat-green { color: #059669; }
+    .stat-blue { color: #2563eb; }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .history-table th,
+    .history-table td {
+      padding: 12px 8px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .history-table th {
+      background: #f1f5f9;
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .history-table tr:hover {
+      background: #f9fafb;
+    }
+
+    .component-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: #eff6ff;
+      color: #1e40af;
+    }
+
+    .search-bar {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding-left: 40px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 16px;
+    }
+
+    .success-message {
+      display: none;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border: 2px solid #10b981;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: center;
+      color: #065f46;
+      font-weight: 600;
+      animation: slideDown 0.3s ease;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .other-reason {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .other-reason.show {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 16px;
+      }
+
+      .header {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .form-container {
+        padding: 20px;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .button-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .history-table {
+        font-size: 0.85rem;
+      }
+
+      .history-table th,
+      .history-table td {
+        padding: 8px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-button">
+    ← Volver al Menú
+  </a>
+
+  <div class="container">
+    <div class="header">
+      <h1>📦 Componentes Devueltos</h1>
+      <p>Sistema Bludee - Gestión de Devoluciones</p>
+    </div>
+
+    <div class="breadcrumb">
+      <a href="index.html">🗃️ Bludee</a> / 
+      <a href="index.html">Gestión de Componentes</a> / 
+      <span>Componentes Devueltos</span>
+    </div>
+
+    <div class="form-container">
+      <div class="main-grid">
+        <!-- Formulario Principal -->
+        <div class="main-form">
+          <!-- Información del Componente -->
+          <div class="form-section section-component">
+            <h2 class="section-title">
+              <span class="section-icon">🩸</span>
+              Información de la Devolución <span class="required">*</span>
+            </h2>
+            <div class="form-group">
+              <label for="unidad_devolver">Unidad a Devolver <span class="required">*</span></label>
+              <select id="unidad_devolver">
+                <option value="">Seleccionar unidad...</option>
+                <option value="A123">ID: A123 - PRBC - O+</option>
+                <option value="B456">ID: B456 - Plaquetas - AB-</option>
+                <option value="C789">ID: C789 - Plasma - A+</option>
+                <option value="D012">ID: D012 - PRBC - B+</option>
+              </select>
             </div>
-            <div className="relative z-10">
-              <h1 className="text-4xl font-bold mb-2">📦 Componentes Devueltos</h1>
-              <p className="text-lg opacity-90">Sistema Bludee - Gestión de Devoluciones</p>
+
+            <div class="form-group">
+              <label for="fecha_devolucion">📅 Fecha de Devolución <span class="required">*</span></label>
+              <input type="date" id="fecha_devolucion">
             </div>
           </div>
 
-          {/* Breadcrumb */}
-          <div className="px-8 py-4 border-b border-gray-200"
-            style={{ background: '#f1f5f9' }}>
-            <span className="text-blue-600 font-medium hover:underline cursor-pointer">🗃️ Bludee</span>
-            <span className="mx-2">/</span>
-            <span className="text-blue-600 font-medium hover:underline cursor-pointer">Gestión de Componentes</span>
-            <span className="mx-2">/</span>
-            <span className="text-gray-600">Componentes Devueltos</span>
-          </div>
-
-          <div className="p-10">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              
-              {/* Formulario principal */}
-              <div className="lg:col-span-2 space-y-6">
-                
-                {/* Información del Componente */}
-                <div className="relative bg-white rounded-xl p-6 border shadow-md"
-                  style={{
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                    border: '1px solid #e2e8f0'
-                  }}>
-                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
-                    style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)' }}>
-                  </div>
-                  
-                  <h2 className="text-xl font-semibold text-gray-800 mb-5 flex items-center gap-3">
-                    <span className="text-2xl">🩸</span>
-                    Información de la Devolución
-                    <span className="text-red-600">*</span>
-                  </h2>
-
-                  <div className="space-y-5">
-                    {/* Selección de Unidad */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Unidad a Devolver <span className="text-red-600">*</span>
-                      </label>
-                      <select 
-                        value={formData.unidadSeleccionada}
-                        onChange={(e) => handleInputChange('unidadSeleccionada', e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
-                        style={{ background: '#fafafa' }}
-                      >
-                        <option value="">Seleccionar unidad...</option>
-                        {unidadesDisponibles.map(unidad => (
-                          <option key={unidad.id} value={unidad.id}>
-                            ID: {unidad.id} - {unidad.tipo} - {unidad.grupoSangre}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Fecha de Devolución */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        📅 Fecha de Devolución <span className="text-red-600">*</span>
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.fechaDevolucion}
-                        onChange={(e) => handleInputChange('fechaDevolucion', e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
-                        style={{ background: '#fafafa' }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Razones de Devolución */}
-                <div className="relative bg-white rounded-xl p-6 border shadow-md"
-                  style={{
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                    border: '1px solid #e2e8f0'
-                  }}>
-                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
-                    style={{ background: 'linear-gradient(135deg, #1e40af, #3b82f6)' }}>
-                  </div>
-                  
-                  <h2 className="text-xl font-semibold text-gray-800 mb-5 flex items-center gap-3">
-                    <span className="text-2xl">📋</span>
-                    Razón de Devolución
-                    <span className="text-red-600">*</span>
-                  </h2>
-
-                  <div className="space-y-3">
-                    {razonesDevolucion.map(razon => (
-                      <div key={razon} className="flex items-center gap-3 p-3 rounded-lg border transition-all duration-300 hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
-                        style={{ 
-                          background: '#f8fafc',
-                          border: '1px solid #e2e8f0'
-                        }}>
-                        <input
-                          type="checkbox"
-                          checked={formData.razonDevolucion.includes(razon)}
-                          onChange={(e) => handleRazonChange(razon, e.target.checked)}
-                          className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <label className="text-sm font-medium text-gray-700 cursor-pointer flex-1">
-                          {razon}
-                        </label>
-                      </div>
-                    ))}
-                    
-                    {/* Otra razón */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3 p-3 rounded-lg border transition-all duration-300 hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
-                        style={{ 
-                          background: '#f8fafc',
-                          border: '1px solid #e2e8f0'
-                        }}>
-                        <input
-                          type="checkbox"
-                          checked={formData.razonDevolucion.includes('Otro')}
-                          onChange={(e) => handleRazonChange('Otro', e.target.checked)}
-                          className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <label className="text-sm font-medium text-gray-700 cursor-pointer">
-                          Otra razón
-                        </label>
-                      </div>
-                      
-                      {formData.razonDevolucion.includes('Otro') && (
-                        <input
-                          type="text"
-                          value={formData.otraRazon}
-                          onChange={(e) => handleInputChange('otraRazon', e.target.value)}
-                          placeholder="Especificar otra razón..."
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
-                          style={{ background: '#fafafa' }}
-                        />
-                      )}
-                    </div>
-
-                    {/* Fecha de Alta del Paciente */}
-                    <div className="mt-5">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        📅 Fecha de Alta del Paciente (si aplica)
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.fechaAlta}
-                        onChange={(e) => handleInputChange('fechaAlta', e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
-                        style={{ background: '#fafafa' }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Personal Médico y Notas */}
-                <div className="relative bg-white rounded-xl p-6 border shadow-md"
-                  style={{
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                    border: '1px solid #e2e8f0'
-                  }}>
-                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
-                    style={{ background: 'linear-gradient(135deg, #0891b2, #06b6d4)' }}>
-                  </div>
-                  
-                  <h2 className="text-xl font-semibold text-gray-800 mb-5 flex items-center gap-3">
-                    <span className="text-2xl">🏥</span>
-                    Personal Médico y Observaciones
-                  </h2>
-
-                  <div className="space-y-5">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        👨‍⚕️ Tecnólogo Médico (MT) <span className="text-red-600">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.tecnologoMedico}
-                        onChange={(e) => handleInputChange('tecnologoMedico', e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
-                        style={{ background: '#fafafa' }}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        💬 Notas / Comentarios
-                      </label>
-                      <textarea
-                        value={formData.notas}
-                        onChange={(e) => handleInputChange('notas', e.target.value)}
-                        rows="4"
-                        placeholder="Observaciones adicionales..."
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300 resize-none"
-                        style={{ background: '#fafafa' }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Botones */}
-                <div className="flex gap-4 justify-center">
-                  <button
-                    onClick={() => setFormData({
-                      unidadSeleccionada: '',
-                      razonDevolucion: [],
-                      otraRazon: '',
-                      fechaDevolucion: '',
-                      fechaAlta: '',
-                      notas: '',
-                      tecnologoMedico: 'Norma I. Medina'
-                    })}
-                    className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:transform hover:-translate-y-0.5 min-w-40 justify-center"
-                    style={{
-                      background: '#f8fafc',
-                      color: '#374151',
-                      border: '2px solid #e5e7eb'
-                    }}
-                  >
-                    🔄 Limpiar
-                  </button>
-                  <button
-                    onClick={handleSubmit}
-                    className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-white transition-all duration-300 hover:transform hover:-translate-y-0.5 min-w-40 justify-center"
-                    style={{
-                      background: 'linear-gradient(135deg, #dc2626, #ef4444)',
-                      boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)'
-                    }}
-                  >
-                    💾 Guardar Registro
-                  </button>
-                </div>
+          <!-- Razones de Devolución -->
+          <div class="form-section section-reason">
+            <h2 class="section-title">
+              <span class="section-icon">📋</span>
+              Razón de Devolución <span class="required">*</span>
+            </h2>
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="razon1" value="Unidad mal despachada desde banco de sangre">
+                <label for="razon1">Unidad mal despachada desde banco de sangre</label>
               </div>
-
-              {/* Panel Lateral */}
-              <div className="space-y-6">
-                {/* Estadísticas */}
-                <div className="relative bg-white rounded-xl p-6 border shadow-md"
-                  style={{
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                    border: '1px solid #e2e8f0'
-                  }}>
-                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
-                    style={{ background: 'linear-gradient(135deg, #ea580c, #f97316)' }}>
-                  </div>
-                  
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <span className="text-xl">📊</span>
-                    Estadísticas del Día
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Devoluciones Hoy</span>
-                      <span className="text-2xl font-bold text-red-600">3</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Unidades Disponibles</span>
-                      <span className="text-2xl font-bold text-green-600">45</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Total Mes</span>
-                      <span className="text-2xl font-bold text-blue-600">28</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Razones Comunes */}
-                <div className="relative bg-white rounded-xl p-6 border shadow-md"
-                  style={{
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                    border: '1px solid #e2e8f0'
-                  }}>
-                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
-                    style={{ background: 'linear-gradient(135deg, #1e40af, #3b82f6)' }}>
-                  </div>
-                  
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <span className="text-xl">📈</span>
-                    Razones Más Comunes
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Paciente dado de alta</span>
-                      <span className="text-sm font-medium text-gray-900">45%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Unidad mal despachada</span>
-                      <span className="text-sm font-medium text-gray-900">25%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Fecha de vencimiento</span>
-                      <span className="text-sm font-medium text-gray-900">20%</span>
-                    </div>
-                  </div>
-                </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="razon2" value="Paciente dado de alta">
+                <label for="razon2">Paciente dado de alta</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="razon3" value="Fecha de vencimiento próxima">
+                <label for="razon3">Fecha de vencimiento próxima</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="razon4" value="Daño en la unidad">
+                <label for="razon4">Daño en la unidad</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="razon5" value="Cambio en orden médica">
+                <label for="razon5">Cambio en orden médica</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="otra_razon_check" onchange="toggleOtraRazon()">
+                <label for="otra_razon_check">Otra razón</label>
               </div>
             </div>
+            
+            <div class="other-reason" id="otra_razon_div">
+              <input type="text" id="otra_razon_text" placeholder="Especificar otra razón...">
+            </div>
 
-            {/* Historial de Devoluciones */}
-            <div className="mt-8">
-              <div className="relative bg-white rounded-xl border shadow-md overflow-hidden"
-                style={{
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                  border: '1px solid #e2e8f0'
-                }}>
-                <div className="absolute top-0 left-0 right-0 h-1"
-                  style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)' }}>
-                </div>
-                
-                <div className="p-6 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
-                        <span className="text-2xl">📋</span>
-                        Historial de Devoluciones
-                      </h2>
-                      <p className="text-sm text-gray-500 mt-1">Registro completo de devoluciones recientes</p>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="relative">
-                        <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
-                        <input
-                          type="text"
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          placeholder="Buscar..."
-                          className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-                        />
-                      </div>
-                      <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50">
-                        <Filter className="w-4 h-4 text-gray-500" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+            <div class="form-group" style="margin-top: 20px;">
+              <label for="fecha_alta">📅 Fecha de Alta del Paciente (si aplica)</label>
+              <input type="date" id="fecha_alta">
+            </div>
+          </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead style={{ background: '#f1f5f9' }}>
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Unidad</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Componente</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Razón</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tecnólogo</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredHistorial.map((item, index) => (
-                        <tr key={index} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm font-medium text-gray-900">{item.id}</span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              {item.componente}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm text-gray-600">{item.razon}</span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {item.fecha}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {item.mt}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+          <!-- Personal Médico y Observaciones -->
+          <div class="form-section section-medical">
+            <h2 class="section-title">
+              <span class="section-icon">🏥</span>
+              Personal Médico y Observaciones
+            </h2>
+            <div class="form-group">
+              <label for="tecnologo">👨‍⚕️ Tecnólogo Médico (MT) <span class="required">*</span></label>
+              <input type="text" id="tecnologo" value="Norma I. Medina">
+            </div>
+
+            <div class="form-group">
+              <label for="notas">💬 Notas / Comentarios</label>
+              <textarea id="notas" rows="4" placeholder="Observaciones adicionales..."></textarea>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="button-container">
+            <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
+              🔄 Limpiar
+            </button>
+            <button type="button" class="btn btn-primary" onclick="guardarRegistro()">
+              💾 Guardar Registro
+            </button>
+          </div>
+
+          <div class="success-message" id="success_message">
+            ✅ Registro de devolución guardado exitosamente
+          </div>
+        </div>
+
+        <!-- Panel Lateral -->
+        <div class="sidebar">
+          <!-- Estadísticas -->
+          <div class="form-section section-stats">
+            <h3 class="section-title">
+              <span class="section-icon">📊</span>
+              Estadísticas del Día
+            </h3>
+            <div class="stat-item">
+              <span class="stat-label">Devoluciones Hoy</span>
+              <span class="stat-value stat-red">3</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Unidades Disponibles</span>
+              <span class="stat-value stat-green">45</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Mes</span>
+              <span class="stat-value stat-blue">28</span>
+            </div>
+          </div>
+
+          <!-- Razones Comunes -->
+          <div class="form-section section-reason">
+            <h3 class="section-title">
+              <span class="section-icon">📈</span>
+              Razones Más Comunes
+            </h3>
+            <div class="stat-item">
+              <span class="stat-label">Paciente dado de alta</span>
+              <span class="stat-value" style="font-size: 1rem;">45%</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Unidad mal despachada</span>
+              <span class="stat-value" style="font-size: 1rem;">25%</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Fecha de vencimiento</span>
+              <span class="stat-value" style="font-size: 1rem;">20%</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Notificación de Confirmación */}
-      {showConfirmacion && (
-        <div className="fixed bottom-6 right-6 p-5 rounded-xl shadow-lg flex items-center space-x-3 text-green-800 font-semibold animate-pulse"
-          style={{
-            background: 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
-            border: '2px solid #10b981'
-          }}>
-          <CheckCircle className="w-5 h-5" />
-          <span>✅ Registro guardado exitosamente (simulado)</span>
-        </div>
-      )}
-    </div>
-  );
-};
+      <!-- Historial de Devoluciones -->
+      <div class="form-section section-history">
+        <h2 class="section-title">
+          <span class="section-icon">📋</span>
+          Historial de Devoluciones
+          <span style="font-size: 0.9rem; color: #6b7280; font-weight: normal;">
+            Registro completo de devoluciones recientes
+          </span>
+        </h2>
 
-export default ComponentesDevueltos;
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search_history" placeholder="Buscar en historial..." oninput="filtrarHistorial()">
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>ID Unidad</th>
+                <th>Componente</th>
+                <th>Razón</th>
+                <th>Fecha</th>
+                <th>Tecnólogo</th>
+              </tr>
+            </thead>
+            <tbody id="history_tbody">
+              <tr>
+                <td><strong>A123</strong></td>
+                <td><span class="component-badge">PRBC</span></td>
+                <td>Paciente dado de alta</td>
+                <td>2025-07-13</td>
+                <td>Norma I. Medina</td>
+              </tr>
+              <tr>
+                <td><strong>C789</strong></td>
+                <td><span class="component-badge">Plasma</span></td>
+                <td>Unidad mal despachada</td>
+                <td>2025-07-12</td>
+                <td>Norma I. Medina</td>
+              </tr>
+              <tr>
+                <td><strong>B234</strong></td>
+                <td><span class="component-badge">Plaquetas</span></td>
+                <td>Fecha de vencimiento</td>
+                <td>2025-07-11</td>
+                <td>Carlos Pérez</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleOtraRazon() {
+      const checkbox = document.getElementById('otra_razon_check');
+      const div = document.getElementById('otra_razon_div');
+      
+      if (checkbox.checked) {
+        div.classList.add('show');
+      } else {
+        div.classList.remove('show');
+        document.getElementById('otra_razon_text').value = '';
+      }
+    }
+
+    function guardarRegistro() {
+      const unidad = document.getElementById('unidad_devolver').value;
+      const fecha = document.getElementById('fecha_devolucion').value;
+      const tecnologo = document.getElementById('tecnologo').value;
+      
+      // Verificar campos requeridos
+      if (!unidad) {
+        alert('Por favor, seleccione la unidad a devolver.');
+        return;
+      }
+      
+      if (!fecha) {
+        alert('Por favor, ingrese la fecha de devolución.');
+        return;
+      }
+      
+      if (!tecnologo) {
+        alert('Por favor, ingrese el nombre del tecnólogo médico.');
+        return;
+      }
+
+      // Verificar que al menos una razón esté seleccionada
+      const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]');
+      const algunaSeleccionada = Array.from(checkboxes).some(cb => cb.checked);
+      
+      if (!algunaSeleccionada) {
+        alert('Por favor, seleccione al menos una razón de devolución.');
+        return;
+      }
+
+      // Mostrar mensaje de éxito
+      const successMessage = document.getElementById('success_message');
+      successMessage.classList.add('show');
+      
+      // Ocultar mensaje después de 3 segundos y limpiar formulario
+      setTimeout(() => {
+        successMessage.classList.remove('show');
+        limpiarFormulario();
+      }, 3000);
+    }
+
+    function limpiarFormulario() {
+      // Limpiar selects
+      document.getElementById('unidad_devolver').value = '';
+      
+      // Limpiar fechas
+      document.getElementById('fecha_devolucion').value = '';
+      document.getElementById('fecha_alta').value = '';
+      
+      // Limpiar checkboxes
+      const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = false);
+      
+      // Limpiar otra razón
+      document.getElementById('otra_razon_text').value = '';
+      document.getElementById('otra_razon_div').classList.remove('show');
+      
+      // Resetear tecnólogo
+      document.getElementById('tecnologo').value = 'Norma I. Medina';
+      
+      // Limpiar notas
+      document.getElementById('notas').value = '';
+      
+      // Limpiar búsqueda
+      document.getElementById('search_history').value = '';
+      
+      // Mostrar todas las filas del historial
+      const rows = document.querySelectorAll('#history_tbody tr');
+      rows.forEach(row => row.style.display = '');
+    }
+
+    function filtrarHistorial() {
+      const searchTerm = document.getElementById('search_history').value.toLowerCase();
+      const rows = document.querySelectorAll('#history_tbody tr');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    // Auto-completar fecha actual
+    window.addEventListener('load', function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('fecha_devolucion').value = today;
+    });
+  </script>
+</body>
+</html>
