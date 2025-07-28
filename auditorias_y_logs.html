@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bludee - Auditorías y Logs</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      border-radius: 20px;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+    }
+
+    .breadcrumb {
+      background: #f1f5f9;
+      padding: 15px 30px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .breadcrumb a {
+      color: #1e40af;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .form-container {
+      padding: 40px;
+    }
+
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #e5e7eb;
+      border-radius: 50px;
+      padding: 12px 20px;
+      color: #374151;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .back-button:hover {
+      background: white;
+      border-color: #3b82f6;
+      color: #1e40af;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .dashboard-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      position: relative;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--card-color);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .card-seguridad { --card-color: linear-gradient(135deg, #7c3aed, #8b5cf6); }
+    .card-clinicos { --card-color: linear-gradient(135deg, #dc2626, #ef4444); }
+    .card-calidad { --card-color: linear-gradient(135deg, #ea580c, #f97316); }
+    .card-regulatorios { --card-color: linear-gradient(135deg, #1e40af, #3b82f6); }
+
+    .dashboard-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .dashboard-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .dashboard-label {
+      font-size: 0.9rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .filters-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    .filters-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    input, select {
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .severity-filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .severity-filter {
+      padding: 8px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 20px;
+      background: #f8fafc;
+      color: #374151;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .severity-filter.active {
+      color: white;
+    }
+
+    .severity-critico {
+      border-color: #fecaca;
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    .severity-critico.active {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+
+    .severity-alto {
+      border-color: #fed7aa;
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .severity-alto.active {
+      background: #ea580c;
+      border-color: #ea580c;
+    }
+
+    .severity-medio {
+      border-color: #fde047;
+      background: #fefce8;
+      color: #a16207;
+    }
+
+    .severity-medio.active {
+      background: #eab308;
+      border-color: #eab308;
+    }
+
+    .severity-info {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .severity-info.active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+    }
+
+    .severity-debug {
+      border-color: #d1d5db;
+      background: #f9fafb;
+      color: #4b5563;
+    }
+
+    .severity-debug.active {
+      background: #6b7280;
+      border-color: #6b7280;
+    }
+
+    .logs-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    .logs-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .log-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--severity-color);
+      background: #f8fafc;
+      transition: all 0.3s ease;
+    }
+
+    .log-entry:hover {
+      background: #f1f5f9;
+      transform: translateX(5px);
+    }
+
+    .log-timestamp {
+      min-width: 140px;
+      font-size: 0.85rem;
+      color: #6b7280;
+      font-family: monospace;
+    }
+
+    .log-severity {
+      min-width: 80px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .log-content {
+      flex: 1;
+    }
+
+    .log-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+
+    .log-description {
+      color: #6b7280;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .log-meta {
+      display: flex;
+      gap: 15px;
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .log-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f8fafc;
+      color: #374151;
+      border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    .search-bar {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding-left: 40px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 16px;
+      }
+
+      .header {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .form-container {
+        padding: 20px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .log-entry {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .log-timestamp {
+        min-width: auto;
+      }
+
+      .log-meta {
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .severity-filters {
+        justify-content: center;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-button">
+    ← Volver al Menú
+  </a>
+
+  <div class="container">
+    <div class="header">
+      <h1>🔍 Auditorías y Logs</h1>
+      <p>Sistema Bludee - Bitácora de Actividades del Banco de Sangre</p>
+    </div>
+
+    <div class="breadcrumb">
+      <a href="index.html">🗃️ Bludee</a> / 
+      <a href="index.html">Seguridad y Auditoría</a> / 
+      <span>Auditorías y Logs</span>
+    </div>
+
+    <div class="form-container">
+      <!-- Dashboard de Resumen -->
+      <div class="dashboard-grid">
+        <div class="dashboard-card card-seguridad">
+          <div class="dashboard-icon">🔐</div>
+          <div class="dashboard-number" style="color: #7c3aed;" id="count_seguridad">12</div>
+          <div class="dashboard-label">Eventos de Seguridad</div>
+        </div>
+
+        <div class="dashboard-card card-clinicos">
+          <div class="dashboard-icon">🩸</div>
+          <div class="dashboard-number" style="color: #dc2626;" id="count_clinicos">28</div>
+          <div class="dashboard-label">Eventos Clínicos</div>
+        </div>
+
+        <div class="dashboard-card card-calidad">
+          <div class="dashboard-icon">⚠️</div>
+          <div class="dashboard-number" style="color: #ea580c;" id="count_calidad">5</div>
+          <div class="dashboard-label">Calidad y Seguridad</div>
+        </div>
+
+        <div class="dashboard-card card-regulatorios">
+          <div class="dashboard-icon">📋</div>
+          <div class="dashboard-number" style="color: #1e40af;" id="count_regulatorios">3</div>
+          <div class="dashboard-label">Eventos Regulatorios</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters-section">
+        <h2 class="section-title">
+          <span class="section-icon">🔍</span>
+          Filtros de Búsqueda
+        </h2>
+        
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="fecha_desde">📅 Desde</label>
+            <input type="datetime-local" id="fecha_desde">
+          </div>
+          
+          <div class="filter-group">
+            <label for="fecha_hasta">📅 Hasta</label>
+            <input type="datetime-local" id="fecha_hasta">
+          </div>
+          
+          <div class="filter-group">
+            <label for="usuario_filter">👤 Usuario</label>
+            <select id="usuario_filter" onchange="aplicarFiltros()">
+              <option value="">Todos los usuarios</option>
+              <option value="Norma I. Medina">Norma I. Medina</option>
+              <option value="Carlos Pérez">Carlos Pérez</option>
+              <option value="Ana García">Ana García</option>
+              <option value="Sistema">Sistema</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label for="categoria_filter">📂 Categoría</label>
+            <select id="categoria_filter" onchange="aplicarFiltros()">
+              <option value="">Todas las categorías</option>
+              <option value="seguridad">🔐 Seguridad Clínica</option>
+              <option value="clinicos">🩸 Eventos Clínicos</option>
+              <option value="calidad">⚠️ Calidad y Seguridad</option>
+              <option value="regulatorios">📋 Eventos Regulatorios</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label for="paciente_id">🆔 ID Paciente</label>
+            <input type="text" id="paciente_id" placeholder="Ej: 00012345" oninput="aplicarFiltros()">
+          </div>
+          
+          <div class="filter-group">
+            <label for="unidad_id">🩸 ID Unidad</label>
+            <input type="text" id="unidad_id" placeholder="Ej: A123" oninput="aplicarFiltros()">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>⚠️ Nivel de Criticidad</label>
+          <div class="severity-filters">
+            <div class="severity-filter severity-critico" onclick="toggleSeverity('critico')">🔴 CRÍTICO</div>
+            <div class="severity-filter severity-alto" onclick="toggleSeverity('alto')">🟠 ALTO</div>
+            <div class="severity-filter severity-medio" onclick="toggleSeverity('medio')">🟡 MEDIO</div>
+            <div class="severity-filter severity-info active" onclick="toggleSeverity('info')">🟢 INFO</div>
+            <div class="severity-filter severity-debug" onclick="toggleSeverity('debug')">⚪ DEBUG</div>
+          </div>
+        </div>
+
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search_logs" placeholder="Buscar en logs..." oninput="aplicarFiltros()">
+        </div>
+      </div>
+
+      <!-- Log de Eventos -->
+      <div class="logs-section">
+        <h2 class="section-title">
+          <span class="section-icon">📋</span>
+          Registro de Eventos
+          <span style="font-size: 0.9rem; color: #6b7280; font-weight: normal;">
+            Últimas 24 horas
+          </span>
+        </h2>
+
+        <div id="logs_container">
+          <!-- Evento Crítico -->
+          <div class="log-entry" style="--severity-color: #dc2626;" data-severity="critico" data-category="clinicos" data-user="Norma I. Medina">
+            <div class="log-timestamp">28/07/2025<br>14:32:15</div>
+            <div class="log-severity" style="background: #fef2f2; color: #991b1b;">CRÍTICO</div>
+            <div class="log-content">
+              <div class="log-title">🩸 Reacción Adversa Durante Transfusión</div>
+              <div class="log-description">
+                Paciente presentó fiebre y escalofríos durante transfusión de PRBC. Transfusión suspendida inmediatamente.
+              </div>
+              <div class="log-meta">
+                <span>👤 Norma I. Medina</span>
+                <span>🆔 Paciente: 00012345</span>
+                <span>🩸 Unidad: A123</span>
+                <span>🏥 Área: Medicina</span>
+                <span>💻 IP: 192.168.1.45</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evento Alto -->
+          <div class="log-entry" style="--severity-color: #ea580c;" data-severity="alto" data-category="calidad" data-user="Carlos Pérez">
+            <div class="log-timestamp">28/07/2025<br>13:15:42</div>
+            <div class="log-severity" style="background: #fff7ed; color: #c2410c;">ALTO</div>
+            <div class="log-content">
+              <div class="log-title">🌡️ Excursión de Temperatura Detectada</div>
+              <div class="log-description">
+                Refrigerador R-02 registró temperatura de 8°C por 15 minutos. Alarma activada y unidades verificadas.
+              </div>
+              <div class="log-meta">
+                <span>👤 Carlos Pérez</span>
+                <span>🔧 Equipo: Refrigerador R-02</span>
+                <span>🌡️ Temperatura: 8°C</span>
+                <span>⏱️ Duración: 15 min</span>
+                <span>💻 IP: 192.168.1.23</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evento Medio -->
+          <div class="log-entry" style="--severity-color: #eab308;" data-severity="medio" data-category="seguridad" data-user="Ana García">
+            <div class="log-timestamp">28/07/2025<br>12:08:33</div>
+            <div class="log-severity" style="background: #fefce8; color: #a16207;">MEDIO</div>
+            <div class="log-content">
+              <div class="log-title">🔐 Acceso a Expediente Fuera de Horario</div>
+              <div class="log-description">
+                Consulta de historial de transfusiones realizada fuera del horario laboral normal.
+              </div>
+              <div class="log-meta">
+                <span>👤 Ana García</span>
+                <span>🆔 Paciente: 00067890</span>
+                <span>🕐 Hora: 12:08 (Fuera de horario)</span>
+                <span>📋 Acción: Consulta historial</span>
+                <span>💻 IP: 192.168.1.67</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evento Info -->
+          <div class="log-entry" style="--severity-color: #3b82f6;" data-severity="info" data-category="clinicos" data-user="Norma I. Medina">
+            <div class="log-timestamp">28/07/2025<br>11:45:20</div>
+            <div class="log-severity" style="background: #eff6ff; color: #1d4ed8;">INFO</div>
+            <div class="log-content">
+              <div class="log-title">✅ Transfusión Completada Exitosamente</div>
+              <div class="log-description">
+                Transfusión de 250 mL de PRBC completada sin complicaciones. Paciente en observación post-transfusional.
+              </div>
+              <div class="log-meta">
+                <span>👤 Norma I. Medina</span>
+                <span>🆔 Paciente: 00034567</span>
+                <span>🩸 Unidad: B456</span>
+                <span>⏱️ Duración: 2h 15min</span>
+                <span>💻 IP: 192.168.1.45</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evento Info -->
+          <div class="log-entry" style="--severity-color: #3b82f6;" data-severity="info" data-category="clinicos" data-user="Sistema">
+            <div class="log-timestamp">28/07/2025<br>10:30:15</div>
+            <div class="log-severity" style="background: #eff6ff; color: #1d4ed8;">INFO</div>
+            <div class="log-content">
+              <div class="log-title">📦 Nueva Unidad Registrada</div>
+              <div class="log-description">
+                Unidad de PRBC tipo O+ registrada en el sistema. Pruebas de compatibilidad completadas.
+              </div>
+              <div class="log-meta">
+                <span>👤 Sistema</span>
+                <span>🩸 Unidad: C789</span>
+                <span>🩸 Tipo: PRBC O+</span>
+                <span>✅ Estado: Disponible</span>
+                <span>💻 IP: Sistema Interno</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evento Regulatorio -->
+          <div class="log-entry" style="--severity-color: #1e40af;" data-severity="info" data-category="regulatorios" data-user="Norma I. Medina">
+            <div class="log-timestamp">28/07/2025<br>09:00:00</div>
+            <div class="log-severity" style="background: #eff6ff; color: #1d4ed8;">INFO</div>
+            <div class="log-content">
+              <div class="log-title">📋 Expediente Mensual Generado</div>
+              <div class="log-description">
+                Expediente mensual de julio 2025 generado automáticamente. Esperando revisión y aprobación.
+              </div>
+              <div class="log-meta">
+                <span>👤 Norma I. Medina</span>
+                <span>📅 Período: Julio 2025</span>
+                <span>📊 Estado: Pendiente aprobación</span>
+                <span>📄 Formato: PDF</span>
+                <span>💻 IP: 192.168.1.45</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evento Debug -->
+          <div class="log-entry" style="--severity-color: #6b7280;" data-severity="debug" data-category="clinicos" data-user="Sistema">
+            <div class="log-timestamp">28/07/2025<br>08:15:30</div>
+            <div class="log-severity" style="background: #f9fafb; color: #4b5563;">DEBUG</div>
+            <div class="log-content">
+              <div class="log-title">🔄 Sincronización de Base de Datos</div>
+              <div class="log-description">
+                Proceso automático de sincronización completado. 156 registros verificados, 0 inconsistencias encontradas.
+              </div>
+              <div class="log-meta">
+                <span>👤 Sistema</span>
+                <span>📊 Registros: 156</span>
+                <span>✅ Inconsistencias: 0</span>
+                <span>⏱️ Duración: 2.3s</span>
+                <span>💻 IP: Sistema Interno</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="action-buttons">
+          <button class="btn btn-secondary" onclick="exportarLogs('csv')">
+            📊 Exportar CSV
+          </button>
+          <button class="btn btn-secondary" onclick="exportarLogs('pdf')">
+            📄 Generar Reporte PDF
+          </button>
+          <button class="btn btn-primary" onclick="limpiarFiltros()">
+            🔄 Limpiar Filtros
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeSeverities = ['info']; // Por defecto mostrar INFO
+    
+    function toggleSeverity(severity) {
+      const element = document.querySelector(`.severity-${severity}`);
+      
+      if (activeSeverities.includes(severity)) {
+        // Remover de activos
+        activeSeverities = activeSeverities.filter(s => s !== severity);
+        element.classList.remove('active');
+      } else {
+        // Agregar a activos
+        activeSeverities.push(severity);
+        element.classList.add('active');
+      }
+      
+      aplicarFiltros();
+    }
+
+    function aplicarFiltros() {
+      const usuario = document.getElementById('usuario_filter').value;
+      const categoria = document.getElementById('categoria_filter').value;
+      const pacienteId = document.getElementById('paciente_id').value;
+      const unidadId = document.getElementById('unidad_id').value;
+      const searchTerm = document.getElementById('search_logs').value.toLowerCase();
+      
+      const logEntries = document.querySelectorAll('.log-entry');
+      let counts = { seguridad: 0, clinicos: 0, calidad: 0, regulatorios: 0 };
+      
+      logEntries.forEach(entry => {
+        const entrySeverity = entry.getAttribute('data-severity');
+        const entryCategory = entry.getAttribute('data-category');
+        const entryUser = entry.getAttribute('data-user');
+        const entryText = entry.textContent.toLowerCase();
+        
+        let mostrar = true;
+        
+        // Filtro por severidad
+        if (!activeSeverities.includes(entrySeverity)) {
+          mostrar = false;
+        }
+        
+        // Filtro por usuario
+        if (usuario && entryUser !== usuario) {
+          mostrar = false;
+        }
+        
+        // Filtro por categoría
+        if (categoria && entryCategory !== categoria) {
+          mostrar = false;
+        }
+        
+        // Filtro por ID de paciente
+        if (pacienteId && !entryText.includes(pacienteId.toLowerCase())) {
+          mostrar = false;
+        }
+        
+        // Filtro por ID de unidad
+        if (unidadId && !entryText.includes(unidadId.toLowerCase())) {
+          mostrar = false;
+        }
+        
+        // Filtro por texto de búsqueda
+        if (searchTerm && !entryText.includes(searchTerm)) {
+          mostrar = false;
+        }
+        
+        entry.style.display = mostrar ? 'flex' : 'none';
+        
+        // Contar eventos visibles por categoría
+        if (mostrar) {
+          counts[entryCategory]++;
+        }
+      });
+      
+      // Actualizar contadores del dashboard
+      document.getElementById('count_seguridad').textContent = counts.seguridad;
+      document.getElementById('count_clinicos').textContent = counts.clinicos;
+      document.getElementById('count_calidad').textContent = counts.calidad;
+      document.getElementById('count_regulatorios').textContent = counts.regulatorios;
+    }
+
+    function limpiarFiltros() {
+      // Limpiar todos los filtros
+      document.getElementById('fecha_desde').value = '';
+      document.getElementById('fecha_hasta').value = '';
+      document.getElementById('usuario_filter').selectedIndex = 0;
+      document.getElementById('categoria_filter').selectedIndex = 0;
+      document.getElementById('paciente_id').value = '';
+      document.getElementById('unidad_id').value = '';
+      document.getElementById('search_logs').value = '';
+      
+      // Resetear severidades - solo INFO activo
+      document.querySelectorAll('.severity-filter').forEach(filter => {
+        filter.classList.remove('active');
+      });
+      document.querySelector('.severity-info').classList.add('active');
+      activeSeverities = ['info'];
+      
+      // Aplicar filtros limpios
+      aplicarFiltros();
+    }
+
+    function exportarLogs(formato) {
+      if (formato === 'csv') {
+        alert('Exportando logs a CSV... (Función simulada)\n\nSe exportarán todos los eventos filtrados con timestamps completos.');
+      } else if (formato === 'pdf') {
+        alert('Generando reporte PDF de auditoría... (Función simulada)\n\nEl reporte incluirá resumen ejecutivo y eventos detallados.');
+      }
+    }
+
+    // Inicializar con filtros por defecto
+    window.addEventListener('load', function() {
+      aplicarFiltros();
+      
+      // Auto-completar fechas (últimas 24 horas)
+      const now = new Date();
+      const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      
+      document.getElementById('fecha_hasta').value = now.toISOString().slice(0, 16);
+      document.getElementById('fecha_desde').value = yesterday.toISOString().slice(0, 16);
+    });
+  </script>
+</body>
+</html>
