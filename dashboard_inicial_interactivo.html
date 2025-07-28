@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🩸 Bludee - Sistema de Banco de Sangre</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* ===== BLUDEE PERSONAJE ACTUALIZADO ===== */
+    .bludee-container {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .bludee-character {
+      width: 140px;
+      height: 180px;
+      position: relative;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .bludee-character:hover {
+      transform: scale(1.1);
+    }
+
+    /* Cabello/mechones */
+    .bludee-hair {
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 85px;
+      height: 25px;
+    }
+
+    .hair-strand {
+      position: absolute;
+      background: linear-gradient(145deg, #dc2626, #ef4444);
+      border-radius: 50% 50% 20% 20%;
+    }
+
+    .hair-strand:nth-child(1) {
+      width: 15px;
+      height: 20px;
+      left: 10px;
+      transform: rotate(-15deg);
+    }
+
+    .hair-strand:nth-child(2) {
+      width: 18px;
+      height: 25px;
+      left: 25px;
+      transform: rotate(-5deg);
+    }
+
+    .hair-strand:nth-child(3) {
+      width: 20px;
+      height: 22px;
+      left: 42px;
+      transform: rotate(5deg);
+    }
+
+    .hair-strand:nth-child(4) {
+      width: 16px;
+      height: 20px;
+      left: 60px;
+      transform: rotate(15deg);
+    }
+
+    /* Cuerpo de la gota (más grande) */
+    .bludee-body {
+      width: 85px;
+      height: 105px;
+      background: linear-gradient(145deg, #dc2626, #ef4444);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      position: relative;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Ojos */
+    .bludee-eyes {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 18px;
+    }
+
+    .eye {
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+      position: relative;
+      animation: blink 4s ease-in-out infinite;
+    }
+
+    .pupil {
+      width: 7px;
+      height: 7px;
+      background: #1f2937;
+      border-radius: 50%;
+      position: absolute;
+      top: 3.5px;
+      left: 3.5px;
+      animation: look 6s ease-in-out infinite;
+    }
+
+    /* Boca */
+    .bludee-mouth {
+      position: absolute;
+      top: 55px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 25px;
+      height: 12px;
+      border: 2px solid white;
+      border-top: none;
+      border-radius: 0 0 25px 25px;
+      animation: smile 3s ease-in-out infinite;
+    }
+
+    /* Bata médica mejorada */
+    .bludee-coat {
+      position: absolute;
+      top: 85px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 50px;
+      background: white;
+      border-radius: 10px 10px 15px 15px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Corbata/cuello en V */
+    .coat-collar {
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 12px solid #60a5fa;
+      border-right: 12px solid #60a5fa;
+      border-top: 20px solid transparent;
+    }
+
+    .coat-buttons {
+      position: absolute;
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .button {
+      width: 5px;
+      height: 5px;
+      background: #3b82f6;
+      border-radius: 50%;
+    }
+
+    /* Brazo izquierdo con lupa */
+    .bludee-left-arm {
+      position: absolute;
+      top: 95px;
+      left: 10px;
+      width: 35px;
+      height: 8px;
+      background: #dc2626;
+      border-radius: 10px;
+      transform: rotate(-20deg);
+      animation: arm-wave-left 4s ease-in-out infinite;
+    }
+
+    .bludee-left-hand {
+      position: absolute;
+      top: -3px;
+      right: -8px;
+      width: 12px;
+      height: 12px;
+      background: #dc2626;
+      border-radius: 50%;
+    }
+
+    /* Lupa */
+    .bludee-magnifying-glass {
+      position: absolute;
+      top: 85px;
+      left: -5px;
+      width: 25px;
+      height: 25px;
+      animation: magnify-float 3s ease-in-out infinite;
+    }
+
+    .magnify-lens {
+      width: 20px;
+      height: 20px;
+      border: 3px solid #374151;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.2);
+      position: relative;
+    }
+
+    .magnify-handle {
+      position: absolute;
+      bottom: -8px;
+      right: -8px;
+      width: 12px;
+      height: 3px;
+      background: #374151;
+      border-radius: 2px;
+      transform: rotate(45deg);
+    }
+
+    /* Brazo derecho con portapapeles */
+    .bludee-right-arm {
+      position: absolute;
+      top: 95px;
+      right: 10px;
+      width: 35px;
+      height: 8px;
+      background: #dc2626;
+      border-radius: 10px;
+      transform: rotate(20deg);
+      animation: arm-wave-right 4s ease-in-out infinite;
+    }
+
+    .bludee-right-hand {
+      position: absolute;
+      top: -3px;
+      left: -8px;
+      width: 12px;
+      height: 12px;
+      background: #dc2626;
+      border-radius: 50%;
+    }
+
+    /* Portapapeles mejorado */
+    .bludee-clipboard {
+      position: absolute;
+      top: 75px;
+      right: -15px;
+      width: 30px;
+      height: 40px;
+      background: #f3f4f6;
+      border-radius: 4px;
+      border: 2px solid #6b7280;
+      animation: clipboard-wiggle 4s ease-in-out infinite;
+    }
+
+    .clipboard-clip {
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 8px;
+      background: #9ca3af;
+      border-radius: 3px;
+    }
+
+    .clipboard-lines {
+      position: absolute;
+      top: 10px;
+      left: 4px;
+      right: 4px;
+    }
+
+    .line {
+      height: 1.5px;
+      background: #6b7280;
+      margin-bottom: 3px;
+      border-radius: 1px;
+    }
+
+    .line:nth-child(1) { width: 80%; }
+    .line:nth-child(2) { width: 100%; }
+    .line:nth-child(3) { width: 60%; }
+    .line:nth-child(4) { width: 90%; }
+
+    /* Piernas */
+    .bludee-legs {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+
+    .leg {
+      width: 12px;
+      height: 25px;
+      background: #dc2626;
+      border-radius: 6px;
+      position: relative;
+    }
+
+    .foot {
+      position: absolute;
+      bottom: -8px;
+      left: -3px;
+      width: 18px;
+      height: 12px;
+      background: #dc2626;
+      border-radius: 10px;
+    }
+
+    /* Globo de diálogo mejorado */
+    .bludee-speech {
+      position: absolute;
+      bottom: 190px;
+      right: 0;
+      background: white;
+      padding: 18px 22px;
+      border-radius: 25px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+      max-width: 300px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      font-size: 15px;
+      color: #1f2937;
+      font-weight: 500;
+      border: 2px solid #f3f4f6;
+    }
+
+    .bludee-speech.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .speech-arrow {
+      position: absolute;
+      bottom: -12px;
+      right: 35px;
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 12px solid white;
+    }
+
+    /* Estados de Bludee */
+    .bludee-normal .bludee-body,
+    .bludee-normal .bludee-left-arm,
+    .bludee-normal .bludee-right-arm,
+    .bludee-normal .leg,
+    .bludee-normal .foot,
+    .bludee-normal .bludee-left-hand,
+    .bludee-normal .bludee-right-hand,
+    .bludee-normal .hair-strand {
+      background: linear-gradient(145deg, #dc2626, #ef4444);
+    }
+
+    .bludee-alert .bludee-body,
+    .bludee-alert .bludee-left-arm,
+    .bludee-alert .bludee-right-arm,
+    .bludee-alert .leg,
+    .bludee-alert .foot,
+    .bludee-alert .bludee-left-hand,
+    .bludee-alert .bludee-right-hand,
+    .bludee-alert .hair-strand {
+      background: linear-gradient(145deg, #f59e0b, #fbbf24);
+      animation: pulse-alert 1s ease-in-out infinite;
+    }
+
+    .bludee-critical .bludee-body,
+    .bludee-critical .bludee-left-arm,
+    .bludee-critical .bludee-right-arm,
+    .bludee-critical .leg,
+    .bludee-critical .foot,
+    .bludee-critical .bludee-left-hand,
+    .bludee-critical .bludee-right-hand,
+    .bludee-critical .hair-strand {
+      background: linear-gradient(145deg, #ef4444, #f87171);
+      animation: shake 0.5s ease-in-out infinite;
+    }
+
+    /* ===== ANIMACIONES MEJORADAS ===== */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes pulse-alert {
+      0%, 100% { transform: scale(1); box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3); }
+      50% { transform: scale(1.1); box-shadow: 0 15px 30px rgba(245, 158, 11, 0.5); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
+    }
+
+    @keyframes blink {
+      0%, 90%, 100% { height: 14px; }
+      95% { height: 2px; }
+    }
+
+    @keyframes look {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(3px); }
+      50% { transform: translateX(-3px); }
+      75% { transform: translateX(0); }
+    }
+
+    @keyframes smile {
+      0%, 100% { border-radius: 0 0 25px 25px; }
+      50% { border-radius: 0 0 35px 35px; width: 30px; }
+    }
+
+    @keyframes arm-wave-left {
+      0%, 100% { transform: rotate(-20deg); }
+      50% { transform: rotate(-35deg); }
+    }
+
+    @keyframes arm-wave-right {
+      0%, 100% { transform: rotate(20deg); }
+      50% { transform: rotate(35deg); }
+    }
+
+    @keyframes clipboard-wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-3deg); }
+      75% { transform: rotate(3deg); }
+    }
+
+    @keyframes magnify-float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-5px) rotate(5deg); }
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(220,38,38,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .logo-bludee {
+      width: 80px;
+      height: 100px;
+      position: relative;
+      animation: logo-float 4s ease-in-out infinite;
+    }
+
+    .logo-body {
+      width: 60px;
+      height: 75px;
+      background: linear-gradient(145deg, #dc2626, #ef4444);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      position: relative;
+      box-shadow: 0 8px 16px rgba(220, 38, 38, 0.3);
+    }
+
+    .logo-eyes {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+
+    .logo-eye {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .logo-pupil {
+      width: 4px;
+      height: 4px;
+      background: #1f2937;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+    }
+
+    .logo-mouth {
+      position: absolute;
+      top: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 15px;
+      height: 8px;
+      border: 2px solid white;
+      border-top: none;
+      border-radius: 0 0 15px 15px;
+    }
+
+    .logo-coat {
+      position: absolute;
+      top: 50px;
+      left: 8px;
+      width: 44px;
+      height: 30px;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    @keyframes logo-float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      font-weight: bold;
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 1.2rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    /* ===== ALERTAS ===== */
+    .alerts-section {
+      margin-bottom: 30px;
+    }
+
+    .alert {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-left: 5px solid var(--alert-color);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      opacity: 0;
+      transform: translateX(-50px);
+      animation: slideIn 0.5s ease forwards;
+    }
+
+    .alert-critical {
+      --alert-color: #ef4444;
+      background: linear-gradient(145deg, #fef2f2, #ffffff);
+    }
+
+    .alert-warning {
+      --alert-color: #f59e0b;
+      background: linear-gradient(145deg, #fffbeb, #ffffff);
+    }
+
+    .alert-info {
+      --alert-color: #3b82f6;
+      background: linear-gradient(145deg, #eff6ff, #ffffff);
+    }
+
+    .alert-icon {
+      font-size: 2rem;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    .alert-content h3 {
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+      color: #1f2937;
+    }
+
+    .alert-content p {
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    /* ===== DASHBOARD GRID ===== */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .dashboard-card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--card-color);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+
+    .card-number {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .card-description {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    /* ===== MÓDULOS GRID ===== */
+    .modules-section {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .modules-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 30px;
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .module-card {
+      background: linear-gradient(145deg, #f8fafc, #ffffff);
+      border-radius: 15px;
+      padding: 25px;
+      border: 1px solid #e5e7eb;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .module-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      border-color: #3b82f6;
+    }
+
+    .module-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--module-color);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .module-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .module-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
+    .module-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+
+    .module-description {
+      color: #6b7280;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    .module-status {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-new {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    /* ===== RESPONSIVO ===== */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .logo-section {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modules-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bludee-container {
+        bottom: 20px;
+        right: 20px;
+      }
+
+      .bludee-character {
+        width: 120px;
+        height: 160px;
+      }
+
+      .bludee-speech {
+        max-width: 220px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Bludee Personaje Animado Actualizado -->
+  <div class="bludee-container" onclick="hablarBludee()">
+    <div class="bludee-character" id="bludee">
+      <!-- Cabello -->
+      <div class="bludee-hair">
+        <div class="hair-strand"></div>
+        <div class="hair-strand"></div>
+        <div class="hair-strand"></div>
+        <div class="hair-strand"></div>
+      </div>
+      
+      <!-- Cuerpo principal -->
+      <div class="bludee-body">
+        <div class="bludee-eyes">
+          <div class="eye"><div class="pupil"></div></div>
+          <div class="eye"><div class="pupil"></div></div>
+        </div>
+        <div class="bludee-mouth"></div>
+      </div>
+      
+      <!-- Bata médica -->
+      <div class="bludee-coat">
+        <div class="coat-collar"></div>
+        <div class="coat-buttons">
+          <div class="button"></div>
+          <div class="button"></div>
+          <div class="button"></div>
+        </div>
+      </div>
+      
+      <!-- Brazo izquierdo -->
+      <div class="bludee-left-arm">
+        <div class="bludee-left-hand"></div>
+      </div>
+      
+      <!-- Lupa -->
+      <div class="bludee-magnifying-glass">
+        <div class="magnify-lens"></div>
+        <div class="magnify-handle"></div>
+      </div>
+      
+      <!-- Brazo derecho -->
+      <div class="bludee-right-arm">
+        <div class="bludee-right-hand"></div>
+      </div>
+      
+      <!-- Portapapeles -->
+      <div class="bludee-clipboard">
+        <div class="clipboard-clip"></div>
+        <div class="clipboard-lines">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+      
+      <!-- Piernas -->
+      <div class="bludee-legs">
+        <div class="leg">
+          <div class="foot"></div>
+        </div>
+        <div class="leg">
+          <div class="foot"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bludee-speech" id="bludee-speech">
+      <span id="speech-text">¡Wepa! ¡Hola! Soy Bludee, tu asistente virtual. ¿En qué te puedo ayudar hoy?</span>
+      <div class="speech-arrow"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Header Principal -->
+    <div class="header">
+      <div class="header-content">
+        <div class="logo-section">
+          <div class="logo-bludee">
+            <div class="logo-body">
+              <div class="logo-eyes">
+                <div class="logo-eye"><div class="logo-pupil"></div></div>
+                <div class="logo-eye"><div class="logo-pupil"></div></div>
+              </div>
+              <div class="logo-mouth"></div>
+            </div>
+            <div class="logo-coat"></div>
+          </div>
+          <div>
+            <h1>BLUDEE</h1>
+            <p>Sistema Inteligente de Banco de Sangre</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas Importantes -->
+    <div class="alerts-section" id="alerts-section">
+      <!-- Las alertas se generarán dinámicamente -->
+    </div>
+
+    <!-- Dashboard de Métricas -->
+    <div class="dashboard-grid">
+      <div class="dashboard-card" style="--card-color: linear-gradient(135deg, #dc2626, #ef4444);">
+        <div class="card-icon">🩸</div>
+        <div class="card-title">Unidades Disponibles</div>
+        <div class="card-number" style="color: #dc2626;" id="unidades-disponibles">156</div>
+        <div class="card-description">En inventario activo</div>
+      </div>
+
+      <div class="dashboard-card" style="--card-color: linear-gradient(135deg, #059669, #10b981);">
+        <div class="card-icon">✅</div>
+        <div class="card-title">Transfusiones Hoy</div>
+        <div class="card-number" style="color: #059669;" id="transfusiones-hoy">12</div>
+        <div class="card-description">Exitosas sin complicaciones</div>
+      </div>
+
+      <div class="dashboard-card" style="--card-color: linear-gradient(135deg, #f59e0b, #fbbf24);">
+        <div class="card-icon">⏰</div>
+        <div class="card-title">Próximas a Vencer</div>
+        <div class="card-number" style="color: #f59e0b;" id="proximas-vencer">3</div>
+        <div class="card-description">En las próximas 48 horas</div>
+      </div>
+
+      <div class="dashboard-card" style="--card-color: linear-gradient(135deg, #3b82f6, #60a5fa);">
+        <div class="card-icon">🌡️</div>
+        <div class="card-title">Control Temperatura</div>
+        <div class="card-number" style="color: #3b82f6;" id="temperatura-status">100%</div>
+        <div class="card-description">Todos los equipos OK</div>
+      </div>
+    </div>
+
+    <!-- Módulos del Sistema -->
+    <div class="modules-section">
+      <h2 class="modules-title">🗃️ Módulos del Sistema Bludee</h2>
+      <div class="modules-grid">
+        
+        <div class="module-card" style="--module-color: #dc2626;" onclick="abrirModulo('registro-unidades')">
+          <div class="module-icon">📥</div>
+          <div class="module-title">Registro de Unidades</div>
+          <div class="module-description">Registra nuevas unidades recibidas con control de temperatura y validaciones automáticas.</div>
+          <div class="module-status status-active">Activo</div>
+        </div>
+
+        <div class="module-card" style="--module-color: #f59e0b;" onclick="abrirModulo('componentes-devueltos')">
+          <div class="module-icon">📦</div>
+          <div class="module-title">Componentes Devueltos</div>
+          <div class="module-description">Gestiona devoluciones de unidades con trazabilidad completa y reportes.</div>
+          <div class="module-status status-active">Activo</div>
+        </div>
+
+        <div class="module-card" style="--module-color: #3b82f6;" onclick="abrirModulo('historial-transfusion')">
+          <div class="module-icon">📋</div>
+          <div class="module-title">Historial de Transfusión</div>
+          <div class="module-description">Consulta el historial completo de transfusiones por paciente.</div>
+          <div class="module-status status-active">Activo</div>
+        </div>
+
+        <div class="module-card" style="--module-color: #7c3aed;" onclick="abrirModulo('trazabilidad')">
+          <div class="module-icon">🔄</div>
+          <div class="module-title">Trazabilidad</div>
+          <div class="module-description">Seguimiento completo del ciclo de vida de componentes sanguíneos.</div>
+          <div class="module-status status-active">Activo</div>
+        </div>
+
+        <div class="module-card" style="--module-color: #059669;" onclick="abrirModulo('expedientes-mensuales')">
+          <div class="module-icon">📊</div>
+          <div class="module-title">Expedientes Mensuales</div>
+          <div class="module-description">Genera expedientes regulatorios con cumplimiento NOM-253-SSA1-2012.</div>
+          <div class="module-status status-active">Activo</div>
+        </div>
+
+        <div class="module-card" style="--module-color: #dc2626;" onclick="abrirModulo('notas-clinicas')">
+          <div class="module-icon">🚨</div>
+          <div class="module-title">Notas Clínicas Internas</div>
+          <div class="module-description">Reporta incidentes y eventos críticos con seguimiento detallado.</div>
+          <div class="module-status status-new">Nuevo</div>
+        </div>
+
+        <div class="module-card" style="--module-color: #6b7280;" onclick="abrirModulo('auditorias-logs')">
+          <div class="module-icon">🔍</div>
+          <div class="module-title">Auditorías y Logs</div>
+          <div class="module-description">Bitácora completa de actividades del sistema con trazabilidad total.</div>
+          <div class="module-status status-new">Nuevo</div>
+        </div>
+
+        <div class="module-card" style="--module-color: #f59e0b;">
+          <div class="module-icon">⚙️</div>
+          <div class="module-title">Configuración</div>
+          <div class="module-description">Próximamente: Gestión de usuarios, equipos y configuración del sistema.</div>
+          <div class="module-status" style="background: #f3f4f6; color: #6b7280;">Próximamente</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== SISTEMA DE VOZ =====
+    let speechSynthesis = window.speechSynthesis;
+    let bludeeVoice = null;
+
+    // Configurar voz al cargar
+    window.addEventListener('load', function() {
+      speechSynthesis.onvoiceschanged = function() {
+        let voices = speechSynthesis.getVoices();
+        // Buscar voz en español
+        bludeeVoice = voices.find(voice => 
+          voice.lang.includes('es') || voice.name.includes('Spanish')
+        ) || voices[0];
+      };
+      
+      // Inicializar Bludee
+      setTimeout(() => {
+        saludarBludee();
+        generarAlertas();
+        actualizarDashboard();
+      }, 1000);
+    });
+
+    // ===== FUNCIONES DE BLUDEE =====
+    function hablarBludee(texto = null, mostrarGlobo = true) {
+      const speech = document.getElementById('bludee-speech');
+      const speechText = document.getElementById('speech-text');
+      
+      // Mensajes aleatorios si no se especifica texto
+      if (!texto) {
+        const mensajes = [
+          "¡Ay, qué tal! ¿Todo bien en el banco?",
+          "¡Wepa! ¿Necesitas ayuda navegando?",
+          "¡Hola, pana! ¿En qué te puedo ayudar?",
+          "¡Todo en orden por aquí! ¿Algo urgente?",
+          "¡Bendito! ¿Quieres que revise algo específico?",
+          "¡Dale que estoy aquí para ayudarte!",
+          "¿Todo bajo control? ¡Cualquier cosa me dices!"
+        ];
+        texto = mensajes[Math.floor(Math.random() * mensajes.length)];
+      }
+      
+      // Mostrar globo de diálogo
+      if (mostrarGlobo) {
+        speechText.textContent = texto;
+        speech.classList.add('show');
+        setTimeout(() => speech.classList.remove('show'), 4000);
+      }
+      
+      // Reproducir voz
+      if (bludeeVoice && speechSynthesis) {
+        let utterance = new SpeechSynthesisUtterance(texto);
+        utterance.voice = bludeeVoice;
+        utterance.rate = 0.9;
+        utterance.pitch = 1.2;
+        speechSynthesis.speak(utterance);
+      }
+    }
+
+    function saludarBludee() {
+      const hora = new Date().getHours();
+      let saludo;
+      
+      if (hora < 12) {
+        saludo = "¡Buenos días! Soy Bludee, tu asistente virtual. ¡Todo listo para comenzar el día en el banco de sangre!";
+      } else if (hora < 18) {
+        saludo = "¡Buenas tardes! ¿Cómo va todo por el banco de sangre? Estoy aquí para ayudarte.";
+      } else {
+        saludo = "¡Buenas noches! Trabajando hasta tarde, ¿eh? ¡Cualquier cosa que necesites, aquí estoy!";
+      }
+      
+      setTimeout(() => hablarBludee(saludo), 2000);
+    }
+
+    function cambiarEstadoBludee(estado) {
+      const bludee = document.getElementById('bludee');
+      bludee.className = 'bludee-character bludee-' + estado;
+    }
+
+    // ===== GENERADOR DE ALERTAS =====
+    function generarAlertas() {
+      const alertsSection = document.getElementById('alerts-section');
+      const alertas = [];
+      
+      // Simular alertas basadas en datos
+      const proximasVencer = parseInt(document.getElementById('proximas-vencer').textContent);
+      const temperatura = document.getElementById('temperatura-status').textContent;
+      
+      if (proximasVencer > 0) {
+        alertas.push({
+          tipo: 'warning',
+          icono: '⏰',
+          titulo: `${proximasVencer} unidades próximas a vencer`,
+          mensaje: `Hay ${proximasVencer} unidades que vencen en las próximas 48 horas. Revisar inventario.`
+        });
+        cambiarEstadoBludee('alert');
+        setTimeout(() => {
+          hablarBludee(`¡Oye! Hay ${proximasVencer} unidades que van a vencer pronto. ¡Echa un vistazo!`);
+        }, 5000);
+      }
+      
+      if (temperatura !== "100%") {
+        alertas.push({
+          tipo: 'critical',
+          icono: '🌡️',
+          titulo: 'Problema de temperatura detectado',
+          mensaje: 'Uno o más equipos presentan variaciones de temperatura. Verificar inmediatamente.'
+        });
+        cambiarEstadoBludee('critical');
+      }
+      
+      // Alertas informativas
+      alertas.push({
+        tipo: 'info',
+        icono: '📊',
+        titulo: 'Expediente mensual pendiente',
+        mensaje: 'El expediente de julio 2025 está listo para revisión y aprobación.'
+      });
+      
+      // Generar HTML de alertas
+      alertas.forEach((alerta, index) => {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${alerta.tipo}`;
+        alertDiv.style.animationDelay = `${index * 0.2}s`;
+        
+        alertDiv.innerHTML = `
+          <div class="alert-icon">${alerta.icono}</div>
+          <div class="alert-content">
+            <h3>${alerta.titulo}</h3>
+            <p>${alerta.mensaje}</p>
+          </div>
+        `;
+        
+        alertsSection.appendChild(alertDiv);
+      });
+    }
+
+    // ===== ACTUALIZAR DASHBOARD =====
+    function actualizarDashboard() {
+      // Simular datos en tiempo real
+      setInterval(() => {
+        const transfusionesHoy = document.getElementById('transfusiones-hoy');
+        const current = parseInt(transfusionesHoy.textContent);
+        
+        // Simular nueva transfusión ocasionalmente
+        if (Math.random() < 0.1) { // 10% probabilidad cada 30 segundos
+          transfusionesHoy.textContent = current + 1;
+          hablarBludee(`¡Bien! Una transfusión más completada exitosamente. Ya llevamos ${current + 1} hoy.`, false);
+        }
+      }, 30000); // Cada 30 segundos
+    }
+
+    // ===== NAVEGACIÓN A MÓDULOS =====
+    function abrirModulo(modulo) {
+      const urls = {
+        'registro-unidades': 'Registro de Unidad Recibida Simulador.html',
+        'componentes-devueltos': 'componentes_devueltos.html',
+        'historial-transfusion': 'historial_transfusion_paciente.html',
+        'trazabilidad': 'trazabilidad_banco_sangre.html',
+        'expedientes-mensuales': 'expedientes_mensuales.html',
+        'notas-clinicas': 'notas_clinicas_internas.html',
+        'auditorias-logs': 'auditorias_logs.html'
+      };
+      
+      if (urls[modulo]) {
+        hablarBludee(`¡Dale! Te llevo al módulo de ${modulo.replace('-', ' ')}. ¡A trabajar se ha dicho!`, false);
+        setTimeout(() => {
+          window.location.href = urls[modulo];
+        }, 1500);
+      } else {
+        hablarBludee("¡Ay, bendito! Ese módulo todavía no está listo. ¡Pero pronto lo tendremos!");
+      }
+    }
+
+    // ===== INTERACCIONES AUTOMÁTICAS =====
+    let inactivityTimer;
+    
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        const mensajes = [
+          "¿Todo bien por ahí? ¡Aquí sigo vigilando!",
+          "¿Necesitas ayuda con algo? ¡Solo toca mi portapapeles!",
+          "¡Ey! ¿Se te olvidó que estoy aquí? ¡Jajaja!",
+          "¡Todo tranquilo en el banco! ¿Algo que revisar?"
+        ];
+        hablarBludee(mensajes[Math.floor(Math.random() * mensajes.length)]);
+      }, 120000); // 2 minutos de inactividad
+    }
+    
+    // Detectar actividad del usuario
+    document.addEventListener('mousemove', resetInactivityTimer);
+    document.addEventListener('click', resetInactivityTimer);
+    document.addEventListener('keypress', resetInactivityTimer);
+    
+    // Inicializar timer
+    resetInactivityTimer();
+
+    // ===== MENSAJES CONTEXTUALES =====
+    setInterval(() => {
+      const hora = new Date().getHours();
+      
+      if (hora === 12 && new Date().getMinutes() === 0) {
+        hablarBludee("¡Es mediodía! ¿Ya almorzaste? ¡No te olvides de cuidarte también!");
+      }
+      
+      if (hora === 17 && new Date().getMinutes() === 0) {
+        hablarBludee("¡Ya son las 5! ¿Todo listo para cerrar el día? ¡Excelente trabajo!");
+      }
+    }, 60000); // Revisar cada minuto
+  </script>
+</body>
+</html>
