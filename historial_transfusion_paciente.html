@@ -1,134 +1,430 @@
+import React, { useState } from 'react';
+import { History, ArrowLeft, Search, User, Calendar, Filter, Download, Eye } from 'lucide-react';
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Historial de Transfusión</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #fff5f5;
-      padding: 30px;
-    }
-    .container {
-      background: #ffffff;
-      border-radius: 16px;
-      max-width: 950px;
-      margin: auto;
-      padding: 30px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #990000;
-      margin-bottom: 25px;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 10px;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      margin-bottom: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 30px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background-color: #ffe6e6;
-    }
-    button {
-      background-color: #cc0000;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #a30000;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Historial de Transfusión por Paciente</h2>
+const HistorialTransfusion = () => {
+  const [formData, setFormData] = useState({
+    nombrePaciente: '',
+    numeroRecord: '',
+    tipoSangre: '',
+    fechaDesde: '',
+    fechaHasta: ''
+  });
+  
+  const [showResults, setShowResults] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
-    <label for="nombre">Nombre del Paciente:</label>
-    <input type="text" id="nombre" placeholder="Ej. Ana Martínez">
+  const historialTransfusiones = [
+    {
+      fecha: '2025-06-14',
+      tipoComponente: 'PRBC',
+      volumen: '±250 mL',
+      idComponente: 'A11234',
+      doctor: 'Dr. Vega',
+      area: 'Intensivo',
+      observaciones: 'Sin complicaciones',
+      anticuerpos: 'No',
+      grupoSangre: 'O+',
+      horaInicio: '14:30',
+      horaFin: '16:15',
+      reacciones: 'Ninguna'
+    },
+    {
+      fecha: '2025-07-03',
+      tipoComponente: 'Plaquetas',
+      volumen: '200 mL',
+      idComponente: 'B44122',
+      doctor: 'Dra. Nieves',
+      area: 'Medicina',
+      observaciones: 'Observación post-transfusión',
+      anticuerpos: 'Sí',
+      grupoSangre: 'O+',
+      horaInicio: '10:00',
+      horaFin: '11:30',
+      reacciones: 'Fiebre leve'
+    },
+    {
+      fecha: '2025-07-15',
+      tipoComponente: 'Plasma',
+      volumen: '250 mL',
+      idComponente: 'C78945',
+      doctor: 'Dr. Morales',
+      area: 'Cirugía',
+      observaciones: 'Transfusión exitosa',
+      anticuerpos: 'No',
+      grupoSangre: 'O+',
+      horaInicio: '08:45',
+      horaFin: '10:00',
+      reacciones: 'Ninguna'
+    }
+  ];
 
-    <label for="record">Número de Récord:</label>
-    <input type="text" id="record" placeholder="Ej. 00012345">
+  const tiposSangre = ['O+', 'O−', 'A+', 'A−', 'B+', 'B−', 'AB+', 'AB−'];
 
-    <label for="sangre">Tipo de Sangre:</label>
-    <select id="sangre">
-      <option>Seleccionar</option>
-      <option>O+</option>
-      <option>O−</option>
-      <option>A+</option>
-      <option>A−</option>
-      <option>B+</option>
-      <option>B−</option>
-      <option>AB+</option>
-      <option>AB−</option>
-    </select>
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-    <label for="desde">Desde:</label>
-    <input type="date" id="desde">
+  const handleBuscar = () => {
+    setShowResults(true);
+  };
 
-    <label for="hasta">Hasta:</label>
-    <input type="date" id="hasta">
+  const handleLimpiar = () => {
+    setFormData({
+      nombrePaciente: '',
+      numeroRecord: '',
+      tipoSangre: '',
+      fechaDesde: '',
+      fechaHasta: ''
+    });
+    setShowResults(false);
+    setSearchTerm('');
+  };
 
-    <button>Buscar Historial</button>
+  const filteredHistorial = historialTransfusiones.filter(item =>
+    item.idComponente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.tipoComponente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.area.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    <table>
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Tipo de Componente</th>
-          <th>Volumen</th>
-          <th>ID del Componente</th>
-          <th>Doctor</th>
-          <th>Área</th>
-          <th>Observaciones</th>
-          <th>Anticuerpos</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>2025-06-14</td>
-          <td>PRBC</td>
-          <td>±250 mL</td>
-          <td>A11234</td>
-          <td>Dr. Vega</td>
-          <td>Intensivo</td>
-          <td>Sin complicaciones</td>
-          <td>No</td>
-        </tr>
-        <tr>
-          <td>2025-07-03</td>
-          <td>Plaquetas</td>
-          <td>200 mL</td>
-          <td>B44122</td>
-          <td>Dra. Nieves</td>
-          <td>Medicina</td>
-          <td>Observación post-transfusión</td>
-          <td>Sí</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</body>
-</html>
+  const getComponenteBadgeColor = (tipo) => {
+    switch (tipo) {
+      case 'PRBC': return 'bg-red-100 text-red-800';
+      case 'Plaquetas': return 'bg-blue-100 text-blue-800';
+      case 'Plasma': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="min-h-screen" style={{
+      background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%)'
+    }}>
+      
+      {/* Botón de regreso */}
+      <button className="fixed top-5 left-5 z-50 flex items-center gap-2 px-5 py-3 rounded-full text-gray-700 font-semibold transition-all duration-300 hover:text-blue-700 hover:transform hover:-translate-y-0.5 hover:shadow-lg"
+        style={{
+          background: 'rgba(255, 255, 255, 0.9)',
+          border: '2px solid #e5e7eb',
+          backdropFilter: 'blur(10px)'
+        }}>
+        <ArrowLeft className="w-4 h-4" />
+        Volver al Menú
+      </button>
+
+      {/* Contenedor principal */}
+      <div className="max-w-6xl mx-auto p-5">
+        <div className="rounded-3xl overflow-hidden shadow-2xl"
+          style={{
+            background: 'linear-gradient(145deg, #ffffff, #f8fafc)',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)'
+          }}>
+          
+          {/* Header */}
+          <div className="relative p-8 text-center text-white"
+            style={{
+              background: 'linear-gradient(135deg, #dc2626, #ef4444)'
+            }}>
+            <div className="absolute inset-0 opacity-30"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><pattern id='grid' width='10' height='10' patternUnits='userSpaceOnUse'><path d='M 10 0 L 0 0 0 10' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='0.5'/></pattern></defs><rect width='100' height='100' fill='url(%23grid)'/></svg>")`
+              }}>
+            </div>
+            <div className="relative z-10">
+              <h1 className="text-4xl font-bold mb-2">📋 Historial de Transfusión</h1>
+              <p className="text-lg opacity-90">Sistema Bludee - Seguimiento de Pacientes</p>
+            </div>
+          </div>
+
+          {/* Breadcrumb */}
+          <div className="px-8 py-4 border-b border-gray-200"
+            style={{ background: '#f1f5f9' }}>
+            <span className="text-blue-600 font-medium hover:underline cursor-pointer">🗃️ Bludee</span>
+            <span className="mx-2">/</span>
+            <span className="text-blue-600 font-medium hover:underline cursor-pointer">Consultas</span>
+            <span className="mx-2">/</span>
+            <span className="text-gray-600">Historial de Transfusión</span>
+          </div>
+
+          <div className="p-10">
+            {/* Formulario de Búsqueda */}
+            <div className="relative bg-white rounded-xl p-6 border shadow-md mb-8"
+              style={{
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                border: '1px solid #e2e8f0'
+              }}>
+              <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
+                style={{ background: 'linear-gradient(135deg, #1e40af, #3b82f6)' }}>
+              </div>
+              
+              <h2 className="text-xl font-semibold text-gray-800 mb-5 flex items-center gap-3">
+                <span className="text-2xl">🔍</span>
+                Búsqueda de Paciente
+                <span className="text-red-600">*</span>
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    👤 Nombre del Paciente <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.nombrePaciente}
+                    onChange={(e) => handleInputChange('nombrePaciente', e.target.value)}
+                    placeholder="Ej. Ana Martínez"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
+                    style={{ background: '#fafafa' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    🆔 Número de Récord <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.numeroRecord}
+                    onChange={(e) => handleInputChange('numeroRecord', e.target.value)}
+                    placeholder="Ej. 00012345"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
+                    style={{ background: '#fafafa' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    🩸 Tipo de Sangre
+                  </label>
+                  <select
+                    value={formData.tipoSangre}
+                    onChange={(e) => handleInputChange('tipoSangre', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
+                    style={{ background: '#fafafa' }}
+                  >
+                    <option value="">Seleccionar...</option>
+                    {tiposSangre.map(tipo => (
+                      <option key={tipo} value={tipo}>{tipo}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    📅 Desde
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.fechaDesde}
+                    onChange={(e) => handleInputChange('fechaDesde', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
+                    style={{ background: '#fafafa' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    📅 Hasta
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.fechaHasta}
+                    onChange={(e) => handleInputChange('fechaHasta', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300"
+                    style={{ background: '#fafafa' }}
+                  />
+                </div>
+              </div>
+
+              {/* Botones */}
+              <div className="flex gap-4 justify-center mt-6">
+                <button
+                  onClick={handleLimpiar}
+                  className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:transform hover:-translate-y-0.5 min-w-40 justify-center"
+                  style={{
+                    background: '#f8fafc',
+                    color: '#374151',
+                    border: '2px solid #e5e7eb'
+                  }}
+                >
+                  🔄 Limpiar
+                </button>
+                <button
+                  onClick={handleBuscar}
+                  className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-white transition-all duration-300 hover:transform hover:-translate-y-0.5 min-w-40 justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, #dc2626, #ef4444)',
+                    boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)'
+                  }}
+                >
+                  🔍 Buscar Historial
+                </button>
+              </div>
+            </div>
+
+            {/* Información del Paciente (cuando hay resultados) */}
+            {showResults && (
+              <div className="relative bg-white rounded-xl p-6 border shadow-md mb-8"
+                style={{
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                  border: '1px solid #e2e8f0'
+                }}>
+                <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl"
+                  style={{ background: 'linear-gradient(135deg, #0891b2, #06b6d4)' }}>
+                </div>
+                
+                <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-3">
+                  <span className="text-2xl">👤</span>
+                  Información del Paciente
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg"
+                  style={{ background: '#f8fafc' }}>
+                  <div>
+                    <span className="text-sm text-gray-600 block">Nombre:</span>
+                    <span className="font-semibold text-gray-800">{formData.nombrePaciente || 'Ana Martínez'}</span>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-600 block">Récord:</span>
+                    <span className="font-semibold text-gray-800">{formData.numeroRecord || '00012345'}</span>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-600 block">Tipo de Sangre:</span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      {formData.tipoSangre || 'O+'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Historial de Transfusiones */}
+            {showResults && (
+              <div className="relative bg-white rounded-xl border shadow-md overflow-hidden"
+                style={{
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                  border: '1px solid #e2e8f0'
+                }}>
+                <div className="absolute top-0 left-0 right-0 h-1"
+                  style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)' }}>
+                </div>
+                
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
+                        <span className="text-2xl">📊</span>
+                        Historial de Transfusiones
+                      </h2>
+                      <p className="text-sm text-gray-500 mt-1">Registro completo de transfusiones del paciente</p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                        <input
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          placeholder="Buscar en historial..."
+                          className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                      <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                        style={{ background: '#f8fafc' }}>
+                        <Filter className="w-4 h-4 text-gray-500" />
+                      </button>
+                      <button className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                        style={{ background: '#f8fafc' }}>
+                        <Download className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead style={{ background: '#f1f5f9' }}>
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Componente</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volumen</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Componente</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Área</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horario</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reacciones</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Anticuerpos</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredHistorial.map((item, index) => (
+                        <tr key={index} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {item.fecha}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getComponenteBadgeColor(item.tipoComponente)}`}>
+                              {item.tipoComponente}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {item.volumen}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {item.idComponente}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {item.doctor}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {item.area}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div className="text-xs">
+                              <div>Inicio: {item.horaInicio}</div>
+                              <div>Fin: {item.horaFin}</div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm">
+                            {item.reacciones === 'Ninguna' ? (
+                              <span className="text-green-600 font-medium">✓ Ninguna</span>
+                            ) : (
+                              <span className="text-orange-600 font-medium">⚠️ {item.reacciones}</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm">
+                            {item.anticuerpos === 'No' ? (
+                              <span className="text-green-600 font-medium">✓ No</span>
+                            ) : (
+                              <span className="text-red-600 font-medium">⚠️ Sí</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm">
+                            <button className="p-1 text-blue-600 hover:text-blue-800 transition-colors">
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {filteredHistorial.length === 0 && (
+                  <div className="p-8 text-center text-gray-500">
+                    <History className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p>No se encontraron registros de transfusión para los criterios especificados.</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default HistorialTransfusion;
