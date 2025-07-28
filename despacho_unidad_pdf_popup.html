@@ -2,82 +2,790 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Despacho de Unidad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bludee - Despacho de Unidad</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        label, select, input, textarea, button {
-            display: block;
-            margin-top: 10px;
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 20px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .breadcrumb {
+            background: #f1f5f9;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .breadcrumb a {
+            color: #1e40af;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--section-color);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .section-unit { --section-color: linear-gradient(135deg, #dc2626, #ef4444); }
+        .section-dispatch { --section-color: linear-gradient(135deg, #1e40af, #3b82f6); }
+        .section-medical { --section-color: linear-gradient(135deg, #0891b2, #06b6d4); }
+        .section-signatures { --section-color: linear-gradient(135deg, #ea580c, #f97316); }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: #dc2626;
+        }
+
+        input, select, textarea {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        input:invalid {
+            border-color: #ef4444;
+        }
+
+        input:valid {
+            border-color: #10b981;
+        }
+
+        .status-select {
+            background-color: #f8f9fa;
+        }
+
+        .signatures-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border: 2px dashed #f87171;
+            border-radius: 12px;
+        }
+
+        .signatures-title {
+            text-align: center;
+            color: #dc2626;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .signature-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .signature-box {
+            text-align: center;
+        }
+
+        .signature-canvas {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: white;
+            cursor: crosshair;
             width: 100%;
-            max-width: 400px;
+            height: 120px;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
         }
-        .checkmark {
-            color: green;
-            font-weight: bold;
+
+        .signature-canvas:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .signature-label {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .signature-controls {
+            margin-top: 10px;
+        }
+
+        .btn-clear {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #6b7280, #9ca3af);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-clear:hover {
+            background: linear-gradient(135deg, #4b5563, #6b7280);
+            transform: translateY(-1px);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 160px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #b91c1c, #dc2626);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            display: none;
+            animation: slideDown 0.3s ease;
+            font-weight: 500;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 2px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e5e7eb;
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: #374151;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: white;
+            border-color: #3b82f6;
+            color: #1e40af;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 16px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .signature-area {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .back-button {
+                position: relative;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <h2>Despacho de Unidad</h2>
+    <a href="#" class="back-button">
+        ← Volver al Menú
+    </a>
 
-    <label for="unidad">Unidad Recibida:</label>
-    <select id="unidad">
-        <option value="Unidad 001 - PRBC - ±250 mL - A+">Unidad 001 - PRBC - ±250 mL - A+</option>
-        <option value="Unidad 002 - PRBC fraccionada - ±125 mL - O-">Unidad 002 - PRBC fraccionada - ±125 mL - O-</option>
-    </select>
+    <div class="container">
+        <div class="header">
+            <h1>📤 Despacho de Unidad</h1>
+            <p>Sistema Bludee - Gestión de Componentes Sanguíneos</p>
+        </div>
 
-    <label for="fecha">Fecha de Despacho:</label>
-    <input type="date" id="fecha">
+        <div class="breadcrumb">
+            <a href="#">🗃️ Bludee</a> / 
+            <a href="#">Gestión de Componentes</a> / 
+            <span>Despacho de Unidad</span>
+        </div>
 
-    <label for="hora">Hora de Despacho:</label>
-    <input type="time" id="hora">
+        <div class="form-container">
+            <div id="alertas"></div>
 
-    <label for="enfermera">Enfermera Notificada:</label>
-    <input type="text" id="enfermera">
+            <!-- Información de la Unidad -->
+            <div class="form-section section-unit">
+                <h2 class="section-title">
+                    <span class="section-icon">🩸</span>
+                    Información de la Unidad <span class="required">*</span>
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="unidad">Unidad a Despachar <span class="required">*</span></label>
+                        <select id="unidad" required>
+                            <option value="">Seleccionar unidad...</option>
+                            <option value="Unidad 001 - PRBC - ±250 mL - A+">Unidad 001 - PRBC - ±250 mL - A+</option>
+                            <option value="Unidad 002 - PRBC fraccionada - ±125 mL - O-">Unidad 002 - PRBC fraccionada - ±125 mL - O-</option>
+                            <option value="Unidad 003 - Plasma Fresco Congelado - ±200 mL - AB+">Unidad 003 - Plasma Fresco Congelado - ±200 mL - AB+</option>
+                            <option value="Unidad 004 - Plaquetas - ±50 mL - O+">Unidad 004 - Plaquetas - ±50 mL - O+</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paciente">Paciente Receptor</label>
+                        <input type="text" id="paciente" placeholder="Nombre del paciente">
+                    </div>
 
-    <label for="mt">Tecnólogo Médico (MT):</label>
-    <input type="text" id="mt">
+                    <div class="form-group">
+                        <label for="inspeccion">Estado de la Unidad <span class="required">*</span></label>
+                        <select id="inspeccion" class="status-select" required>
+                            <option value="">Seleccionar estado...</option>
+                            <option value="Excelente">✅ Excelente - Sin observaciones</option>
+                            <option value="Bueno">✅ Bueno - Condiciones normales</option>
+                            <option value="Regular">⚠️ Regular - Con observaciones menores</option>
+                            <option value="Rechazado">❌ Rechazado - No apto para transfusión</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-    <label for="inspeccion">¿Unidad en Buenas Condiciones?</label>
-    <select id="inspeccion">
-        <option value="Sí">✅ Sí</option>
-        <option value="No">❌ No</option>
-    </select>
+            <!-- Información del Despacho -->
+            <div class="form-section section-dispatch">
+                <h2 class="section-title">
+                    <span class="section-icon">📅</span>
+                    Información del Despacho <span class="required">*</span>
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="fecha">Fecha de Despacho <span class="required">*</span></label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="hora">Hora de Despacho <span class="required">*</span></label>
+                        <input type="time" id="hora" required>
+                    </div>
+                </div>
+            </div>
 
-    <label for="notas">Notas:</label>
-    <textarea id="notas" rows="4"></textarea>
+            <!-- Personal Médico -->
+            <div class="form-section section-medical">
+                <h2 class="section-title">
+                    <span class="section-icon">🏥</span>
+                    Personal Médico Responsable
+                </h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="enfermera">Enfermera Responsable <span class="required">*</span></label>
+                        <input type="text" id="enfermera" placeholder="Lic. Nombre Apellido" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mt">Tecnólogo Médico (MT) <span class="required">*</span></label>
+                        <input type="text" id="mt" placeholder="MT. Nombre Apellido" required>
+                    </div>
+                </div>
+            </div>
 
-    <button class= "button" onclick="generatePDF()">Generar PDF</button>
+            <!-- Observaciones y Firmas -->
+            <div class="form-section section-signatures">
+                <h2 class="section-title">
+                    <span class="section-icon">📝</span>
+                    Observaciones y Firmas
+                </h2>
+                
+                <div class="form-group full-width">
+                    <label for="notas">Observaciones y Notas Especiales</label>
+                    <textarea id="notas" rows="4" placeholder="Detalles adicionales, observaciones especiales, condiciones de transporte, etc."></textarea>
+                </div>
+
+                <div class="signatures-section">
+                    <h3 class="signatures-title">
+                        <span>✍️</span>
+                        Firmas Digitales de Autorización
+                    </h3>
+                    <div class="signature-area">
+                        <div class="signature-box">
+                            <canvas id="firmaMT" class="signature-canvas" width="280" height="120"></canvas>
+                            <div class="signature-label">Firma del Tecnólogo Médico</div>
+                            <div class="signature-controls">
+                                <button type="button" class="btn-clear" onclick="limpiarFirma('firmaMT')">🗑️ Limpiar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="signature-box">
+                            <canvas id="firmaEnfermera" class="signature-canvas" width="280" height="120"></canvas>
+                            <div class="signature-label">Firma de la Enfermera Responsable</div>
+                            <div class="signature-controls">
+                                <button type="button" class="btn-clear" onclick="limpiarFirma('firmaEnfermera')">🗑️ Limpiar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones principales -->
+            <div class="button-container">
+                <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
+                    🔄 Limpiar Todo
+                </button>
+                <button type="button" class="btn btn-primary" onclick="generarPDF()">
+                    📄 Generar PDF
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        async function generatePDF() {
-            const {{ jsPDF }} = window.jspdf;
+        // Variables globales para las firmas
+        let firmas = {};
+
+        // Configurar fecha y hora actuales al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.getElementById('fecha').value = now.toISOString().split('T')[0];
+            document.getElementById('hora').value = now.toTimeString().slice(0,5);
+            
+            // Configurar las firmas
+            setupSignature('firmaMT');
+            setupSignature('firmaEnfermera');
+        });
+
+        function setupSignature(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            let drawing = false;
+            
+            function getPosition(e) {
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                return { x, y };
+            }
+            
+            // Eventos de mouse
+            canvas.addEventListener('mousedown', function(e) {
+                drawing = true;
+                const pos = getPosition(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            });
+            
+            canvas.addEventListener('mousemove', function(e) {
+                if (drawing) {
+                    const pos = getPosition(e);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                }
+            });
+            
+            canvas.addEventListener('mouseup', function() {
+                drawing = false;
+                firmas[canvasId] = canvas.toDataURL();
+            });
+            
+            canvas.addEventListener('mouseout', function() {
+                drawing = false;
+            });
+            
+            // Eventos táctiles
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                drawing = true;
+                const pos = getPosition(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            });
+            
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                if (drawing) {
+                    const pos = getPosition(e);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                }
+            });
+            
+            canvas.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                drawing = false;
+                firmas[canvasId] = canvas.toDataURL();
+            });
+        }
+        
+        function limpiarFirma(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            delete firmas[canvasId];
+            mostrarAlerta('Firma limpiada correctamente', 'success');
+        }
+        
+        function mostrarAlerta(mensaje, tipo = 'warning') {
+            const alertas = document.getElementById('alertas');
+            alertas.innerHTML = `<div class="alert alert-${tipo} show">${mensaje}</div>`;
+            setTimeout(() => {
+                alertas.innerHTML = '';
+            }, 3000);
+        }
+        
+        function validarFormulario() {
+            const campos = ['unidad', 'fecha', 'hora', 'enfermera', 'mt', 'inspeccion'];
+            let valido = true;
+            
+            for (let campo of campos) {
+                const elemento = document.getElementById(campo);
+                if (!elemento.value) {
+                    elemento.style.borderColor = '#ef4444';
+                    valido = false;
+                } else {
+                    elemento.style.borderColor = '#10b981';
+                }
+            }
+            
+            if (!valido) {
+                mostrarAlerta('⚠️ Por favor completa todos los campos obligatorios marcados con *');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function generarPDF() {
+            if (!validarFormulario()) return;
+            
+            const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-
-            const unidad = document.getElementById('unidad').value;
-            const fecha = document.getElementById('fecha').value;
-            const hora = document.getElementById('hora').value;
-            const enfermera = document.getElementById('enfermera').value;
-            const mt = document.getElementById('mt').value;
-            const inspeccion = document.getElementById('inspeccion').value;
-            const notas = document.getElementById('notas').value;
-
+            
+            const datos = {
+                unidad: document.getElementById('unidad').value,
+                paciente: document.getElementById('paciente').value || 'N/A',
+                fecha: document.getElementById('fecha').value,
+                hora: document.getElementById('hora').value,
+                enfermera: document.getElementById('enfermera').value,
+                mt: document.getElementById('mt').value,
+                inspeccion: document.getElementById('inspeccion').value,
+                notas: document.getElementById('notas').value || 'Sin observaciones'
+            };
+            
+            // Encabezado
+            doc.setFont("helvetica");
+            doc.setFontSize(18);
+            doc.setTextColor(220, 38, 38);
+            doc.text("REGISTRO DE DESPACHO DE UNIDAD", 105, 20, { align: 'center' });
             doc.setFontSize(12);
-            doc.text("Registro de Despacho de Unidad - Banco de Sangre", 10, 10);
-            doc.text("Unidad Seleccionada: " + unidad, 10, 20);
-            doc.text("Fecha de Despacho: " + fecha, 10, 30);
-            doc.text("Hora de Despacho: " + hora, 10, 40);
-            doc.text("Enfermera Notificada: " + enfermera, 10, 50);
-            doc.text("Tecnólogo Médico (MT): " + mt, 10, 60);
-            doc.text("Inspección: " + inspeccion, 10, 70);
-            doc.text("Notas: " + notas, 10, 80);
-
-            doc.save("despacho_unidad.pdf");
+            doc.setTextColor(100, 100, 100);
+            doc.text("Sistema Bludee - Gestión de Componentes Sanguíneos", 105, 28, { align: 'center' });
+            
+            // Línea separadora
+            doc.setDrawColor(220, 38, 38);
+            doc.setLineWidth(2);
+            doc.line(20, 35, 190, 35);
+            
+            // Información
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(11);
+            let y = 50;
+            
+            const info = [
+                ['Unidad:', datos.unidad],
+                ['Paciente:', datos.paciente],
+                ['Fecha de Despacho:', datos.fecha],
+                ['Hora de Despacho:', datos.hora],
+                ['Estado de la Unidad:', datos.inspeccion],
+                ['Enfermera Responsable:', datos.enfermera],
+                ['Tecnólogo Médico:', datos.mt]
+            ];
+            
+            info.forEach(([etiqueta, valor]) => {
+                doc.setFont("helvetica", "bold");
+                doc.text(etiqueta, 20, y);
+                doc.setFont("helvetica", "normal");
+                doc.text(valor, 70, y);
+                y += 8;
+            });
+            
+            // Observaciones
+            y += 5;
+            doc.setFont("helvetica", "bold");
+            doc.text("Observaciones:", 20, y);
+            y += 8;
+            doc.setFont("helvetica", "normal");
+            const lineasNotas = doc.splitTextToSize(datos.notas, 150);
+            doc.text(lineasNotas, 20, y);
+            y += lineasNotas.length * 6 + 15;
+            
+            // Firmas
+            if (firmas.firmaMT || firmas.firmaEnfermera) {
+                doc.setFont("helvetica", "bold");
+                doc.text("FIRMAS DIGITALES:", 20, y);
+                y += 15;
+                
+                if (firmas.firmaMT) {
+                    doc.addImage(firmas.firmaMT, 'PNG', 20, y, 60, 25);
+                    doc.setFont("helvetica", "normal");
+                    doc.text("_______________________", 20, y + 30);
+                    doc.text("Tecnólogo Médico", 20, y + 35);
+                }
+                
+                if (firmas.firmaEnfermera) {
+                    doc.addImage(firmas.firmaEnfermera, 'PNG', 110, y, 60, 25);
+                    doc.setFont("helvetica", "normal");
+                    doc.text("_______________________", 110, y + 30);
+                    doc.text("Enfermera Responsable", 110, y + 35);
+                }
+            }
+            
+            // Pie de página
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generado el: ${new Date().toLocaleString('es-PR')}`, 105, 280, { align: 'center' });
+            
+            const nombreArchivo = `Despacho_${datos.fecha}_${datos.hora.replace(':', '')}.pdf`;
+            doc.save(nombreArchivo);
+            
+            mostrarAlerta('✅ PDF generado exitosamente', 'success');
+        }
+        
+        function limpiarFormulario() {
+            if (confirm('¿Estás seguro de que quieres limpiar todo el formulario?')) {
+                document.getElementById('unidad').selectedIndex = 0;
+                document.getElementById('paciente').value = '';
+                document.getElementById('enfermera').value = '';
+                document.getElementById('mt').value = '';
+                document.getElementById('inspeccion').selectedIndex = 0;
+                document.getElementById('notas').value = '';
+                
+                limpiarFirma('firmaMT');
+                limpiarFirma('firmaEnfermera');
+                
+                const now = new Date();
+                document.getElementById('fecha').value = now.toISOString().split('T')[0];
+                document.getElementById('hora').value = now.toTimeString().slice(0,5);
+                
+                mostrarAlerta('🔄 Formulario limpiado correctamente', 'success');
+            }
         }
     </script>
 </body>
 </html>
+
+          
