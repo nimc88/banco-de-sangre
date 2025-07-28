@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bludee - Notas Clínicas Internas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      border-radius: 20px;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+    }
+
+    .breadcrumb {
+      background: #f1f5f9;
+      padding: 15px 30px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .breadcrumb a {
+      color: #1e40af;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .form-container {
+      padding: 40px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .form-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    .form-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--section-color);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .section-incident { --section-color: linear-gradient(135deg, #dc2626, #ef4444); }
+    .section-details { --section-color: linear-gradient(135deg, #ea580c, #f97316); }
+    .section-actions { --section-color: linear-gradient(135deg, #1e40af, #3b82f6); }
+    .section-history { --section-color: linear-gradient(135deg, #7c3aed, #8b5cf6); }
+    .section-stats { --section-color: linear-gradient(135deg, #059669, #10b981); }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .required {
+      color: #dc2626;
+    }
+
+    input, select, textarea {
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #e5e7eb;
+      border-radius: 50px;
+      padding: 12px 20px;
+      color: #374151;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .back-button:hover {
+      background: white;
+      border-color: #3b82f6;
+      color: #1e40af;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .severity-selector {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .severity-option {
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .severity-option:hover {
+      transform: translateY(-1px);
+    }
+
+    .severity-bajo {
+      background: #f0fdf4;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+
+    .severity-bajo.active {
+      background: #16a34a;
+      color: white;
+      border-color: #16a34a;
+    }
+
+    .severity-medio {
+      background: #fefce8;
+      color: #a16207;
+      border-color: #fde047;
+    }
+
+    .severity-medio.active {
+      background: #eab308;
+      color: white;
+      border-color: #eab308;
+    }
+
+    .severity-alto {
+      background: #fff7ed;
+      color: #c2410c;
+      border-color: #fed7aa;
+    }
+
+    .severity-alto.active {
+      background: #ea580c;
+      color: white;
+      border-color: #ea580c;
+    }
+
+    .severity-critico {
+      background: #fef2f2;
+      color: #991b1b;
+      border-color: #fecaca;
+    }
+
+    .severity-critico.active {
+      background: #dc2626;
+      color: white;
+      border-color: #dc2626;
+    }
+
+    .specific-fields {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .specific-fields.show {
+      display: block;
+    }
+
+    .specific-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 160px;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f8fafc;
+      color: #374151;
+      border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    .incident-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid var(--severity-color);
+      transition: all 0.3s ease;
+    }
+
+    .incident-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .incident-header {
+      display: flex;
+      justify-content: between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .incident-type {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .incident-severity {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .incident-meta {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    .incident-description {
+      color: #374151;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    .incident-footer {
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .stat-item {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 15px;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .stat-critico { color: #dc2626; }
+    .stat-alto { color: #ea580c; }
+    .stat-medio { color: #eab308; }
+    .stat-bajo { color: #16a34a; }
+
+    .search-bar {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding-left: 40px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 16px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 8px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 20px;
+      background: #f8fafc;
+      color: #374151;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filter-tab:hover,
+    .filter-tab.active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    .success-message {
+      display: none;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border: 2px solid #10b981;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: center;
+      color: #065f46;
+      font-weight: 600;
+      animation: slideDown 0.3s ease;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 16px;
+      }
+
+      .header {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .form-container {
+        padding: 20px;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .severity-selector {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .button-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-button">
+    ← Volver al Menú
+  </a>
+
+  <div class="container">
+    <div class="header">
+      <h1>🚨 Notas Clínicas Internas</h1>
+      <p>Sistema Bludee - Reporte de Incidentes</p>
+    </div>
+
+    <div class="breadcrumb">
+      <a href="index.html">🗃️ Bludee</a> / 
+      <a href="index.html">Calidad y Seguridad</a> / 
+      <span>Notas Clínicas Internas</span>
+    </div>
+
+    <div class="form-container">
+      <div class="main-grid">
+        <!-- Formulario Principal -->
+        <div class="main-form">
+          <!-- Información Básica del Incidente -->
+          <div class="form-section section-incident">
+            <h2 class="section-title">
+              <span class="section-icon">🚨</span>
+              Nuevo Reporte de Incidente
+            </h2>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="tipo_incidente">Tipo de Incidente <span class="required">*</span></label>
+                <select id="tipo_incidente" onchange="mostrarCamposEspecificos()">
+                  <option value="">Seleccionar tipo...</option>
+                  <option value="reaccion_adversa">🩸 Reacción Adversa</option>
+                  <option value="unidad_defectuosa">🔴 Unidad Defectuosa</option>
+                  <option value="error_identificacion">🆔 Error de Identificación</option>
+                  <option value="retraso_clinico">⏰ Retraso Clínico</option>
+                  <option value="transfusion_incompleta">⏹️ Transfusión Incompleta</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="fecha_incidente">Fecha y Hora del Incidente <span class="required">*</span></label>
+                <input type="datetime-local" id="fecha_incidente">
+              </div>
+
+              <div class="form-group">
+                <label for="paciente_nombre">Nombre del Paciente (si aplica)</label>
+                <input type="text" id="paciente_nombre" placeholder="Nombre completo del paciente">
+              </div>
+
+              <div class="form-group">
+                <label for="paciente_record">Número de Récord (si aplica)</label>
+                <input type="text" id="paciente_record" placeholder="00000000">
+              </div>
+
+              <div class="form-group">
+                <label for="unidad_id">ID de Unidad/Componente (si aplica)</label>
+                <input type="text" id="unidad_id" placeholder="Ej: A123">
+              </div>
+
+              <div class="form-group">
+                <label for="area_involucrada">Área Involucrada</label>
+                <select id="area_involucrada">
+                  <option value="">Seleccionar área...</option>
+                  <option value="banco_sangre">Banco de Sangre</option>
+                  <option value="medicina">Medicina</option>
+                  <option value="cirugia">Cirugía</option>
+                  <option value="emergencia">Emergencia</option>
+                  <option value="intensivo">Cuidados Intensivos</option>
+                  <option value="pediatria">Pediatría</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Nivel de Severidad <span class="required">*</span></label>
+              <div class="severity-selector">
+                <div class="severity-option severity-bajo" onclick="seleccionarSeveridad('bajo')">
+                  🟢 BAJO
+                </div>
+                <div class="severity-option severity-medio" onclick="seleccionarSeveridad('medio')">
+                  🟡 MEDIO
+                </div>
+                <div class="severity-option severity-alto" onclick="seleccionarSeveridad('alto')">
+                  🟠 ALTO
+                </div>
+                <div class="severity-option severity-critico" onclick="seleccionarSeveridad('critico')">
+                  🔴 CRÍTICO
+                </div>
+              </div>
+              <input type="hidden" id="severidad_selected" value="">
+            </div>
+
+            <!-- Campos Específicos por Tipo -->
+            <div id="campos_reaccion_adversa" class="specific-fields">
+              <div class="specific-title">🩸 Detalles de Reacción Adversa</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="sintomas">Síntomas Observados</label>
+                  <textarea id="sintomas" rows="3" placeholder="Describa los síntomas..."></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="tiempo_aparicion">Tiempo de Aparición (minutos)</label>
+                  <input type="number" id="tiempo_aparicion" placeholder="Ej: 15">
+                </div>
+                <div class="form-group">
+                  <label for="volumen_transfundido">Volumen Transfundido</label>
+                  <input type="text" id="volumen_transfundido" placeholder="Ej: 150 mL">
+                </div>
+                <div class="form-group">
+                  <label for="medico_notificado">Médico Notificado</label>
+                  <input type="text" id="medico_notificado" placeholder="Dr./Dra. Apellido">
+                </div>
+              </div>
+            </div>
+
+            <div id="campos_unidad_defectuosa" class="specific-fields">
+              <div class="specific-title">🔴 Detalles de Unidad Defectuosa</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="tipo_defecto">Tipo de Defecto</label>
+                  <select id="tipo_defecto">
+                    <option value="">Seleccionar...</option>
+                    <option value="turbidez">Turbidez</option>
+                    <option value="coagulos">Coágulos</option>
+                    <option value="bolsa_rota">Bolsa rota/dañada</option>
+                    <option value="color_anormal">Color anormal</option>
+                    <option value="precipitado">Precipitado</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="proveedor_banco">Proveedor/Banco Origen</label>
+                  <input type="text" id="proveedor_banco" placeholder="Nombre del proveedor">
+                </div>
+                <div class="form-group">
+                  <label for="lote_serie">Lote/Serie</label>
+                  <input type="text" id="lote_serie" placeholder="Número de lote">
+                </div>
+                <div class="form-group">
+                  <label for="accion_unidad">Acción con la Unidad</label>
+                  <select id="accion_unidad">
+                    <option value="">Seleccionar...</option>
+                    <option value="descartada">Descartada</option>
+                    <option value="devuelta">Devuelta al proveedor</option>
+                    <option value="en_cuarentena">En cuarentena</option>
+                    <option value="enviada_laboratorio">Enviada a laboratorio</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div id="campos_error_identificacion" class="specific-fields">
+              <div class="specific-title">🆔 Detalles de Error de Identificación</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="tipo_error_id">Tipo de Error</label>
+                  <select id="tipo_error_id">
+                    <option value="">Seleccionar...</option>
+                    <option value="paciente">Error en identificación de paciente</option>
+                    <option value="muestra">Error en identificación de muestra</option>
+                    <option value="unidad">Error en identificación de unidad</option>
+                    <option value="etiquetado">Error en etiquetado</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="momento_detectado">Momento Detectado</label>
+                  <select id="momento_detectado">
+                    <option value="">Seleccionar...</option>
+                    <option value="pre_transfusion">Pre-transfusión</option>
+                    <option value="durante_transfusion">Durante transfusión</option>
+                    <option value="post_transfusion">Post-transfusión</option>
+                    <option value="revision_rutina">Revisión de rutina</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="proceso_error">Proceso donde Ocurrió</label>
+                  <input type="text" id="proceso_error" placeholder="Describa el proceso...">
+                </div>
+              </div>
+            </div>
+
+            <div id="campos_retraso_clinico" class="specific-fields">
+              <div class="specific-title">⏰ Detalles de Retraso Clínico</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="tiempo_retraso">Tiempo de Retraso</label>
+                  <input type="text" id="tiempo_retraso" placeholder="Ej: 2 horas">
+                </div>
+                <div class="form-group">
+                  <label for="causa_retraso">Causa del Retraso</label>
+                  <select id="causa_retraso">
+                    <option value="">Seleccionar...</option>
+                    <option value="falta_personal">Falta de personal</option>
+                    <option value="equipo_averiado">Equipo averiado</option>
+                    <option value="falta_componente">Falta de componente</option>
+                    <option value="procedimiento">Demora en procedimiento</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="area_responsable">Área Responsable</label>
+                  <input type="text" id="area_responsable" placeholder="Área responsable del retraso">
+                </div>
+                <div class="form-group">
+                  <label for="impacto_paciente">Impacto en el Paciente</label>
+                  <select id="impacto_paciente">
+                    <option value="">Seleccionar...</option>
+                    <option value="ninguno">Ninguno</option>
+                    <option value="minimo">Mínimo</option>
+                    <option value="moderado">Moderado</option>
+                    <option value="significativo">Significativo</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div id="campos_transfusion_incompleta" class="specific-fields">
+              <div class="specific-title">⏹️ Detalles de Transfusión Incompleta</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="volumen_transfundido_inc">Volumen Transfundido</label>
+                  <input type="text" id="volumen_transfundido_inc" placeholder="Ej: 150 mL">
+                </div>
+                <div class="form-group">
+                  <label for="volumen_total">Volumen Total</label>
+                  <input type="text" id="volumen_total" placeholder="Ej: 250 mL">
+                </div>
+                <div class="form-group">
+                  <label for="razon_interrupcion">Razón de Interrupción</label>
+                  <select id="razon_interrupcion">
+                    <option value="">Seleccionar...</option>
+                    <option value="reaccion_adversa">Reacción adversa</option>
+                    <option value="decision_medica">Decisión médica</option>
+                    <option value="problema_tecnico">Problema técnico</option>
+                    <option value="estado_paciente">Estado del paciente</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="disposicion_unidad">Disposición de Unidad Restante</label>
+                  <select id="disposicion_unidad">
+                    <option value="">Seleccionar...</option>
+                    <option value="descartada">Descartada</option>
+                    <option value="devuelta_banco">Devuelta al banco</option>
+                    <option value="reutilizada">Reutilizada para otro paciente</option>
+                    <option value="cuarentena">En cuarentena</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descripción y Acciones -->
+          <div class="form-section section-details">
+            <h2 class="section-title">
+              <span class="section-icon">📝</span>
+              Descripción Detallada y Acciones
+            </h2>
+            
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label for="descripcion_detallada">Descripción Detallada del Incidente <span class="required">*</span></label>
+                <textarea id="descripcion_detallada" rows="5" placeholder="Describa el incidente de manera detallada, incluyendo contexto, secuencia de eventos y cualquier información relevante..."></textarea>
+              </div>
+
+              <div class="form-group full-width">
+                <label for="acciones_inmediatas">Acciones Inmediatas Tomadas <span class="required">*</span></label>
+                <textarea id="acciones_inmediatas" rows="4" placeholder="Describa las acciones que se tomaron inmediatamente después del incidente..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="supervisor_notificado">¿Supervisor Notificado?</label>
+                <select id="supervisor_notificado" onchange="mostrarSupervisor()">
+                  <option value="">Seleccionar...</option>
+                  <option value="si">Sí</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+
+              <div class="form-group" id="supervisor_nombre_group" style="display: none;">
+                <label for="supervisor_nombre">Nombre del Supervisor</label>
+                <input type="text" id="supervisor_nombre" placeholder="Nombre del supervisor notificado">
+              </div>
+
+              <div class="form-group">
+                <label for="seguimiento_requerido">¿Seguimiento Requerido?</label>
+                <select id="seguimiento_requerido">
+                  <option value="">Seleccionar...</option>
+                  <option value="si">Sí</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="tecnologo_reporta">Tecnólogo Médico que Reporta <span class="required">*</span></label>
+                <input type="text" id="tecnologo_reporta" value="Norma I. Medina" readonly>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="button-container">
+            <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
+              🔄 Limpiar Formulario
+            </button>
+            <button type="button" class="btn btn-primary" onclick="guardarIncidente()">
+              💾 Guardar Reporte
+            </button>
+          </div>
+
+          <div class="success-message" id="success_message">
+            ✅ Reporte de incidente guardado exitosamente
+          </div>
+        </div>
+
+        <!-- Panel Lateral -->
+        <div class="sidebar">
+          <!-- Estadísticas Rápidas -->
+          <div class="form-section section-stats">
+            <h3 class="section-title">
+              <span class="section-icon">📊</span>
+              Estadísticas del Mes
+            </h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-number stat-critico">2</div>
+                <div class="stat-label">Críticos</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number stat-alto">1</div>
+                <div class="stat-label">Altos</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number stat-medio">4</div>
+                <div class="stat-label">Medios</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number stat-bajo">8</div>
+                <div class="stat-label">Bajos</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acceso Rápido -->
+          <div class="form-section section-actions">
+            <h3 class="section-title">
+              <span class="section-icon">⚡</span>
+              Acceso Rápido
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button class="btn btn-secondary" style="min-width: auto;">
+                📋 Ver Todos los Incidentes
+              </button>
+              <button class="btn btn-secondary" style="min-width: auto;">
+                📊 Generar Reporte Mensual
+              </button>
+              <button class="btn btn-secondary" style="min-width: auto;">
+                🔍 Buscar por Paciente
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historial de Incidentes -->
+      <div class="form-section section-history">
+        <h2 class="section-title">
+          <span class="section-icon">📋</span>
+          Historial de Incidentes Recientes
+        </h2>
+
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search_incidents" placeholder="Buscar incidentes..." oninput="filtrarIncidentes()">
+        </div>
+
+        <div class="filter-tabs">
+          <div class="filter-tab active" onclick="filtrarPorTipo('todos')">Todos</div>
+          <div class="filter-tab" onclick="filtrarPorTipo('reaccion_adversa')">Reacciones</div>
+          <div class="filter-tab" onclick="filtrarPorTipo('unidad_defectuosa')">Unidades</div>
+          <div class="filter-tab" onclick="filtrarPorTipo('error_identificacion')">Errores ID</div>
+          <div class="filter-tab" onclick="filtrarPorTipo('retraso_clinico')">Retrasos</div>
+          <div class="filter-tab" onclick="filtrarPorTipo('transfusion_incompleta')">Incompletas</div>
+        </div>
+
+        <div id="incidents_container">
+          <div class="incident-card" style="--severity-color: #dc2626;" data-type="reaccion_adversa">
+            <div class="incident-header">
+              <div class="incident-type">🩸 Reacción Adversa</div>
+              <div class="incident-severity" style="background: #fef2f2; color: #991b1b;">CRÍTICO</div>
+            </div>
+            <div class="incident-meta">
+              Paciente: Ana Martínez | Unidad: A123 | 15 Jul 2025 - 14:30
+            </div>
+            <div class="incident-description">
+              Paciente presentó fiebre y escalofríos a los 10 minutos de iniciada la transfusión. Se suspendió inmediatamente...
+            </div>
+            <div class="incident-footer">
+              <span>Reportado por: Norma I. Medina</span>
+              <span>Estado: En investigación</span>
+            </div>
+          </div>
+
+          <div class="incident-card" style="--severity-color: #eab308;" data-type="error_identificacion">
+            <div class="incident-header">
+              <div class="incident-type">🆔 Error de Identificación</div>
+              <div class="incident-severity" style="background: #fefce8; color: #a16207;">MEDIO</div>
+            </div>
+            <div class="incident-meta">
+              Paciente: Roberto Torres | Área: Medicina | 14 Jul 2025 - 09:15
+            </div>
+            <div class="incident-description">
+              Error en la identificación del paciente detectado antes de la transfusión durante la verificación cruzada...
+            </div>
+            <div class="incident-footer">
+              <span>Reportado por: Carlos Pérez</span>
+              <span>Estado: Cerrado</span>
+            </div>
+          </div>
+
+          <div class="incident-card" style="--severity-color: #16a34a;" data-type="retraso_clinico">
+            <div class="incident-header">
+              <div class="incident-type">⏰ Retraso Clínico</div>
+              <div class="incident-severity" style="background: #f0fdf4; color: #166534;">BAJO</div>
+            </div>
+            <div class="incident-meta">
+              Área: Cirugía | 13 Jul 2025 - 16:45
+            </div>
+            <div class="incident-description">
+              Retraso de 30 minutos en la entrega de componente por demora en el transporte interno...
+            </div>
+            <div class="incident-footer">
+              <span>Reportado por: Ana García</span>
+              <span>Estado: Cerrado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let severidadSeleccionada = '';
+    let currentFilter = 'todos';
+
+    function seleccionarSeveridad(severidad) {
+      // Remover clase active de todas las opciones
+      document.querySelectorAll('.severity-option').forEach(opt => {
+        opt.classList.remove('active');
+      });
+      
+      // Agregar clase active a la seleccionada
+      document.querySelector(`.severity-${severidad}`).classList.add('active');
+      
+      // Guardar selección
+      severidadSeleccionada = severidad;
+      document.getElementById('severidad_selected').value = severidad;
+    }
+
+    function mostrarCamposEspecificos() {
+      const tipo = document.getElementById('tipo_incidente').value;
+      
+      // Ocultar todos los campos específicos
+      document.querySelectorAll('.specific-fields').forEach(field => {
+        field.classList.remove('show');
+      });
+      
+      // Mostrar el campo específico correspondiente
+      if (tipo) {
+        const campoEspecifico = document.getElementById(`campos_${tipo}`);
+        if (campoEspecifico) {
+          campoEspecifico.classList.add('show');
+        }
+      }
+    }
+
+    function mostrarSupervisor() {
+      const supervisorNotificado = document.getElementById('supervisor_notificado').value;
+      const supervisorGroup = document.getElementById('supervisor_nombre_group');
+      
+      if (supervisorNotificado === 'si') {
+        supervisorGroup.style.display = 'block';
+      } else {
+        supervisorGroup.style.display = 'none';
+        document.getElementById('supervisor_nombre').value = '';
+      }
+    }
+
+    function guardarIncidente() {
+      // Validaciones básicas
+      const tipoIncidente = document.getElementById('tipo_incidente').value;
+      const fechaIncidente = document.getElementById('fecha_incidente').value;
+      const descripcion = document.getElementById('descripcion_detallada').value;
+      const acciones = document.getElementById('acciones_inmediatas').value;
+      
+      if (!tipoIncidente) {
+        alert('Por favor, seleccione el tipo de incidente.');
+        return;
+      }
+      
+      if (!fechaIncidente) {
+        alert('Por favor, ingrese la fecha y hora del incidente.');
+        return;
+      }
+      
+      if (!severidadSeleccionada) {
+        alert('Por favor, seleccione el nivel de severidad.');
+        return;
+      }
+      
+      if (!descripcion.trim()) {
+        alert('Por favor, proporcione una descripción detallada del incidente.');
+        return;
+      }
+      
+      if (!acciones.trim()) {
+        alert('Por favor, describa las acciones inmediatas tomadas.');
+        return;
+      }
+
+      // Mostrar mensaje de éxito
+      const successMessage = document.getElementById('success_message');
+      successMessage.classList.add('show');
+      
+      // Ocultar mensaje después de 3 segundos y limpiar formulario
+      setTimeout(() => {
+        successMessage.classList.remove('show');
+        limpiarFormulario();
+      }, 3000);
+    }
+
+    function limpiarFormulario() {
+      // Limpiar todos los campos
+      document.querySelectorAll('input:not([readonly]), select, textarea').forEach(field => {
+        if (field.type === 'datetime-local' || field.type === 'date' || field.type === 'time') {
+          field.value = '';
+        } else if (field.tagName === 'SELECT') {
+          field.selectedIndex = 0;
+        } else if (field.type !== 'hidden') {
+          field.value = '';
+        }
+      });
+      
+      // Resetear severidad
+      document.querySelectorAll('.severity-option').forEach(opt => {
+        opt.classList.remove('active');
+      });
+      severidadSeleccionada = '';
+      document.getElementById('severidad_selected').value = '';
+      
+      // Ocultar campos específicos
+      document.querySelectorAll('.specific-fields').forEach(field => {
+        field.classList.remove('show');
+      });
+      
+      // Ocultar supervisor
+      document.getElementById('supervisor_nombre_group').style.display = 'none';
+    }
+
+    function filtrarPorTipo(tipo) {
+      currentFilter = tipo;
+      
+      // Actualizar tabs activos
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // Filtrar incidentes
+      filtrarIncidentes();
+    }
+
+    function filtrarIncidentes() {
+      const searchTerm = document.getElementById('search_incidents').value.toLowerCase();
+      const incidentCards = document.querySelectorAll('.incident-card');
+      
+      incidentCards.forEach(card => {
+        const texto = card.textContent.toLowerCase();
+        const tipo = card.getAttribute('data-type');
+        
+        let mostrar = true;
+        
+        // Filtro por texto
+        if (searchTerm && !texto.includes(searchTerm)) {
+          mostrar = false;
+        }
+        
+        // Filtro por tipo
+        if (currentFilter !== 'todos' && tipo !== currentFilter) {
+          mostrar = false;
+        }
+        
+        card.style.display = mostrar ? 'block' : 'none';
+      });
+    }
+
+    // Auto-completar fecha actual
+    window.addEventListener('load', function() {
+      const now = new Date();
+      const datetime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      document.getElementById('fecha_incidente').value = datetime;
+    });
+  </script>
+</body>
+</html>
