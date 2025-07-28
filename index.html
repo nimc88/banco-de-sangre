@@ -979,6 +979,13 @@
     <div class="modules-section">
       <h2 class="modules-title">🗃️ Módulos del Sistema Bludee</h2>
       <div class="modules-grid">
+
+      <div class="module-card" style="--module-color: #dc2626;" onclick="abrirModulo('registro-unidades-emergencia')">
+          <div class="module-icon">📥</div>
+          <div class="module-title">Registro de Unidades de Emergencia</div>
+          <div class="module-description">Cumple con el protocolo de emergencia.</div>
+          <div class="module-status status-active">Activo</div>
+        </div>
         
         <div class="module-card" style="--module-color: #dc2626;" onclick="abrirModulo('registro-unidades')">
           <div class="module-icon">📥</div>
@@ -1202,6 +1209,7 @@
     // ===== NAVEGACIÓN A MÓDULOS =====
  function abrirModulo(modulo) {
   const urls = {
+    'registro-unidades-emergencia': 'Registro de Despacho de Unidad de Emergencia.html'
     'registro-unidades': 'Registro de Unidad Recibida Simulador.html',
     'despacho-unidad': 'despacho_unidad_pdf_popup.html',
     'componentes-devueltos': 'modulo_componentes_devueltos.html',
