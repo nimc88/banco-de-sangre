@@ -218,6 +218,46 @@
             transform: translateY(0);
         }
 
+        .bludee-assistant.minimized {
+            height: 80px;
+            width: 350px;
+            transform: translateY(0);
+        }
+
+        .bludee-assistant.minimized .bludee-chat {
+            display: none;
+        }
+
+        .bludee-assistant.minimized .bludee-header {
+            border-radius: 17px;
+            cursor: pointer;
+        }
+
+        .bludee-assistant.minimized .bludee-header:hover {
+            background: linear-gradient(135deg, #b91c1c, #dc2626);
+        }
+
+        .bludee-assistant.minimized .bludee-info p {
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .minimize-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+            margin-right: 5px;
+        }
+
+        .minimize-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         .bludee-header {
             background: linear-gradient(135deg, #dc2626, #ef4444);
             color: white;
@@ -227,6 +267,7 @@
             align-items: center;
             justify-content: space-between;
             flex-shrink: 0;
+            cursor: pointer;
         }
 
         .bludee-avatar {
@@ -556,6 +597,13 @@
                 height: 80vh;
             }
 
+            .bludee-assistant.minimized {
+                height: 70px;
+                width: 90%;
+                right: 5%;
+                left: 5%;
+            }
+
             .bludee-toggle {
                 width: 70px;
                 height: 70px;
@@ -723,20 +771,23 @@
     
     <!-- Asistente Bludee con IA -->
     <div class="bludee-assistant" id="bludeeAssistant">
-        <div class="bludee-header">
+        <div class="bludee-header" onclick="toggleMinimize()">
             <div class="bludee-avatar">
                 B
                 <div class="ai-indicator"></div>
             </div>
             <div class="bludee-info">
                 <h3>Bludee IA</h3>
-                <p>Especialista en medicina transfusional</p>
+                <p id="assistantStatus">Especialista en medicina transfusional</p>
             </div>
             <div>
                 <span class="ai-status">
                     🤖 IA Activa
                 </span>
-                <button class="bludee-close" onclick="toggleBludee()">✕</button>
+                <button class="minimize-btn" onclick="event.stopPropagation(); toggleMinimize()" id="minimizeBtn" title="Minimizar/Maximizar">
+                    ⬇️
+                </button>
+                <button class="bludee-close" onclick="event.stopPropagation(); toggleBludee()">✕</button>
             </div>
         </div>
         
@@ -778,6 +829,7 @@
 
     <script>
         let isAssistantOpen = false;
+        let isMinimized = false;
         let conversationHistory = [];
 
         // Prompt especializado para medicina transfusional
@@ -829,23 +881,66 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
             const toggle = document.querySelector('.bludee-toggle');
             
             if (isAssistantOpen) {
-                assistant.classList.remove('active');
+                assistant.classList.remove('active', 'minimized');
                 toggle.classList.remove('hidden');
                 isAssistantOpen = false;
+                isMinimized = false;
             } else {
                 assistant.classList.add('active');
                 toggle.classList.add('hidden');
                 isAssistantOpen = true;
+                isMinimized = false;
                 
                 if (document.getElementById('chatMessages').children.length === 0) {
                     showWelcomeMessage();
                 }
             }
+            updateMinimizeButton();
+        }
+
+        function toggleMinimize() {
+            const assistant = document.getElementById('bludeeAssistant');
+            const statusText = document.getElementById('assistantStatus');
+            
+            if (!isAssistantOpen) return;
+            
+            if (isMinimized) {
+                // Maximizar
+                assistant.classList.remove('minimized');
+                statusText.textContent = 'Especialista en medicina transfusional';
+                isMinimized = false;
+                // Enfocar el input cuando se maximiza
+                setTimeout(() => {
+                    document.getElementById('chatInput').focus();
+                }, 300);
+            } else {
+                // Minimizar
+                assistant.classList.add('minimized');
+                statusText.textContent = 'Haz clic para maximizar';
+                isMinimized = true;
+            }
+            updateMinimizeButton();
+        }
+
+        function updateMinimizeButton() {
+            const minimizeBtn = document.getElementById('minimizeBtn');
+            if (isMinimized) {
+                minimizeBtn.innerHTML = '⬆️';
+                minimizeBtn.title = 'Maximizar';
+            } else {
+                minimizeBtn.innerHTML = '⬇️';
+                minimizeBtn.title = 'Minimizar';
+            }
         }
 
         function showWelcomeMessage() {
+            // Asegurarse de que esté maximizado para el mensaje de bienvenida
+            if (isMinimized) {
+                toggleMinimize();
+            }
+            
             setTimeout(() => {
-                addMessage("¡Hola! Soy **Bludee IA**, tu especialista en medicina transfusional. 🤖🩸\n\nPuedo responder **cualquier pregunta** sobre bancos de sangre, por ejemplo:\n\n🔬 **Preguntas técnicas:**\n• ¿Qué es un anti-K?\n• ¿Cómo interpretar un DAT positivo?\n• ¿Qué anticuerpos causan EHRN?\n\n👥 **Casos clínicos:**\n• Paciente embarazada con anti-D\n• Transfusión en emergencia\n• Reacciones transfusionales\n\n🏥 **Protocolos:**\n• Sangre irradiada\n• Componentes CMV negativos\n• Pruebas de compatibilidad\n\n**¿Qué te gustaría saber?**", false);
+                addMessage("¡Hola! Soy **Bludee IA**, tu especialista en medicina transfusional. 🤖🩸\n\nPuedo responder **cualquier pregunta** sobre bancos de sangre, por ejemplo:\n\n🔬 **Preguntas técnicas:**\n• ¿Qué es un anti-K?\n• ¿Cómo interpretar un DAT positivo?\n• ¿Qué anticuerpos causan EHRN?\n\n👥 **Casos clínicos:**\n• Paciente embarazada con anti-D\n• Transfusión en emergencia\n• Reacciones transfusionales\n\n🏥 **Protocolos:**\n• Sangre irradiada\n• Componentes CMV negativos\n• Pruebas de compatibilidad\n\n**💡 Tip:** Puedes minimizarme haciendo clic en ⬇️ para usar el menú principal\n\n**¿Qué te gustaría saber?**", false);
                 setTimeout(() => {
                     showQuickOptions();
                 }, 1500);
@@ -939,6 +1034,11 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
             const message = messageText || input.value.trim();
             
             if (!message) return;
+            
+            // Maximizar automáticamente cuando se envía un mensaje
+            if (isMinimized) {
+                toggleMinimize();
+            }
             
             // Deshabilitar input y botón
             input.disabled = true;
