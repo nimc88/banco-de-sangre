@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Banco de Sangre - Puerto Rico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chatbot-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .blood-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+        }
+
+        .chat-area {
+            height: 400px;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            background: white;
+            padding: 15px;
+            border-radius: 15px 15px 15px 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #e53e3e;
+        }
+
+        .user-message {
+            background: #e53e3e;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 15px 15px 5px 15px;
+            margin-left: 50px;
+            text-align: right;
+        }
+
+        .options {
+            margin-top: 15px;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border: 2px solid #e53e3e;
+            color: #e53e3e;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .option-btn:hover {
+            background: #e53e3e;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(229, 62, 62, 0.3);
+        }
+
+        .language-selector {
+            padding: 20px;
+            text-align: center;
+            background: white;
+        }
+
+        .lang-btn {
+            padding: 12px 25px;
+            margin: 0 10px;
+            background: #f1f1f1;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .lang-btn.active {
+            background: #e53e3e;
+            color: white;
+            border-color: #e53e3e;
+        }
+
+        .back-options {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .back-btn {
+            padding: 8px 15px;
+            margin-right: 10px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #495057;
+            transform: translateY(-1px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .typing {
+            display: inline-block;
+            animation: typing 1.5s infinite;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 1; }
+            30% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="blood-icon">🩸</div>
+            <h1 id="header-title">Sistema de Banco de Sangre</h1>
+            <p id="header-subtitle">Puerto Rico</p>
+        </div>
+
+        <!-- Language Selection -->
+        <div id="language-section" class="language-selector">
+            <h3 id="lang-prompt">Selecciona tu idioma / Select your language</h3>
+            <br>
+            <button class="lang-btn" onclick="setLanguage('es')">🇪🇸 Español</button>
+            <button class="lang-btn" onclick="setLanguage('en')">🇺🇸 English</button>
+        </div>
+
+        <!-- Chat Area -->
+        <div id="chat-section" class="hidden">
+            <div class="chat-area" id="chat-area">
+                <!-- Messages will be added here -->
+            </div>
+            
+            <!-- Back Options -->
+            <div class="back-options hidden" id="back-options">
+                <button class="back-btn" onclick="goToMainMenu()">← <span id="back-text">Volver al menú</span></button>
+                <button class="back-btn" onclick="showLanguageSelector()">🌐 <span id="lang-text">Cambiar idioma</span></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLanguage = 'es';
+        let currentSection = 'language';
+
+        const messages = {
+            es: {
+                welcome: '¡Hola! Soy tu asistente virtual del Sistema de Banco de Sangre de Puerto Rico.',
+                mainMenu: '¿En qué puedo ayudarte hoy?',
+                options: {
+                    donation: '📋 Información sobre donación',
+                    inventory: '🔍 Consultar inventario',
+                    register: '👥 Registrar donante',
+                    stats: '📊 Ver estadísticas',
+                    help: '❓ Ayuda y soporte',
+                    language: '🌐 Cambiar idioma',
+                    exit: '🚪 Salir'
+                },
+                responses: {
+                    donation: 'La donación de sangre es un acto voluntario que salva vidas.\n\n📋 Requisitos básicos:\n• Edad: 18-65 años\n• Peso mínimo: 110 libras\n• Buena salud general\n• No haber donado en los últimos 56 días',
+                    inventory: 'Consultando inventario del laboratorio...\n\n🩸 Esta función se conectará con la base de datos para mostrar:\n• Tipos de sangre disponibles\n• Cantidades en stock\n• Fechas de vencimiento',
+                    register: 'Iniciando proceso de registro de donante...\n\n📝 Información requerida:\n• Datos personales\n• Historial médico\n• Consentimiento informado',
+                    stats: 'Mostrando estadísticas del laboratorio...\n\n📊 Reportes disponibles:\n• Donaciones mensuales\n• Inventario por tipo\n• Demanda vs. suministro',
+                    help: 'Centro de ayuda y soporte técnico:\n\n📞 Contacto:\n• Tel: (787) 123-4567\n• Email: soporte@bancosangre.pr\n• Horario: 24/7'
+                },
+                backText: 'Volver al menú',
+                langText: 'Cambiar idioma',
+                langChanged: 'Idioma cambiado exitosamente'
+            },
+            en: {
+                welcome: 'Hello! I am your virtual assistant for the Puerto Rico Blood Bank System.',
+                mainMenu: 'How can I help you today?',
+                options: {
+                    donation: '📋 Donation information',
+                    inventory: '🔍 Check inventory',
+                    register: '👥 Register donor',
+                    stats: '📊 View statistics',
+                    help: '❓ Help & support',
+                    language: '🌐 Change language',
+                    exit: '🚪 Exit'
+                },
+                responses: {
+                    donation: 'Blood donation is a voluntary act that saves lives.\n\n📋 Basic requirements:\n• Age: 18-65 years\n• Minimum weight: 110 pounds\n• Good general health\n• No donation in the last 56 days',
+                    inventory: 'Checking laboratory inventory...\n\n🩸 This function will connect to the database to show:\n• Available blood types\n• Stock quantities\n• Expiration dates',
+                    register: 'Starting donor registration process...\n\n📝 Required information:\n• Personal data\n• Medical history\n• Informed consent',
+                    stats: 'Displaying laboratory statistics...\n\n📊 Available reports:\n• Monthly donations\n• Inventory by type\n• Demand vs. supply',
+                    help: 'Help and technical support center:\n\n📞 Contact:\n• Phone: (787) 123-4567\n• Email: support@bloodbank.pr\n• Hours: 24/7'
+                },
+                backText: 'Back to menu',
+                langText: 'Change language',
+                langChanged: 'Language changed successfully'
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            document.getElementById('language-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.remove('hidden');
+            
+            // Update UI text
+            document.getElementById('back-text').textContent = messages[lang].backText;
+            document.getElementById('lang-text').textContent = messages[lang].langText;
+            
+            // Clear chat and start
+            clearChat();
+            showWelcome();
+        }
+
+        function clearChat() {
+            document.getElementById('chat-area').innerHTML = '';
+        }
+
+        function addMessage(message, isUser = false) {
+            const chatArea = document.getElementById('chat-area');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = isUser ? 'user-message' : 'bot-message';
+            messageContent.innerHTML = message.replace(/\n/g, '<br>');
+            
+            messageDiv.appendChild(messageContent);
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function showWelcome() {
+            setTimeout(() => {
+                addMessage(messages[currentLanguage].welcome);
+                setTimeout(() => {
+                    showMainMenu();
+                }, 1000);
+            }, 500);
+        }
+
+        function showMainMenu() {
+            addMessage(messages[currentLanguage].mainMenu);
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options';
+            
+            const options = messages[currentLanguage].options;
+            
+            Object.keys(options).forEach(key => {
+                if (key !== 'exit') {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = options[key];
+                    btn.onclick = () => handleOption(key);
+                    optionsDiv.appendChild(btn);
+                }
+            });
+            
+            const lastMessage = document.querySelector('.message:last-child .bot-message');
+            lastMessage.appendChild(optionsDiv);
+            
+            document.getElementById('back-options').classList.add('hidden');
+        }
+
+        function handleOption(option) {
+            const optionText = messages[currentLanguage].options[option];
+            addMessage(optionText, true);
+            
+            setTimeout(() => {
+                if (option === 'language') {
+                    showLanguageSelector();
+                } else {
+                    addMessage(messages[currentLanguage].responses[option]);
+                    document.getElementById('back-options').classList.remove('hidden');
+                }
+            }, 500);
+        }
+
+        function goToMainMenu() {
+            document.getElementById('back-options').classList.add('hidden');
+            setTimeout(() => {
+                showMainMenu();
+            }, 300);
+        }
+
+        function showLanguageSelector() {
+            document.getElementById('chat-section').classList.add('hidden');
+            document.getElementById('language-section').classList.remove('hidden');
+            
+            if (currentSection !== 'language') {
+                setTimeout(() => {
+                    addMessage(messages[currentLanguage].langChanged);
+                    setTimeout(() => {
+                        setLanguage(currentLanguage);
+                    }, 1000);
+                }, 100);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start with language selection
+        });
+    </script>
+</body>
+</html>
