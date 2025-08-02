@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bludee - Sistema de Banco de Sangre</title>
+    <title>Bludee - Sistema de Banco de Sangre con IA</title>
     <style>
         * {
             margin: 0;
@@ -16,7 +16,6 @@
             background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
             min-height: 100vh;
             padding: 20px;
-            overflow-x: auto;
         }
 
         .filing-cabinet {
@@ -25,21 +24,8 @@
             background: linear-gradient(145deg, #f8fafc, #e2e8f0);
             border-radius: 16px;
             padding: 30px;
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9);
-            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
             border: 3px solid #cbd5e1;
-        }
-
-        .filing-cabinet::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 20px;
-            right: 20px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
         }
 
         .header {
@@ -51,7 +37,6 @@
         .header h1 {
             font-size: 2.8rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
             background: linear-gradient(135deg, #dc2626, #ef4444);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -70,6 +55,18 @@
             color: #ef4444;
             font-style: italic;
             font-weight: 600;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
 
         .folders-container {
@@ -91,13 +88,10 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 1.1rem;
-            box-shadow: 
-                0 -4px 12px rgba(0, 0, 0, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
             transition: all 0.3s ease;
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-bottom: none;
-            position: relative;
             min-width: 280px;
             text-align: center;
         }
@@ -120,15 +114,9 @@
 
         .folder-tab:hover {
             transform: translateY(-3px);
-            box-shadow: 
-                0 -6px 18px rgba(0, 0, 0, 0.25),
-                inset 0 2px 0 rgba(255, 255, 255, 0.3);
         }
 
         .folder-tab.active {
-            box-shadow: 
-                0 -6px 20px rgba(0, 0, 0, 0.3),
-                inset 0 3px 0 rgba(255, 255, 255, 0.4);
             transform: translateY(-2px);
         }
 
@@ -139,31 +127,17 @@
         }
 
         .folder-content {
-            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            background: white;
             border: 3px solid #e2e8f0;
             border-radius: 0 0 16px 16px;
             padding: 30px;
-            box-shadow: 
-                0 12px 30px rgba(0, 0, 0, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
             display: none;
-            animation: slideDown 0.4s ease;
             min-height: 380px;
         }
 
         .folder-content.active {
             display: block;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .files-grid {
@@ -181,42 +155,13 @@
             color: #374151;
             transition: all 0.3s ease;
             text-align: center;
-            box-shadow: 
-                0 4px 12px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .file-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--accent-color);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .file-item:hover {
             transform: translateY(-8px);
-            box-shadow: 
-                0 12px 25px rgba(0, 0, 0, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 1);
-            background: #fafafa;
-            border-color: var(--accent-color);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
         }
-
-        .file-item:hover::before {
-            transform: scaleX(1);
-        }
-
-        .gestion .file-item { --accent-color: #dc2626; }
-        .dashboard .file-item { --accent-color: #1e40af; }
-        .expedientes .file-item { --accent-color: #0891b2; }
-        .administracion .file-item { --accent-color: #ea580c; }
 
         .file-icon {
             font-size: 2.8rem;
@@ -243,28 +188,6 @@
             font-weight: 500;
         }
 
-        .drawer-handle {
-            position: absolute;
-            right: 20px;
-            top: 15px;
-            width: 35px;
-            height: 10px;
-            background: linear-gradient(145deg, #64748b, #94a3b8);
-            border-radius: 5px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-
-        .drawer-handle::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: 4px;
-            right: 4px;
-            height: 2px;
-            background: linear-gradient(145deg, #94a3b8, #cbd5e1);
-            border-radius: 1px;
-        }
-
         .system-info {
             text-align: center;
             margin-top: 30px;
@@ -273,19 +196,22 @@
             font-weight: 500;
         }
 
-        /* Bludee Assistant */
+        /* Chatbot con IA */
         .bludee-assistant {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 280px;
+            width: 500px;
+            height: 700px;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
             border: 3px solid #ef4444;
             z-index: 1000;
             transform: translateY(100%);
             transition: all 0.5s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .bludee-assistant.active {
@@ -300,12 +226,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-shrink: 0;
         }
 
         .bludee-avatar {
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #dc2626, #ef4444);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -314,6 +241,24 @@
             font-size: 24px;
             color: white;
             font-weight: bold;
+            position: relative;
+        }
+
+        .ai-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background: #10b981;
+            border-radius: 50%;
+            border: 2px solid white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         .bludee-info h3 {
@@ -324,6 +269,19 @@
         .bludee-info p {
             font-size: 0.8rem;
             opacity: 0.9;
+        }
+
+        .ai-status {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .bludee-close {
@@ -341,51 +299,183 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        .bludee-body {
+        .bludee-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
             padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
         }
 
-        .bludee-message {
-            background: #f0f9ff;
-            border: 2px solid #0ea5e9;
-            border-radius: 12px;
-            padding: 15px;
+        .message {
             margin-bottom: 15px;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: #0c4a6e;
+            animation: messageSlide 0.3s ease;
         }
 
-        .bludee-actions {
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bot-message {
+            background: white;
+            padding: 15px;
+            border-radius: 15px 15px 15px 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #ef4444;
+            max-width: 95%;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .bot-message::before {
+            content: '🤖';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            background: #10b981;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border: 2px solid white;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 15px 15px 5px 15px;
+            margin-left: auto;
+            margin-right: 0;
+            text-align: right;
+            max-width: 80%;
+            box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
+        }
+
+        .expert-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .thinking-indicator {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-style: italic;
+            color: #1e40af;
+            display: none;
+        }
+
+        .quick-options {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            margin-top: 10px;
         }
 
-        .bludee-btn {
-            background: linear-gradient(135deg, #3b82f6, #1e40af);
-            color: white;
-            border: none;
+        .quick-btn {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            color: #0c4a6e;
             padding: 8px 12px;
-            border-radius: 6px;
+            border-radius: 20px;
             font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            flex: 1;
-            min-width: 80px;
         }
 
-        .bludee-btn:hover {
-            background: linear-gradient(135deg, #1e40af, #1e3a8a);
-            transform: translateY(-1px);
+        .quick-btn:hover {
+            background: #0ea5e9;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 2px solid #f1f5f9;
+            flex-shrink: 0;
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+            resize: none;
+            max-height: 100px;
+            min-height: 45px;
+        }
+
+        .chat-input:focus {
+            border-color: #ef4444;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
+        }
+
+        .send-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .bludee-toggle {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             background: linear-gradient(135deg, #dc2626, #ef4444);
             border: 3px solid white;
             border-radius: 50%;
@@ -394,60 +484,96 @@
             transition: all 0.3s ease;
             z-index: 999;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
             color: white;
             font-weight: bold;
         }
 
         .bludee-toggle:hover {
             transform: scale(1.1);
-            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.5);
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.5);
         }
 
         .bludee-toggle.hidden {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        .toggle-main {
+            font-size: 28px;
+            margin-bottom: 2px;
+        }
+
+        .toggle-ai {
+            font-size: 10px;
+            background: #10b981;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+
+        .typing-indicator {
             display: none;
+            align-items: center;
+            gap: 5px;
+            color: #64748b;
+            font-style: italic;
+            font-size: 0.8rem;
+            padding: 10px 15px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 2px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #64748b;
+            border-radius: 50%;
+            animation: typingDot 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingDot {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
         }
 
         @media (max-width: 768px) {
-            .folders-container {
-                flex-direction: column;
-            }
-            
-            .folder-tab {
-                min-width: 100%;
-            }
-            
-            .files-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 15px;
-            }
-            
-            .file-item {
-                padding: 20px 12px;
-            }
-            
-            .file-icon {
-                font-size: 2.2rem;
+            .bludee-assistant {
+                width: 95%;
+                right: 2.5%;
+                left: 2.5%;
+                height: 80vh;
             }
 
-            .bludee-assistant {
-                width: 90%;
-                right: 5%;
-                left: 5%;
+            .bludee-toggle {
+                width: 70px;
+                height: 70px;
+            }
+
+            .toggle-main {
+                font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
     <div class="filing-cabinet">
-        <div class="drawer-handle"></div>
-        
         <div class="header">
             <h1>🗃️ Bludee</h1>
             <p class="subtitle">Sistema de Gestión Hospitalaria de Componentes Sanguíneos</p>
             <p class="slogan">"Cada gota. Cada vida. Conectados."</p>
+            <div class="ai-badge">🤖 Potenciado por IA Médica Especializada</div>
         </div>
 
         <div class="folders-container">
@@ -492,23 +618,23 @@
                 </div>
                 <div class="folder-content gestion">
                     <div class="files-grid">
-                        <a href="Registro de Unidad Recibida Simulador.html" class="file-item">
+                        <a href="#" class="file-item">
                             <span class="file-icon">📥</span>
                             <div class="file-title">Registro de Unidad Recibida</div>
                         </a>
-                        <a href="Registro de Despacho de Unidad de Emergencia.html" class="file-item">
+                        <a href="#" class="file-item">
                             <span class="file-icon">🚨</span>
                             <div class="file-title">Registro de Emergencia</div>
                         </a>
-                        <a href="despacho_unidad_pdf_popup.html" class="file-item">
+                        <a href="#" class="file-item">
                             <span class="file-icon">📤</span>
                             <div class="file-title">Despacho de Unidad</div>
                         </a>
-                        <a href="modulo_componentes_devueltos.html" class="file-item">
+                        <a href="#" class="file-item">
                             <span class="file-icon">↩️</span>
                             <div class="file-title">Componentes Devueltos</div>
                         </a>
-                        <a href="trazabilidad_banco_sangre.html" class="file-item">
+                        <a href="#" class="file-item">
                             <span class="file-icon">🔍</span>
                             <div class="file-title">Trazabilidad</div>
                         </a>
@@ -526,19 +652,19 @@
                 </div>
                 <div class="folder-content expedientes">
                     <div class="files-grid">
-                        <a href="historial_transfusion_paciente.html" class="file-item">
+                        <a href="#" class="file-item">
                             <span class="file-icon">📊</span>
                             <div class="file-title">Historial de Transfusión</div>
                         </a>
-                        <a href="expedientes_mensuales.html" class="file-item">
+                        <a href="#" class="file-item">
                             <span class="file-icon">📋</span>
                             <div class="file-title">Expedientes Mensuales</div>
                         </a>
-                        <a href="notas_clinicas_internas.html" class="file-item">
+                        <a href="#" class="file-item">
                             <span class="file-icon">📝</span>
                             <div class="file-title">Notas Clínicas Internas</div>
                         </a>
-                        <a href="auditorias_y_logs.html" class="file-item">
+                        <a href="#" class="file-item">
                             <span class="file-icon">🔎</span>
                             <div class="file-title">Auditoría y Logs</div>
                         </a>
@@ -589,42 +715,111 @@
         </div>
     </div>
 
-    <!-- Bludee Assistant -->
+    <!-- Botón flotante para abrir Bludee -->
     <button class="bludee-toggle" onclick="toggleBludee()">
-        B
+        <div class="toggle-main">B</div>
+        <div class="toggle-ai">IA</div>
     </button>
     
+    <!-- Asistente Bludee con IA -->
     <div class="bludee-assistant" id="bludeeAssistant">
         <div class="bludee-header">
             <div class="bludee-avatar">
                 B
+                <div class="ai-indicator"></div>
             </div>
             <div class="bludee-info">
-                <h3>Bludee</h3>
-                <p>Tu asistente virtual</p>
+                <h3>Bludee IA</h3>
+                <p>Especialista en medicina transfusional</p>
             </div>
-            <button class="bludee-close" onclick="toggleBludee()">✕</button>
+            <div>
+                <span class="ai-status">
+                    🤖 IA Activa
+                </span>
+                <button class="bludee-close" onclick="toggleBludee()">✕</button>
+            </div>
         </div>
-        <div class="bludee-body">
-            <div class="bludee-message">
-                ¡Hola! Soy Bludee, tu asistente virtual. 🩸 ¿En qué puedo ayudarte hoy? Estoy aquí para guiarte por el sistema de banco de sangre.
+        
+        <div class="bludee-chat">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Los mensajes aparecerán aquí -->
             </div>
-            <div class="bludee-actions">
-                <button class="bludee-btn" onclick="bludeeHelp('registro')">📥 Registrar Unidad</button>
-                <button class="bludee-btn" onclick="bludeeHelp('buscar')">🔍 Buscar Historial</button>
-                <button class="bludee-btn" onclick="bludeeHelp('emergencia')">🚨 Emergencia</button>
-                <button class="bludee-btn" onclick="bludeeHelp('ayuda')">❓ Ayuda General</button>
+            
+            <div class="thinking-indicator" id="thinkingIndicator">
+                🧠 Analizando tu pregunta con conocimiento médico especializado...
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <span>Bludee IA está generando respuesta...</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-input-group">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Pregúntame cualquier cosa sobre medicina transfusional, anticuerpos, casos clínicos..."
+                        rows="1"
+                        onkeypress="handleEnterKey(event)"
+                        oninput="autoResize(this)">
+                    </textarea>
+                    <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                        ➤
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        let isAssistantOpen = false;
+        let conversationHistory = [];
+
+        // Prompt especializado para medicina transfusional
+        const systemPrompt = `Eres Bludee IA, un experto especialista en medicina transfusional y bancos de sangre con 20+ años de experiencia. Tu conocimiento incluye:
+
+🔬 **EXPERTISE PRINCIPAL:**
+• Medicina transfusional avanzada
+• Inmunohematología completa
+• Anticuerpos irregulares y compatibilidad
+• Reacciones transfusionales
+• Casos clínicos complejos
+• Protocolos de bancos de sangre
+• Regulaciones y normativas
+• Tecnología de laboratorio
+
+🩸 **CONOCIMIENTO ESPECÍFICO:**
+• Sistemas de grupos sanguíneos (ABO, Rh, Kell, Duffy, Kidd, MNS, Lewis, etc.)
+• Anticuerpos clínicamente significativos
+• Pruebas de compatibilidad avanzadas
+• Medicina transfusional perinatal
+• Transfusión en emergencias
+• Aféresis terapéutica
+• Componentes sanguíneos especiales
+• Control de calidad en bancos de sangre
+
+🎯 **TU MISIÓN:**
+Responder CUALQUIER pregunta sobre bancos de sangre, desde conceptos básicos hasta casos clínicos complejos, con:
+• Precisión técnica
+• Explicaciones claras
+• Ejemplos prácticos
+• Referencias a protocolos
+• Consideraciones clínicas
+
+⚠️ **IMPORTANTE:** Siempre incluye disclaimer médico cuando sea relevante: "Esta información es educativa. Consulta siempre con el médico tratante para decisiones clínicas."
+
+RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiados y formato claro.`;
+
+        // Funciones del sistema
         function toggleFolder(tab, folderId) {
-            // Remover active de todas las pestañas y contenidos
             document.querySelectorAll('.folder-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.folder-content').forEach(c => c.classList.remove('active'));
             
-            // Activar la pestaña y contenido seleccionado
             tab.classList.add('active');
             document.querySelector('.folder-content.' + folderId).classList.add('active');
         }
@@ -633,57 +828,204 @@
             const assistant = document.getElementById('bludeeAssistant');
             const toggle = document.querySelector('.bludee-toggle');
             
-            if (assistant.classList.contains('active')) {
+            if (isAssistantOpen) {
                 assistant.classList.remove('active');
                 toggle.classList.remove('hidden');
+                isAssistantOpen = false;
             } else {
                 assistant.classList.add('active');
                 toggle.classList.add('hidden');
+                isAssistantOpen = true;
+                
+                if (document.getElementById('chatMessages').children.length === 0) {
+                    showWelcomeMessage();
+                }
             }
         }
 
-        function bludeeHelp(topic) {
-            const messageEl = document.querySelector('.bludee-message');
-            let message = '';
-            
-            switch(topic) {
-                case 'registro':
-                    message = '📥 Para registrar una unidad recibida: Ve a "Gestión de Componentes" → "Registro de Unidad Recibida". Completa todos los campos requeridos incluyendo ID, tipo de componente y temperatura.';
-                    break;
-                case 'buscar':
-                    message = '🔍 Para buscar el historial de un paciente: Ve a "Expedientes y Seguimiento" → "Historial de Transfusión". Puedes buscar por nombre, número de récord o tipo de sangre.';
-                    break;
-                case 'emergencia':
-                    message = '🚨 Para registros de emergencia: Ve a "Gestión de Componentes" → "Registro de Emergencia". Este módulo permite despacho urgente con validaciones especiales.';
-                    break;
-                case 'ayuda':
-                    message = '❓ Estoy aquí para ayudarte con cualquier función del sistema. También puedes usar el Dashboard para ver estadísticas generales y actividad en tiempo real.';
-                    break;
-            }
-            
-            messageEl.innerHTML = message;
-        }
-
-        // Animación de entrada
-        window.addEventListener('load', function() {
-            const cabinet = document.querySelector('.filing-cabinet');
-            cabinet.style.transform = 'translateY(30px)';
-            cabinet.style.opacity = '0';
-            
+        function showWelcomeMessage() {
             setTimeout(() => {
-                cabinet.style.transition = 'all 0.8s ease';
-                cabinet.style.transform = 'translateY(0)';
-                cabinet.style.opacity = '1';
-            }, 100);
-
-            // Mostrar Bludee después de 3 segundos
-            setTimeout(() => {
-                toggleBludee();
+                addMessage("¡Hola! Soy **Bludee IA**, tu especialista en medicina transfusional. 🤖🩸\n\nPuedo responder **cualquier pregunta** sobre bancos de sangre, por ejemplo:\n\n🔬 **Preguntas técnicas:**\n• ¿Qué es un anti-K?\n• ¿Cómo interpretar un DAT positivo?\n• ¿Qué anticuerpos causan EHRN?\n\n👥 **Casos clínicos:**\n• Paciente embarazada con anti-D\n• Transfusión en emergencia\n• Reacciones transfusionales\n\n🏥 **Protocolos:**\n• Sangre irradiada\n• Componentes CMV negativos\n• Pruebas de compatibilidad\n\n**¿Qué te gustaría saber?**", false);
                 setTimeout(() => {
-                    document.querySelector('.bludee-message').innerHTML = 
-                        '¡Bienvenido a Bludee! 👋 Veo que es tu primera vez aquí. ¿Te gustaría que te muestre las funciones principales del sistema?';
-                }, 500);
-            }, 3000);
+                    showQuickOptions();
+                }, 1500);
+            }, 500);
+        }
+
+        function showQuickOptions() {
+            const quickOptions = [
+                "¿Qué es un anti-K?",
+                "¿Puede una embarazada recibir sangre irradiada?",
+                "¿Cómo interpretar un DAT positivo?",
+                "Anticuerpos que causan EHRN",
+                "Protocolo de emergencia masiva",
+                "Reacciones transfusionales febriles"
+            ];
+            
+            const optionsHtml = quickOptions.map(option => 
+                `<button class="quick-btn" onclick="handleQuickOption('${option}')">${option}</button>`
+            ).join('');
+            
+            const messagesContainer = document.getElementById('chatMessages');
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'message';
+            optionsDiv.innerHTML = `
+                <div class="bot-message">
+                    <div class="expert-tag">🎯 Preguntas frecuentes técnicas</div>
+                    <div class="quick-options" style="margin-top: 10px;">
+                        ${optionsHtml}
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(optionsDiv);
+            scrollToBottom();
+        }
+
+        function addMessage(message, isUser = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = isUser ? 'user-message' : 'bot-message';
+            
+            let html = '';
+            if (!isUser) {
+                html += `<div class="expert-tag">🩸 Especialista IA</div>`;
+            }
+            
+            // Convertir markdown básico
+            html += message
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+            
+            messageContent.innerHTML = html;
+            messageDiv.appendChild(messageContent);
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showThinking() {
+            document.getElementById('thinkingIndicator').style.display = 'block';
+            scrollToBottom();
+        }
+
+        function hideThinking() {
+            document.getElementById('thinkingIndicator').style.display = 'none';
+        }
+
+        function showTyping() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+            scrollToBottom();
+        }
+
+        function hideTyping() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function handleQuickOption(option) {
+            sendMessage(option);
+        }
+
+        async function sendMessage(messageText = null) {
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const message = messageText || input.value.trim();
+            
+            if (!message) return;
+            
+            // Deshabilitar input y botón
+            input.disabled = true;
+            sendBtn.disabled = true;
+            
+            // Agregar mensaje del usuario
+            addMessage(message, true);
+            
+            // Agregar a historial
+            conversationHistory.push({ role: "user", content: message });
+            
+            // Limpiar input si no es un mensaje rápido
+            if (!messageText) {
+                input.value = '';
+                autoResize(input);
+            }
+            
+            // Mostrar indicadores
+            showThinking();
+            setTimeout(() => {
+                hideThinking();
+                showTyping();
+            }, 1000);
+            
+            try {
+                // Preparar mensajes para Claude API
+                const messages = [
+                    { role: "user", content: systemPrompt },
+                    ...conversationHistory
+                ];
+                
+                // Llamada a Claude API
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 2000,
+                        messages: messages
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.content && data.content[0] && data.content[0].text) {
+                    const aiResponse = data.content[0].text;
+                    
+                    // Agregar respuesta al historial
+                    conversationHistory.push({ role: "assistant", content: aiResponse });
+                    
+                    // Mostrar respuesta
+                    hideTyping();
+                    addMessage(aiResponse, false);
+                } else {
+                    throw new Error('Respuesta inválida de la API');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                hideTyping();
+                addMessage("❌ **Error temporal**\n\nNo pude conectar con el sistema de IA. Por favor:\n\n• Verifica tu conexión a internet\n• Intenta de nuevo en unos momentos\n• Si persiste el problema, contacta al administrador\n\n*Mientras tanto, puedes usar las preguntas rápidas que tengo programadas.*", false);
+            } finally {
+                // Rehabilitar input y botón
+                input.disabled = false;
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        function handleEnterKey(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        }
+
+        // Inicialización
+        window.addEventListener('load', function() {
+            console.log('Bludee IA cargado correctamente');
+            console.log('Sistema especializado en medicina transfusional activado');
         });
     </script>
 </body>
