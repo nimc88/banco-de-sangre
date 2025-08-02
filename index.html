@@ -196,20 +196,20 @@
             font-weight: 500;
         }
 
-        /* Chatbot con IA */
+        /* Chatbot mejorado */
         .bludee-assistant {
             position: fixed;
-            bottom: 30px;
+            bottom: 120px;
             right: 30px;
-            width: 500px;
-            height: 700px;
+            width: 400px;
+            height: 550px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
             border: 3px solid #ef4444;
             z-index: 1000;
-            transform: translateY(100%);
-            transition: all 0.5s ease;
+            transform: translateY(150%);
+            transition: all 0.4s ease;
             display: flex;
             flex-direction: column;
         }
@@ -219,8 +219,8 @@
         }
 
         .bludee-assistant.minimized {
-            height: 80px;
-            width: 350px;
+            height: 70px;
+            width: 320px;
             transform: translateY(0);
         }
 
@@ -228,58 +228,38 @@
             display: none;
         }
 
-        .bludee-assistant.minimized .bludee-header {
-            border-radius: 17px;
-            cursor: pointer;
-        }
-
-        .bludee-assistant.minimized .bludee-header:hover {
-            background: linear-gradient(135deg, #b91c1c, #dc2626);
-        }
-
-        .bludee-assistant.minimized .bludee-info p {
-            font-style: italic;
-            opacity: 0.8;
-        }
-
-        .minimize-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 5px 8px;
-            border-radius: 4px;
-            transition: background 0.3s ease;
-            margin-right: 5px;
-        }
-
-        .minimize-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
         .bludee-header {
             background: linear-gradient(135deg, #dc2626, #ef4444);
             color: white;
-            padding: 15px 20px;
+            padding: 12px 20px;
             border-radius: 17px 17px 0 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-shrink: 0;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .bludee-assistant.minimized .bludee-header {
+            border-radius: 17px;
+            padding: 15px 20px;
+        }
+
+        .bludee-assistant.minimized .bludee-header:hover {
+            background: linear-gradient(135deg, #b91c1c, #dc2626);
         }
 
         .bludee-avatar {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 2px solid rgba(255, 255, 255, 0.8);
-            font-size: 24px;
+            font-size: 20px;
             color: white;
             font-weight: bold;
             position: relative;
@@ -289,8 +269,8 @@
             position: absolute;
             bottom: -2px;
             right: -2px;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             background: #10b981;
             border-radius: 50%;
             border: 2px solid white;
@@ -303,41 +283,55 @@
         }
 
         .bludee-info h3 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin-bottom: 2px;
         }
 
         .bludee-info p {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             opacity: 0.9;
+        }
+
+        .bludee-assistant.minimized .bludee-info p {
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .ai-status {
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.65rem;
-            margin-right: 10px;
+            padding: 3px 6px;
+            border-radius: 10px;
+            font-size: 0.6rem;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
         }
 
-        .bludee-close {
-            background: none;
+        .minimize-btn, .bludee-close {
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            font-size: 18px;
+            font-size: 14px;
             cursor: pointer;
-            padding: 5px;
-            border-radius: 4px;
-            transition: background 0.3s ease;
+            padding: 6px 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .bludee-close:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .minimize-btn:hover, .bludee-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
         }
 
         .bludee-chat {
@@ -349,20 +343,20 @@
 
         .chat-messages {
             flex: 1;
-            padding: 20px;
+            padding: 15px;
             overflow-y: auto;
             background: #f8f9fa;
         }
 
         .message {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             animation: messageSlide 0.3s ease;
         }
 
         @keyframes messageSlide {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(15px);
             }
             to {
                 opacity: 1;
@@ -372,79 +366,70 @@
 
         .bot-message {
             background: white;
-            padding: 15px;
-            border-radius: 15px 15px 15px 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #ef4444;
+            padding: 12px;
+            border-radius: 12px 12px 12px 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 3px solid #ef4444;
             max-width: 95%;
-            line-height: 1.6;
+            line-height: 1.5;
+            font-size: 0.85rem;
             position: relative;
         }
 
         .bot-message::before {
             content: '🤖';
             position: absolute;
-            top: -8px;
-            left: -8px;
+            top: -6px;
+            left: -6px;
             background: #10b981;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 10px;
             border: 2px solid white;
         }
 
         .user-message {
             background: linear-gradient(135deg, #dc2626, #ef4444);
             color: white;
-            padding: 12px 16px;
-            border-radius: 15px 15px 5px 15px;
+            padding: 10px 12px;
+            border-radius: 12px 12px 4px 12px;
             margin-left: auto;
             margin-right: 0;
             text-align: right;
             max-width: 80%;
-            box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+            font-size: 0.85rem;
         }
 
         .expert-tag {
             display: inline-block;
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            margin-bottom: 8px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            margin-bottom: 6px;
             font-weight: 600;
-        }
-
-        .thinking-indicator {
-            background: #f0f9ff;
-            border: 2px solid #3b82f6;
-            border-radius: 12px;
-            padding: 10px;
-            margin-bottom: 10px;
-            font-style: italic;
-            color: #1e40af;
-            display: none;
         }
 
         .quick-options {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .quick-btn {
             background: #f0f9ff;
-            border: 2px solid #0ea5e9;
+            border: 1px solid #0ea5e9;
             color: #0c4a6e;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 6px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -452,11 +437,11 @@
         .quick-btn:hover {
             background: #0ea5e9;
             color: white;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         .chat-input-container {
-            padding: 20px;
+            padding: 15px;
             background: white;
             border-top: 2px solid #f1f5f9;
             flex-shrink: 0;
@@ -464,21 +449,21 @@
 
         .chat-input-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: flex-end;
         }
 
         .chat-input {
             flex: 1;
-            padding: 12px 15px;
+            padding: 10px 12px;
             border: 2px solid #e2e8f0;
-            border-radius: 25px;
-            font-size: 0.9rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
             outline: none;
             transition: border-color 0.3s ease;
             resize: none;
-            max-height: 100px;
-            min-height: 45px;
+            max-height: 80px;
+            min-height: 38px;
         }
 
         .chat-input:focus {
@@ -489,20 +474,20 @@
             background: linear-gradient(135deg, #dc2626, #ef4444);
             color: white;
             border: none;
-            width: 45px;
-            height: 45px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .send-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
         }
 
         .send-btn:disabled {
@@ -515,8 +500,8 @@
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: linear-gradient(135deg, #dc2626, #ef4444);
             border: 3px solid white;
             border-radius: 50%;
@@ -543,15 +528,15 @@
         }
 
         .toggle-main {
-            font-size: 28px;
+            font-size: 24px;
             margin-bottom: 2px;
         }
 
         .toggle-ai {
-            font-size: 10px;
+            font-size: 8px;
             background: #10b981;
-            padding: 2px 6px;
-            border-radius: 8px;
+            padding: 1px 4px;
+            border-radius: 6px;
         }
 
         .typing-indicator {
@@ -560,8 +545,8 @@
             gap: 5px;
             color: #64748b;
             font-style: italic;
-            font-size: 0.8rem;
-            padding: 10px 15px;
+            font-size: 0.75rem;
+            padding: 8px 15px;
         }
 
         .typing-dots {
@@ -570,8 +555,8 @@
         }
 
         .typing-dot {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             background: #64748b;
             border-radius: 50%;
             animation: typingDot 1.4s infinite ease-in-out;
@@ -594,23 +579,24 @@
                 width: 95%;
                 right: 2.5%;
                 left: 2.5%;
-                height: 80vh;
+                height: 70vh;
+                bottom: 100px;
             }
 
             .bludee-assistant.minimized {
-                height: 70px;
+                height: 65px;
                 width: 90%;
                 right: 5%;
                 left: 5%;
             }
 
             .bludee-toggle {
-                width: 70px;
-                height: 70px;
+                width: 60px;
+                height: 60px;
             }
 
             .toggle-main {
-                font-size: 24px;
+                font-size: 20px;
             }
         }
     </style>
@@ -771,7 +757,7 @@
     
     <!-- Asistente Bludee con IA -->
     <div class="bludee-assistant" id="bludeeAssistant">
-        <div class="bludee-header" onclick="toggleMinimize()">
+        <div class="bludee-header" onclick="headerClick()">
             <div class="bludee-avatar">
                 B
                 <div class="ai-indicator"></div>
@@ -780,24 +766,20 @@
                 <h3>Bludee IA</h3>
                 <p id="assistantStatus">Especialista en medicina transfusional</p>
             </div>
-            <div>
-                <span class="ai-status">
-                    🤖 IA Activa
-                </span>
-                <button class="minimize-btn" onclick="event.stopPropagation(); toggleMinimize()" id="minimizeBtn" title="Minimizar/Maximizar">
+            <div class="control-buttons">
+                <span class="ai-status">🤖 IA</span>
+                <button class="minimize-btn" onclick="event.stopPropagation(); minimizeChat()" id="minimizeBtn" title="Minimizar">
                     ⬇️
                 </button>
-                <button class="bludee-close" onclick="event.stopPropagation(); toggleBludee()">✕</button>
+                <button class="bludee-close" onclick="event.stopPropagation(); toggleBludee()" title="Cerrar">
+                    ✕
+                </button>
             </div>
         </div>
         
-        <div class="bludee-chat">
+        <div class="bludee-chat" id="chatContainer">
             <div class="chat-messages" id="chatMessages">
                 <!-- Los mensajes aparecerán aquí -->
-            </div>
-            
-            <div class="thinking-indicator" id="thinkingIndicator">
-                🧠 Analizando tu pregunta con conocimiento médico especializado...
             </div>
             
             <div class="typing-indicator" id="typingIndicator">
@@ -814,12 +796,12 @@
                     <textarea 
                         class="chat-input" 
                         id="chatInput" 
-                        placeholder="Pregúntame cualquier cosa sobre medicina transfusional, anticuerpos, casos clínicos..."
+                        placeholder="Pregúntame sobre medicina transfusional..."
                         rows="1"
                         onkeypress="handleEnterKey(event)"
                         oninput="autoResize(this)">
                     </textarea>
-                    <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                    <button class="send-btn" onclick="sendMessage()" id="sendBtn" title="Enviar">
                         ➤
                     </button>
                 </div>
@@ -867,7 +849,7 @@ Responder CUALQUIER pregunta sobre bancos de sangre, desde conceptos básicos ha
 
 RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiados y formato claro.`;
 
-        // Funciones del sistema
+        // Funciones principales
         function toggleFolder(tab, folderId) {
             document.querySelectorAll('.folder-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.folder-content').forEach(c => c.classList.remove('active'));
@@ -895,39 +877,45 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
                     showWelcomeMessage();
                 }
             }
-            updateMinimizeButton();
+            updateUI();
         }
 
-        function toggleMinimize() {
-            const assistant = document.getElementById('bludeeAssistant');
-            const statusText = document.getElementById('assistantStatus');
-            
+        function minimizeChat() {
             if (!isAssistantOpen) return;
+            
+            const assistant = document.getElementById('bludeeAssistant');
             
             if (isMinimized) {
                 // Maximizar
                 assistant.classList.remove('minimized');
-                statusText.textContent = 'Especialista en medicina transfusional';
                 isMinimized = false;
-                // Enfocar el input cuando se maximiza
                 setTimeout(() => {
                     document.getElementById('chatInput').focus();
                 }, 300);
             } else {
                 // Minimizar
                 assistant.classList.add('minimized');
-                statusText.textContent = 'Haz clic para maximizar';
                 isMinimized = true;
             }
-            updateMinimizeButton();
+            updateUI();
         }
 
-        function updateMinimizeButton() {
-            const minimizeBtn = document.getElementById('minimizeBtn');
+        function headerClick() {
             if (isMinimized) {
+                minimizeChat(); // Maximizar al hacer clic en header cuando está minimizado
+            }
+        }
+
+        function updateUI() {
+            const statusText = document.getElementById('assistantStatus');
+            const minimizeBtn = document.getElementById('minimizeBtn');
+            
+            if (isMinimized) {
+                statusText.textContent = 'Haz clic para maximizar';
                 minimizeBtn.innerHTML = '⬆️';
                 minimizeBtn.title = 'Maximizar';
             } else {
+                statusText.textContent = 'Especialista en medicina transfusional';
                 minimizeBtn.innerHTML = '⬇️';
                 minimizeBtn.title = 'Minimizar';
             }
@@ -936,25 +924,25 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
         function showWelcomeMessage() {
             // Asegurarse de que esté maximizado para el mensaje de bienvenida
             if (isMinimized) {
-                toggleMinimize();
+                minimizeChat();
             }
             
             setTimeout(() => {
-                addMessage("¡Hola! Soy **Bludee IA**, tu especialista en medicina transfusional. 🤖🩸\n\nPuedo responder **cualquier pregunta** sobre bancos de sangre, por ejemplo:\n\n🔬 **Preguntas técnicas:**\n• ¿Qué es un anti-K?\n• ¿Cómo interpretar un DAT positivo?\n• ¿Qué anticuerpos causan EHRN?\n\n👥 **Casos clínicos:**\n• Paciente embarazada con anti-D\n• Transfusión en emergencia\n• Reacciones transfusionales\n\n🏥 **Protocolos:**\n• Sangre irradiada\n• Componentes CMV negativos\n• Pruebas de compatibilidad\n\n**💡 Tip:** Puedes minimizarme haciendo clic en ⬇️ para usar el menú principal\n\n**¿Qué te gustaría saber?**", false);
+                addMessage("¡Hola! Soy **Bludee IA**, tu especialista en medicina transfusional. 🤖🩸\n\nPuedo responder **cualquier pregunta** técnica sobre bancos de sangre:\n\n🔬 **Ejemplos:**\n• ¿Qué es un anti-K?\n• ¿Embarazada con anti-D, qué hacer?\n• ¿Cómo interpretar un DAT positivo?\n• Protocolos de sangre irradiada\n\n**💡 Tip:** Usa el botón ⬇️ para minimizarme\n\n**¿Qué te gustaría saber?**", false);
                 setTimeout(() => {
                     showQuickOptions();
-                }, 1500);
+                }, 1000);
             }, 500);
         }
 
         function showQuickOptions() {
             const quickOptions = [
                 "¿Qué es un anti-K?",
-                "¿Puede una embarazada recibir sangre irradiada?",
-                "¿Cómo interpretar un DAT positivo?",
-                "Anticuerpos que causan EHRN",
-                "Protocolo de emergencia masiva",
-                "Reacciones transfusionales febriles"
+                "Embarazada con anti-D",
+                "DAT positivo",
+                "Sangre irradiada",
+                "Reacción febril",
+                "Protocolo emergencia"
             ];
             
             const optionsHtml = quickOptions.map(option => 
@@ -966,8 +954,8 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
             optionsDiv.className = 'message';
             optionsDiv.innerHTML = `
                 <div class="bot-message">
-                    <div class="expert-tag">🎯 Preguntas frecuentes técnicas</div>
-                    <div class="quick-options" style="margin-top: 10px;">
+                    <div class="expert-tag">🎯 Preguntas frecuentes</div>
+                    <div class="quick-options">
                         ${optionsHtml}
                     </div>
                 </div>
@@ -986,7 +974,7 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
             
             let html = '';
             if (!isUser) {
-                html += `<div class="expert-tag">🩸 Especialista IA</div>`;
+                html += `<div class="expert-tag">🩸 IA Especialista</div>`;
             }
             
             // Convertir markdown básico
@@ -1004,15 +992,6 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
         function scrollToBottom() {
             const messagesContainer = document.getElementById('chatMessages');
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        function showThinking() {
-            document.getElementById('thinkingIndicator').style.display = 'block';
-            scrollToBottom();
-        }
-
-        function hideThinking() {
-            document.getElementById('thinkingIndicator').style.display = 'none';
         }
 
         function showTyping() {
@@ -1037,7 +1016,7 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
             
             // Maximizar automáticamente cuando se envía un mensaje
             if (isMinimized) {
-                toggleMinimize();
+                minimizeChat();
             }
             
             // Deshabilitar input y botón
@@ -1056,12 +1035,8 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
                 autoResize(input);
             }
             
-            // Mostrar indicadores
-            showThinking();
-            setTimeout(() => {
-                hideThinking();
-                showTyping();
-            }, 1000);
+            // Mostrar indicador de escritura
+            showTyping();
             
             try {
                 // Preparar mensajes para Claude API
@@ -1101,7 +1076,7 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
             } catch (error) {
                 console.error('Error:', error);
                 hideTyping();
-                addMessage("❌ **Error temporal**\n\nNo pude conectar con el sistema de IA. Por favor:\n\n• Verifica tu conexión a internet\n• Intenta de nuevo en unos momentos\n• Si persiste el problema, contacta al administrador\n\n*Mientras tanto, puedes usar las preguntas rápidas que tengo programadas.*", false);
+                addMessage("❌ **Error temporal**\n\nNo pude conectar con el sistema de IA. Verifica tu conexión e intenta de nuevo.\n\n*Mientras tanto, puedes usar las preguntas rápidas.*", false);
             } finally {
                 // Rehabilitar input y botón
                 input.disabled = false;
@@ -1119,13 +1094,13 @@ RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiado
 
         function autoResize(textarea) {
             textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+            textarea.style.height = Math.min(textarea.scrollHeight, 80) + 'px';
         }
 
         // Inicialización
         window.addEventListener('load', function() {
             console.log('Bludee IA cargado correctamente');
-            console.log('Sistema especializado en medicina transfusional activado');
+            updateUI();
         });
     </script>
 </body>
