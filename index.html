@@ -156,6 +156,7 @@
             transition: all 0.3s ease;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
         }
 
         .file-item:hover {
@@ -196,7 +197,7 @@
             font-weight: 500;
         }
 
-        /* Chatbot mejorado */
+        /* Chatbot mejorado para GitHub Pages */
         .bludee-assistant {
             position: fixed;
             bottom: 120px;
@@ -464,6 +465,7 @@
             resize: none;
             max-height: 80px;
             min-height: 38px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .chat-input:focus {
@@ -485,7 +487,7 @@
             font-size: 14px;
         }
 
-        .send-btn:hover {
+        .send-btn:hover:not(:disabled) {
             transform: scale(1.1);
             box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
         }
@@ -574,6 +576,16 @@
             }
         }
 
+        .error-indicator {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 0.8rem;
+        }
+
         @media (max-width: 768px) {
             .bludee-assistant {
                 width: 95%;
@@ -607,7 +619,7 @@
             <h1>🗃️ Bludee</h1>
             <p class="subtitle">Sistema de Gestión Hospitalaria de Componentes Sanguíneos</p>
             <p class="slogan">"Cada gota. Cada vida. Conectados."</p>
-            <div class="ai-badge">🤖 Potenciado por IA Médica Especializada</div>
+            <div class="ai-badge">🤖 IA Experta en Medicina Transfusional</div>
         </div>
 
         <div class="folders-container">
@@ -618,26 +630,26 @@
                 </div>
                 <div class="folder-content dashboard active">
                     <div class="files-grid">
-                        <a href="#" class="file-item">
+                        <div class="file-item" onclick="showModuleInfo('Panel de Control')">
                             <span class="file-icon">📈</span>
                             <div class="file-title">Panel de Control</div>
-                        </a>
-                        <a href="#" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Estadísticas Generales')">
                             <span class="file-icon">📊</span>
                             <div class="file-title">Estadísticas Generales</div>
-                        </a>
-                        <a href="#" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Actividad en Tiempo Real')">
                             <span class="file-icon">⚡</span>
                             <div class="file-title">Actividad en Tiempo Real</div>
-                        </a>
-                        <a href="#" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Indicadores KPI')">
                             <span class="file-icon">🎯</span>
                             <div class="file-title">Indicadores KPI</div>
-                        </a>
-                        <a href="#" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Resumen Diario')">
                             <span class="file-icon">📋</span>
                             <div class="file-title">Resumen Diario</div>
-                        </a>
+                        </div>
                     </div>
                     <div class="folder-stats">
                         📊 Vista general del sistema | ⚡ Tiempo real | 🎯 Métricas clave
@@ -652,26 +664,26 @@
                 </div>
                 <div class="folder-content gestion">
                     <div class="files-grid">
-                        <a href="Registro de Unidad Recibida Simulador.html" class="file-item">
+                        <div class="file-item" onclick="showModuleInfo('Registro de Unidad Recibida')">
                             <span class="file-icon">📥</span>
                             <div class="file-title">Registro de Unidad Recibida</div>
-                        </a>
-                        <a href="Registro de Despacho de Unidad de Emergencia.html" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Registro de Emergencia')">
                             <span class="file-icon">🚨</span>
                             <div class="file-title">Registro de Emergencia</div>
-                        </a>
-                        <a href="despacho_unidad_pdf_popup.html" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Despacho de Unidad')">
                             <span class="file-icon">📤</span>
                             <div class="file-title">Despacho de Unidad</div>
-                        </a>
-                        <a href="modulo_componentes_devueltos.html" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Componentes Devueltos')">
                             <span class="file-icon">↩️</span>
                             <div class="file-title">Componentes Devueltos</div>
-                        </a>
-                        <a href="trazabilidad_banco_sangre.html" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Trazabilidad')">
                             <span class="file-icon">🔍</span>
                             <div class="file-title">Trazabilidad</div>
-                        </a>
+                        </div>
                     </div>
                     <div class="folder-stats">
                         📊 Unidades activas: 24 | Despachadas hoy: 8 | Mes actual: 156
@@ -686,22 +698,22 @@
                 </div>
                 <div class="folder-content expedientes">
                     <div class="files-grid">
-                        <a href="historial_transfusion_paciente.html" class="file-item">
+                        <div class="file-item" onclick="showModuleInfo('Historial de Transfusión')">
                             <span class="file-icon">📊</span>
                             <div class="file-title">Historial de Transfusión</div>
-                        </a>
-                        <a href="expedientes_mensuales.html" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Expedientes Mensuales')">
                             <span class="file-icon">📋</span>
                             <div class="file-title">Expedientes Mensuales</div>
-                        </a>
-                        <a href="notas_clinicas_internas.html" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Notas Clínicas Internas')">
                             <span class="file-icon">📝</span>
                             <div class="file-title">Notas Clínicas Internas</div>
-                        </a>
-                        <a href="auditorias_y_logs.html" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Auditoría y Logs')">
                             <span class="file-icon">🔎</span>
                             <div class="file-title">Auditoría y Logs</div>
-                        </a>
+                        </div>
                     </div>
                     <div class="folder-stats">
                         📈 Pacientes registrados: 1,247 | Expedientes activos: 89 | Último backup: Hoy
@@ -716,26 +728,26 @@
                 </div>
                 <div class="folder-content administracion">
                     <div class="files-grid">
-                        <a href="#" class="file-item">
+                        <div class="file-item" onclick="showModuleInfo('Usuarios')">
                             <span class="file-icon">👤</span>
                             <div class="file-title">Usuarios</div>
-                        </a>
-                        <a href="#" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Roles y Permisos')">
                             <span class="file-icon">🔐</span>
                             <div class="file-title">Roles y Permisos</div>
-                        </a>
-                        <a href="#" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Credenciales de Acceso')">
                             <span class="file-icon">🔑</span>
                             <div class="file-title">Credenciales de Acceso</div>
-                        </a>
-                        <a href="#" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Bitácora de Acceso')">
                             <span class="file-icon">📖</span>
                             <div class="file-title">Bitácora de Acceso</div>
-                        </a>
-                        <a href="#" class="file-item">
+                        </div>
+                        <div class="file-item" onclick="showModuleInfo('Configuración del Sistema')">
                             <span class="file-icon">⚙️</span>
                             <div class="file-title">Configuración del Sistema</div>
-                        </a>
+                        </div>
                     </div>
                     <div class="folder-stats">
                         👥 Usuarios activos: 12 | Sesiones hoy: 34 | Último acceso admin: 08:45 AM
@@ -783,7 +795,7 @@
             </div>
             
             <div class="typing-indicator" id="typingIndicator">
-                <span>Bludee IA está generando respuesta...</span>
+                <span>Bludee IA está procesando...</span>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
@@ -810,298 +822,717 @@
     </div>
 
     <script>
+        // Variables globales
         let isAssistantOpen = false;
         let isMinimized = false;
-        let conversationHistory = [];
+        let chatInitialized = false;
 
-        // Prompt especializado para medicina transfusional
-        const systemPrompt = `Eres Bludee IA, un experto especialista en medicina transfusional y bancos de sangre con 20+ años de experiencia. Tu conocimiento incluye:
+        // BASE DE CONOCIMIENTO ESPECIALIZADA - GitHub Pages Compatible
+        const expertKnowledge = {
+            'anti-k': {
+                category: 'Anticuerpos',
+                answer: `**Anti-K (Anticuerpo contra antígeno Kell)**
 
-🔬 **EXPERTISE PRINCIPAL:**
-• Medicina transfusional avanzada
-• Inmunohematología completa
-• Anticuerpos irregulares y compatibilidad
-• Reacciones transfusionales
-• Casos clínicos complejos
-• Protocolos de bancos de sangre
-• Regulaciones y normativas
-• Tecnología de laboratorio
+🧬 **Características principales:**
+• **Sistema:** Kell (K1)
+• **Frecuencia:** 9% población caucásica, <1% población africana
+• **Significancia clínica:** MUY significativo
 
-🩸 **CONOCIMIENTO ESPECÍFICO:**
-• Sistemas de grupos sanguíneos (ABO, Rh, Kell, Duffy, Kidd, MNS, Lewis, etc.)
-• Anticuerpos clínicamente significativos
-• Pruebas de compatibilidad avanzadas
-• Medicina transfusional perinatal
-• Transfusión en emergencias
-• Aféresis terapéutica
-• Componentes sanguíneos especiales
-• Control de calidad en bancos de sangre
+⚠️ **Importancia clínica:**
+• **Reacciones transfusionales:** Hemólisis intravascular severa
+• **EHRN:** Enfermedad hemolítica del recién nacido grave
+• **Tipo de anticuerpo:** IgG, reactivo a 37°C y en AGH
 
-🎯 **TU MISIÓN:**
-Responder CUALQUIER pregunta sobre bancos de sangre, desde conceptos básicos hasta casos clínicos complejos, con:
-• Precisión técnica
-• Explicaciones claras
-• Ejemplos prácticos
-• Referencias a protocolos
-• Consideraciones clínicas
+🩸 **Manejo transfusional:**
+• **Fenotipado:** Buscar unidades K negativas
+• **Pruebas cruzadas:** Obligatorias
+• **Inventario:** Mantener sangre K- disponible
+• **Embarazo:** Monitoreo título y ecografías Doppler
 
-⚠️ **IMPORTANTE:** Siempre incluye disclaimer médico cuando sea relevante: "Esta información es educativa. Consulta siempre con el médico tratante para decisiones clínicas."
+📋 **Protocolo:**
+1. Identificar anti-K mediante panel
+2. Confirmar especificidad
+3. Proveer solo sangre K negativa
+4. Documentar en historial permanente
 
-RESPONDE EN ESPAÑOL, de manera profesional pero accesible. Usa emojis apropiados y formato claro.`;
+*Esta información es educativa. Consulta siempre con el especialista en medicina transfusional.*`
+            },
 
-        // Funciones principales
+            'embarazada': {
+                category: 'Embarazo',
+                answer: `**Embarazada con Anti-D - Protocolo Completo**
+
+🚨 **Evaluación inicial:**
+• **Determinar:** Si es inmunización previa o actual
+• **Título inicial:** Cuantificar nivel de anticuerpos
+• **Genotipo paterno:** Si es posible
+• **Historia obstétrica:** Embarazos/transfusiones previas
+
+📊 **Seguimiento por títulos:**
+• **Título <16:** Seguimiento cada 4 semanas
+• **Título 16-64:** Seguimiento cada 2 semanas + Doppler
+• **Título >64:** Seguimiento semanal + centro especializado
+
+🔬 **Monitoreo fetal:**
+• **Ecografía Doppler:** ACM (arteria cerebral media)
+• **Cordocentesis:** Si Doppler sugiere anemia fetal
+• **Transfusión intrauterina:** En casos severos
+
+🩸 **Manejo transfusional materno:**
+• **Solo sangre Rh negativa**
+• **Crossmatch extendido**
+• **Evitar transfusiones innecesarias**
+• **Coordinar con obstetricia**
+
+⚠️ **Criterios de referencia:**
+• Título >32 en primer embarazo
+• Título >16 con historia de EHRN
+• Evidencia de anemia fetal
+• Hydrops fetal
+
+*Protocolo debe seguirse en conjunto con especialista en medicina materno-fetal.*`
+            },
+
+            'dat': {
+                category: 'Pruebas',
+                answer: `**DAT Positivo - Interpretación y Manejo**
+
+🔍 **¿Qué es el DAT?**
+• **Direct Antiglobulin Test** (Prueba directa de antiglobulina)
+• **Detecta:** IgG y/o C3d en superficie de glóbulos rojos
+• **Indica:** Sensibilización in vivo
+
+📋 **Causas principales:**
+• **Autoanticuerpos:** Anemia hemolítica autoinmune
+• **Aloanticuerpos:** Post-transfusional, EHRN
+• **Medicamentos:** Penicilina, cefalosporinas, quinidina
+• **Enfermedades:** LES, leucemias, infecciones
+
+🔬 **Interpretación por patrón:**
+• **IgG+/C3d-:** Anticuerpos calientes, AHAI
+• **IgG-/C3d+:** Anticuerpos fríos, hemólisis complement
+• **IgG+/C3d+:** Mixto, severidad mayor
+• **Débilmente positivo:** Puede ser clínicamente insignificante
+
+⚠️ **Manejo transfusional:**
+• **Investigar causa** antes de transfundir
+• **Pruebas adicionales:** Eluido, IAT, estudios de medicamentos
+• **Crossmatch:** Pueden ser incompatibles
+• **Transfusión:** Solo si clínicamente indicada
+
+📊 **Algoritmo diagnóstico:**
+1. Confirmar DAT positivo
+2. Eluido para identificar especificidad
+3. Investigar historia clínica y medicamentos
+4. Evaluar hemólisis (LDH, bilirrubina, haptoglobina)
+
+*Consultar hematólogo si hay evidencia de hemólisis activa.*`
+            },
+
+            'irradiada': {
+                category: 'Productos Especiales',
+                answer: `**Sangre Irradiada - Indicaciones y Protocolo**
+
+☢️ **¿Qué es?**
+• **Irradiación gamma:** 25 Gy mínimo
+• **Propósito:** Inactivar linfocitos T donantes
+• **Previene:** Enfermedad injerto vs huésped (TA-GVHD)
+
+🎯 **Indicaciones absolutas:**
+• **Inmunodeficiencias:** Primarias y secundarias
+• **Trasplante:** Médula ósea, órganos sólidos
+• **Quimioterapia:** Intensiva, agentes inmunosupresores
+• **Prematuros:** <1200g o <28 semanas
+• **Transfusiones intrauterinas**
+
+🏥 **Indicaciones relativas:**
+• **Transfusiones dirigidas** de familiares
+• **Productos HLA compatibles**
+• **Pacientes oncohematológicos**
+• **Post-quimioterapia** reciente
+
+⏰ **Vida útil post-irradiación:**
+• **Glóbulos rojos:** 28 días desde irradiación (máximo)
+• **Plaquetas:** Sin cambio (5 días)
+• **Plasma:** Sin cambio
+
+📋 **Protocolo:**
+1. **Identificar indicación** médica
+2. **Etiquetar** productos como "IRRADIADO"
+3. **Documentar** fecha de irradiación
+4. **Verificar** vida útil reducida
+5. **Trazabilidad** completa
+
+⚠️ **Embarazo:**
+• **SÍ es segura** para embarazadas
+• **No afecta** al feto
+• **Indicada** si madre tiene indicación médica
+
+*La irradiación NO afecta la eficacia de la transfusión.*`
+            },
+
+            'febril': {
+                category: 'Reacciones',
+                answer: `**Reacciones Transfusionales Febriles No Hemolíticas (RTFNH)**
+
+🌡️ **Definición:**
+• **Aumento ≥1°C** durante o post-transfusión
+• **Sin hemólisis** evidente
+• **Más frecuente:** 1-3% de transfusiones
+
+🔍 **Fisiopatología:**
+• **Anticuerpos anti-leucocitos** (HLA, HNA)
+• **Citoquinas** acumuladas durante almacenamiento
+• **Reacción pirógena** a productos bacterianos
+
+📋 **Manejo inmediato:**
+1. **DETENER** transfusión inmediatamente
+2. **Evaluar** signos vitales
+3. **Descartar** reacción hemolítica
+4. **Antipiréticos:** Paracetamol, metamizol
+5. **Observación** hasta estabilización
+
+🔬 **Investigación:**
+• **Verificar** identidad paciente-unidad
+• **Cultivos:** Si sospecha contaminación bacteriana
+• **Muestra post-transfusional:** Hemólisis, hemoglobinuria
+• **Repetir** tipificación y crossmatch
+
+🛡️ **Prevención:**
+• **Filtros leucocitos** (leucorreducción)
+• **Productos leucorreducidos** pre-almacenamiento
+• **Premedicación:** En pacientes con historia
+• **Lavado** de componentes en casos recurrentes
+
+📊 **Premedicación estándar:**
+• **Paracetamol** 650mg VO 30min antes
+• **Difenhidramina** 25-50mg VO/IV
+• **En casos severos:** Hidrocortisona 100mg IV
+
+⚠️ **Diferencial crítico:**
+• **Reacción hemolítica aguda**
+• **Sobrecarga circulatoria (TACO)**
+• **Lesión pulmonar (TRALI)**
+• **Sepsis por contaminación bacteriana**
+
+*Si la reacción es severa o recurrente, considerar estudio inmunohematológico completo.*`
+            },
+
+            'emergencia': {
+                category: 'Emergencias',
+                answer: `**Protocolo de Transfusión Masiva - Emergencia**
+
+🚨 **Activación Código Rojo:**
+• **Criterios:** >4 unidades en 1h o >10 unidades en 24h
+• **Pérdida:** >30% volemia o >1500mL
+• **Hipotensión** + signos de shock
+
+⚡ **Respuesta inmediata (<5 min):**
+1. **O Rh negativo** (universal) disponible
+2. **Ratio 1:1:1** (GR:PFC:Plaquetas)
+3. **Activar** banco de sangre 24/7
+4. **Equipo multidisciplinario**
+
+🩸 **Productos iniciales:**
+• **6 unidades GR O-** (universal)
+• **6 unidades PFC AB** o tipo específico
+• **1 pool plaquetas** tipo específico
+• **Crioprecipitado** si fibrinógeno <100mg/dL
+
+🔬 **Laboratorios urgentes:**
+• **Tipificación ABO/Rh** (STAT)
+• **Crossmatch** abreviado
+• **Hemograma** c/ plaquetas
+• **Coagulación:** PT, PTT, fibrinógeno
+• **Química:** Lactato, calcio, K+
+
+📊 **Monitoreo continuo:**
+• **Signos vitales** cada 15min
+• **Laboratorios** cada 4-6 unidades
+• **Calcio** (hipocalcemia por citrato)
+• **Potasio** (hiperpotasemia)
+• **Temperatura** (hipotermia)
+
+⚠️ **Complicaciones a vigilar:**
+• **Coagulopatía** dilucional
+• **Hipotermia** (<35°C)
+• **Acidosis metabólica**
+• **Hipocalcemia** (citrato)
+• **Sobrecarga circulatoria**
+
+🎯 **Objetivos terapéuticos:**
+• **Plaquetas:** >50,000/μL
+• **Fibrinógeno:** >100-150mg/dL
+• **PT/PTT:** <1.5x normal
+• **Hematocrito:** >21%
+
+*Coordinar siempre con equipo quirúrgico y anestesiología.*`
+            }
+        };
+
+        // Función para buscar respuestas - Mejorada para GitHub Pages
+        function findExpertAnswer(question) {
+            try {
+                if (!question || typeof question !== 'string') {
+                    throw new Error('Pregunta inválida');
+                }
+
+                const q = question.toLowerCase().trim();
+                
+                // Búsqueda exacta por palabras clave
+                const searchTerms = {
+                    'anti-k': ['anti-k', 'antik', 'anti k', 'kell'],
+                    'embarazada': ['embarazada', 'embarazo', 'anti-d', 'antid', 'gestante'],
+                    'dat': ['dat', 'antiglobulina directa', 'coombs directa', 'coombs directo'],
+                    'irradiada': ['irradiada', 'irradiacion', 'irradiar', 'gamma'],
+                    'febril': ['febril', 'fiebre', 'rtfnh', 'temperatura'],
+                    'emergencia': ['emergencia', 'masiva', 'codigo rojo', 'trauma', 'hemorragia']
+                };
+
+                for (const [key, terms] of Object.entries(searchTerms)) {
+                    if (terms.some(term => q.includes(term))) {
+                        return expertKnowledge[key];
+                    }
+                }
+
+                // Respuesta por defecto si no encuentra coincidencia
+                return {
+                    category: 'Asistente IA',
+                    answer: `No encontré información específica sobre **"${question}"** en mi base de conocimiento especializada.
+
+📚 **Puedo ayudarte con estos temas expertos:**
+
+🔬 **Anticuerpos:**
+• Anti-K, Anti-D, Anti-E, Anti-c
+• Identificación y manejo clínico
+
+🤱 **Embarazo:**
+• Anti-D en embarazadas
+• Enfermedad hemolítica del RN
+• Monitoreo y seguimiento
+
+🔬 **Pruebas:**
+• DAT positivo
+• Crossmatch incompatible
+• Identificación de anticuerpos
+
+🩸 **Productos especiales:**
+• Sangre irradiada
+• Componentes lavados
+• CMV negativo
+
+⚠️ **Reacciones:**
+• Febriles no hemolíticas
+• Hemolíticas agudas
+• Alérgicas
+
+🚨 **Emergencias:**
+• Protocolos de transfusión masiva
+• Código rojo
+• Sangre de emergencia
+
+**¿Podrías reformular tu pregunta sobre alguno de estos temas?**`
+                };
+
+            } catch (error) {
+                console.error('Error en findExpertAnswer:', error);
+                return {
+                    category: 'Error',
+                    answer: 'Lo siento, hubo un error procesando tu consulta. Por favor intenta nuevamente.'
+                };
+            }
+        }
+
+        // Funciones principales mejoradas
         function toggleFolder(tab, folderId) {
-            document.querySelectorAll('.folder-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.folder-content').forEach(c => c.classList.remove('active'));
+            try {
+                // Remover clases activas
+                document.querySelectorAll('.folder-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.folder-content').forEach(c => c.classList.remove('active'));
+                
+                // Agregar clase activa
+                tab.classList.add('active');
+                const content = document.querySelector('.folder-content.' + folderId);
+                if (content) {
+                    content.classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error en toggleFolder:', error);
+            }
+        }
+
+        function showModuleInfo(moduleName) {
+            if (!isAssistantOpen) {
+                toggleBludee();
+            }
+            if (isMinimized) {
+                minimizeChat();
+            }
             
-            tab.classList.add('active');
-            document.querySelector('.folder-content.' + folderId).classList.add('active');
+            // Esperar un poco para que la animación se complete
+            setTimeout(() => {
+                const moduleInfo = `Información sobre el módulo: **${moduleName}**
+
+Este módulo está en desarrollo. Pronto tendrá funcionalidades completas para la gestión de banco de sangre.
+
+🔧 **Estado:** En construcción
+📅 **Disponibilidad:** Próximamente
+💡 **Tip:** Mientras tanto, puedo ayudarte con consultas médicas especializadas.
+
+¿Te gustaría consultar algo sobre medicina transfusional?`;
+                
+                addMessage(moduleInfo, false);
+            }, 500);
         }
 
         function toggleBludee() {
-            const assistant = document.getElementById('bludeeAssistant');
-            const toggle = document.querySelector('.bludee-toggle');
-            
-            if (isAssistantOpen) {
-                assistant.classList.remove('active', 'minimized');
-                toggle.classList.remove('hidden');
-                isAssistantOpen = false;
-                isMinimized = false;
-            } else {
-                assistant.classList.add('active');
-                toggle.classList.add('hidden');
-                isAssistantOpen = true;
-                isMinimized = false;
+            try {
+                const assistant = document.getElementById('bludeeAssistant');
+                const toggle = document.querySelector('.bludee-toggle');
                 
-                if (document.getElementById('chatMessages').children.length === 0) {
-                    showWelcomeMessage();
+                if (!assistant || !toggle) {
+                    console.error('Elementos no encontrados');
+                    return;
                 }
+                
+                if (isAssistantOpen) {
+                    assistant.classList.remove('active', 'minimized');
+                    toggle.classList.remove('hidden');
+                    isAssistantOpen = false;
+                    isMinimized = false;
+                } else {
+                    assistant.classList.add('active');
+                    toggle.classList.add('hidden');
+                    isAssistantOpen = true;
+                    isMinimized = false;
+                    
+                    if (!chatInitialized) {
+                        showWelcomeMessage();
+                        chatInitialized = true;
+                    }
+                }
+                updateUI();
+            } catch (error) {
+                console.error('Error en toggleBludee:', error);
             }
-            updateUI();
         }
 
         function minimizeChat() {
             if (!isAssistantOpen) return;
             
-            const assistant = document.getElementById('bludeeAssistant');
-            
-            if (isMinimized) {
-                // Maximizar
-                assistant.classList.remove('minimized');
-                isMinimized = false;
-                setTimeout(() => {
-                    document.getElementById('chatInput').focus();
-                }, 300);
-            } else {
-                // Minimizar
-                assistant.classList.add('minimized');
-                isMinimized = true;
+            try {
+                const assistant = document.getElementById('bludeeAssistant');
+                
+                if (isMinimized) {
+                    assistant.classList.remove('minimized');
+                    isMinimized = false;
+                    setTimeout(() => {
+                        const input = document.getElementById('chatInput');
+                        if (input) input.focus();
+                    }, 300);
+                } else {
+                    assistant.classList.add('minimized');
+                    isMinimized = true;
+                }
+                updateUI();
+            } catch (error) {
+                console.error('Error en minimizeChat:', error);
             }
-            updateUI();
         }
 
         function headerClick() {
             if (isMinimized) {
-                minimizeChat(); // Maximizar al hacer clic en header cuando está minimizado
+                minimizeChat();
             }
         }
 
         function updateUI() {
-            const statusText = document.getElementById('assistantStatus');
-            const minimizeBtn = document.getElementById('minimizeBtn');
-            
-            if (isMinimized) {
-                statusText.textContent = 'Haz clic para maximizar';
-                minimizeBtn.innerHTML = '⬆️';
-                minimizeBtn.title = 'Maximizar';
-            } else {
-                statusText.textContent = 'Especialista en medicina transfusional';
-                minimizeBtn.innerHTML = '⬇️';
-                minimizeBtn.title = 'Minimizar';
+            try {
+                const statusText = document.getElementById('assistantStatus');
+                const minimizeBtn = document.getElementById('minimizeBtn');
+                
+                if (!statusText || !minimizeBtn) return;
+                
+                if (isMinimized) {
+                    statusText.textContent = 'Haz clic para maximizar';
+                    minimizeBtn.innerHTML = '⬆️';
+                    minimizeBtn.title = 'Maximizar';
+                } else {
+                    statusText.textContent = 'Especialista en medicina transfusional';
+                    minimizeBtn.innerHTML = '⬇️';
+                    minimizeBtn.title = 'Minimizar';
+                }
+            } catch (error) {
+                console.error('Error en updateUI:', error);
             }
         }
 
         function showWelcomeMessage() {
-            // Asegurarse de que esté maximizado para el mensaje de bienvenida
-            if (isMinimized) {
-                minimizeChat();
-            }
-            
-            setTimeout(() => {
-                addMessage("¡Hola! Soy **Bludee IA**, tu especialista en medicina transfusional. 🤖🩸\n\nPuedo responder **cualquier pregunta** técnica sobre bancos de sangre:\n\n🔬 **Ejemplos:**\n• ¿Qué es un anti-K?\n• ¿Embarazada con anti-D, qué hacer?\n• ¿Cómo interpretar un DAT positivo?\n• Protocolos de sangre irradiada\n\n**💡 Tip:** Usa el botón ⬇️ para minimizarme\n\n**¿Qué te gustaría saber?**", false);
+            try {
+                if (isMinimized) {
+                    minimizeChat();
+                }
+                
                 setTimeout(() => {
-                    showQuickOptions();
-                }, 1000);
-            }, 500);
+                    const welcomeMessage = `¡Hola! Soy **Bludee IA**, tu experto en medicina transfusional. 🤖🩸
+
+Tengo conocimiento especializado sobre:
+
+🔬 **Anticuerpos específicos** (Anti-K, Anti-D, etc.)
+🤱 **Embarazo y medicina transfusional**
+🔬 **Interpretación de pruebas** (DAT, crossmatch)
+🩸 **Productos especiales** (irradiados, lavados)
+⚠️ **Reacciones transfusionales**
+🚨 **Protocolos de emergencia**
+
+**💡 Tip:** Usa ⬇️ para minimizarme
+
+**¿Qué te gustaría consultar?**`;
+                    
+                    addMessage(welcomeMessage, false);
+                    
+                    setTimeout(() => {
+                        showQuickOptions();
+                    }, 1000);
+                }, 500);
+            } catch (error) {
+                console.error('Error en showWelcomeMessage:', error);
+            }
         }
 
         function showQuickOptions() {
-            const quickOptions = [
-                "¿Qué es un anti-K?",
-                "Embarazada con anti-D",
-                "DAT positivo",
-                "Sangre irradiada",
-                "Reacción febril",
-                "Protocolo emergencia"
-            ];
-            
-            const optionsHtml = quickOptions.map(option => 
-                `<button class="quick-btn" onclick="handleQuickOption('${option}')">${option}</button>`
-            ).join('');
-            
-            const messagesContainer = document.getElementById('chatMessages');
-            const optionsDiv = document.createElement('div');
-            optionsDiv.className = 'message';
-            optionsDiv.innerHTML = `
-                <div class="bot-message">
-                    <div class="expert-tag">🎯 Preguntas frecuentes</div>
-                    <div class="quick-options">
-                        ${optionsHtml}
+            try {
+                const quickOptions = [
+                    "¿Qué es un anti-K?",
+                    "Embarazada con anti-D",
+                    "DAT positivo",
+                    "Sangre irradiada",
+                    "Reacción febril",
+                    "Protocolo emergencia"
+                ];
+                
+                const optionsHtml = quickOptions.map(option => 
+                    `<button class="quick-btn" onclick="handleQuickOption('${option.replace(/'/g, "\\\'")}')">${option}</button>`
+                ).join('');
+                
+                const messagesContainer = document.getElementById('chatMessages');
+                if (!messagesContainer) return;
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'message';
+                optionsDiv.innerHTML = `
+                    <div class="bot-message">
+                        <div class="expert-tag">🎯 Consultas expertas</div>
+                        <div class="quick-options">
+                            ${optionsHtml}
+                        </div>
                     </div>
-                </div>
-            `;
-            messagesContainer.appendChild(optionsDiv);
-            scrollToBottom();
+                `;
+                messagesContainer.appendChild(optionsDiv);
+                scrollToBottom();
+            } catch (error) {
+                console.error('Error en showQuickOptions:', error);
+            }
         }
 
         function addMessage(message, isUser = false) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message';
-            
-            const messageContent = document.createElement('div');
-            messageContent.className = isUser ? 'user-message' : 'bot-message';
-            
-            let html = '';
-            if (!isUser) {
-                html += `<div class="expert-tag">🩸 IA Especialista</div>`;
+            try {
+                const messagesContainer = document.getElementById('chatMessages');
+                if (!messagesContainer) return;
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = isUser ? 'user-message' : 'bot-message';
+                
+                let html = '';
+                if (!isUser) {
+                    html += `<div class="expert-tag">🩸 IA Especialista</div>`;
+                }
+                
+                html += message
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n/g, '<br>');
+                
+                messageContent.innerHTML = html;
+                messageDiv.appendChild(messageContent);
+                messagesContainer.appendChild(messageDiv);
+                scrollToBottom();
+            } catch (error) {
+                console.error('Error en addMessage:', error);
             }
-            
-            // Convertir markdown básico
-            html += message
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/\n/g, '<br>');
-            
-            messageContent.innerHTML = html;
-            messageDiv.appendChild(messageContent);
-            messagesContainer.appendChild(messageDiv);
-            scrollToBottom();
         }
 
         function scrollToBottom() {
-            const messagesContainer = document.getElementById('chatMessages');
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            try {
+                const messagesContainer = document.getElementById('chatMessages');
+                if (messagesContainer) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Error en scrollToBottom:', error);
+            }
         }
 
         function showTyping() {
-            document.getElementById('typingIndicator').style.display = 'flex';
-            scrollToBottom();
+            try {
+                const indicator = document.getElementById('typingIndicator');
+                if (indicator) {
+                    indicator.style.display = 'flex';
+                    scrollToBottom();
+                }
+            } catch (error) {
+                console.error('Error en showTyping:', error);
+            }
         }
 
         function hideTyping() {
-            document.getElementById('typingIndicator').style.display = 'none';
+            try {
+                const indicator = document.getElementById('typingIndicator');
+                if (indicator) {
+                    indicator.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error en hideTyping:', error);
+            }
         }
 
         function handleQuickOption(option) {
-            sendMessage(option);
+            try {
+                sendMessage(option);
+            } catch (error) {
+                console.error('Error en handleQuickOption:', error);
+            }
         }
 
-        async function sendMessage(messageText = null) {
-            const input = document.getElementById('chatInput');
-            const sendBtn = document.getElementById('sendBtn');
-            const message = messageText || input.value.trim();
-            
-            if (!message) return;
-            
-            // Maximizar automáticamente cuando se envía un mensaje
-            if (isMinimized) {
-                minimizeChat();
-            }
-            
-            // Deshabilitar input y botón
-            input.disabled = true;
-            sendBtn.disabled = true;
-            
-            // Agregar mensaje del usuario
-            addMessage(message, true);
-            
-            // Agregar a historial
-            conversationHistory.push({ role: "user", content: message });
-            
-            // Limpiar input si no es un mensaje rápido
-            if (!messageText) {
-                input.value = '';
-                autoResize(input);
-            }
-            
-            // Mostrar indicador de escritura
-            showTyping();
-            
+        function sendMessage(messageText = null) {
             try {
-                // Preparar mensajes para Claude API
-                const messages = [
-                    { role: "user", content: systemPrompt },
-                    ...conversationHistory
-                ];
+                const input = document.getElementById('chatInput');
+                const sendBtn = document.getElementById('sendBtn');
                 
-                // Llamada a Claude API
-                const response = await fetch("https://api.anthropic.com/v1/messages", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        model: "claude-sonnet-4-20250514",
-                        max_tokens: 2000,
-                        messages: messages
-                    })
-                });
+                if (!input || !sendBtn) return;
                 
-                const data = await response.json();
+                const message = messageText || input.value.trim();
                 
-                if (data.content && data.content[0] && data.content[0].text) {
-                    const aiResponse = data.content[0].text;
-                    
-                    // Agregar respuesta al historial
-                    conversationHistory.push({ role: "assistant", content: aiResponse });
-                    
-                    // Mostrar respuesta
-                    hideTyping();
-                    addMessage(aiResponse, false);
-                } else {
-                    throw new Error('Respuesta inválida de la API');
+                if (!message) return;
+                
+                if (isMinimized) {
+                    minimizeChat();
                 }
                 
+                // Deshabilitar controles
+                input.disabled = true;
+                sendBtn.disabled = true;
+                
+                // Agregar mensaje del usuario
+                addMessage(message, true);
+                
+                // Limpiar input si no es mensaje predefinido
+                if (!messageText) {
+                    input.value = '';
+                    autoResize(input);
+                }
+                
+                // Mostrar indicador de escritura
+                showTyping();
+                
+                // Procesar respuesta con delay realista
+                setTimeout(() => {
+                    try {
+                        hideTyping();
+                        const result = findExpertAnswer(message);
+                        addMessage(result.answer, false);
+                        
+                        // Rehabilitar controles
+                        input.disabled = false;
+                        sendBtn.disabled = false;
+                        input.focus();
+                    } catch (processingError) {
+                        console.error('Error procesando respuesta:', processingError);
+                        hideTyping();
+                        addMessage('Lo siento, hubo un error procesando tu consulta. Por favor intenta nuevamente.', false);
+                        
+                        // Rehabilitar controles
+                        input.disabled = false;
+                        sendBtn.disabled = false;
+                    }
+                }, 1000 + Math.random() * 1500);
+                
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error en sendMessage:', error);
+                
+                // Asegurar que los controles se rehabiliten
+                const input = document.getElementById('chatInput');
+                const sendBtn = document.getElementById('sendBtn');
+                if (input) input.disabled = false;
+                if (sendBtn) sendBtn.disabled = false;
+                
                 hideTyping();
-                addMessage("❌ **Error temporal**\n\nNo pude conectar con el sistema de IA. Verifica tu conexión e intenta de nuevo.\n\n*Mientras tanto, puedes usar las preguntas rápidas.*", false);
-            } finally {
-                // Rehabilitar input y botón
-                input.disabled = false;
-                sendBtn.disabled = false;
-                input.focus();
+                addMessage('Error temporal. Por favor intenta nuevamente.', false);
             }
         }
 
         function handleEnterKey(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
+            try {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    sendMessage();
+                }
+            } catch (error) {
+                console.error('Error en handleEnterKey:', error);
             }
         }
 
         function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 80) + 'px';
+            try {
+                if (textarea) {
+                    textarea.style.height = 'auto';
+                    textarea.style.height = Math.min(textarea.scrollHeight, 80) + 'px';
+                }
+            } catch (error) {
+                console.error('Error en autoResize:', error);
+            }
         }
 
-        // Inicialización
-        window.addEventListener('load', function() {
-            console.log('Bludee IA cargado correctamente');
-            updateUI();
+        // Inicialización segura
+        function initializeApp() {
+            try {
+                console.log('Bludee IA - Versión GitHub Pages cargada correctamente');
+                console.log('Base de conocimiento especializada activada');
+                updateUI();
+                
+                // Verificar elementos críticos
+                const criticalElements = [
+                    'bludeeAssistant',
+                    'chatMessages',
+                    'chatInput',
+                    'sendBtn'
+                ];
+                
+                const missingElements = criticalElements.filter(id => !document.getElementById(id));
+                
+                if (missingElements.length > 0) {
+                    console.warn('Elementos faltantes:', missingElements);
+                } else {
+                    console.log('Todos los elementos críticos encontrados ✓');
+                }
+                
+            } catch (error) {
+                console.error('Error en inicialización:', error);
+            }
+        }
+
+        // Event listeners seguros
+        document.addEventListener('DOMContentLoaded', initializeApp);
+        window.addEventListener('load', initializeApp);
+
+        // Manejo de errores globales
+        window.addEventListener('error', function(e) {
+            console.error('Error global capturado:', e.error);
         });
+
     </script>
 </body>
 </html>
