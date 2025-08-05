@@ -197,7 +197,7 @@
             font-weight: 500;
         }
 
-        /* Chatbot mejorado para GitHub Pages */
+        /* Chatbot experto en banco de sangre */
         .bludee-assistant {
             position: fixed;
             bottom: 120px;
@@ -378,7 +378,7 @@
         }
 
         .bot-message::before {
-            content: '🤖';
+            content: '🩸';
             position: absolute;
             top: -6px;
             left: -6px;
@@ -576,16 +576,6 @@
             }
         }
 
-        .error-indicator {
-            background: #fee2e2;
-            border: 1px solid #ef4444;
-            color: #dc2626;
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin: 8px 0;
-            font-size: 0.8rem;
-        }
-
         @media (max-width: 768px) {
             .bludee-assistant {
                 width: 95%;
@@ -619,7 +609,7 @@
             <h1>🗃️ Bludee</h1>
             <p class="subtitle">Sistema de Gestión Hospitalaria de Componentes Sanguíneos</p>
             <p class="slogan">"Cada gota. Cada vida. Conectados."</p>
-            <div class="ai-badge">🤖 IA Experta en Medicina Transfusional</div>
+            <div class="ai-badge">🩸 Experto en Medicina Transfusional</div>
         </div>
 
         <div class="folders-container">
@@ -767,7 +757,7 @@
         <div class="toggle-ai">IA</div>
     </button>
     
-    <!-- Asistente Bludee con IA -->
+    <!-- Asistente Bludee - Experto en Banco de Sangre -->
     <div class="bludee-assistant" id="bludeeAssistant">
         <div class="bludee-header" onclick="headerClick()">
             <div class="bludee-avatar">
@@ -776,10 +766,10 @@
             </div>
             <div class="bludee-info">
                 <h3>Bludee IA</h3>
-                <p id="assistantStatus">Especialista en medicina transfusional</p>
+                <p id="assistantStatus">Experto en medicina transfusional</p>
             </div>
             <div class="control-buttons">
-                <span class="ai-status">🤖 IA</span>
+                <span class="ai-status">🩸 MT</span>
                 <button class="minimize-btn" onclick="event.stopPropagation(); minimizeChat()" id="minimizeBtn" title="Minimizar">
                     ⬇️
                 </button>
@@ -795,7 +785,7 @@
             </div>
             
             <div class="typing-indicator" id="typingIndicator">
-                <span>Bludee IA está procesando...</span>
+                <span>Analizando consulta médica...</span>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
@@ -808,7 +798,7 @@
                     <textarea 
                         class="chat-input" 
                         id="chatInput" 
-                        placeholder="Pregúntame sobre medicina transfusional..."
+                        placeholder="Consulta sobre banco de sangre, cruces, anticuerpos..."
                         rows="1"
                         onkeypress="handleEnterKey(event)"
                         oninput="autoResize(this)">
@@ -826,331 +816,810 @@
         let isAssistantOpen = false;
         let isMinimized = false;
         let chatInitialized = false;
+        let conversationHistory = [];
 
-        // BASE DE CONOCIMIENTO ESPECIALIZADA - GitHub Pages Compatible
-        const expertKnowledge = {
-            'anti-k': {
-                category: 'Anticuerpos',
-                answer: `**Anti-K (Anticuerpo contra antígeno Kell)**
+        // BASE DE CONOCIMIENTO COMPLETA - EXPERTO EN BANCO DE SANGRE
+        const bloodBankKnowledge = {
+            // ANTICUERPOS ESPECÍFICOS
+            anticuerpos: {
+                'anti-k': `**Anti-K (Sistema Kell)**
 
-🧬 **Características principales:**
-• **Sistema:** Kell (K1)
-• **Frecuencia:** 9% población caucásica, <1% población africana
-• **Significancia clínica:** MUY significativo
+🧬 **Características fundamentales:**
+• **Antígeno:** K1 (KEL1), frecuencia 9% caucásicos, <1% africanos
+• **Herencia:** Codominante, gen KEL en cromosoma 7
+• **Tipo:** IgG, reactivo 37°C y AGH
+• **Significancia:** ALTA - puede causar reacciones graves
 
 ⚠️ **Importancia clínica:**
-• **Reacciones transfusionales:** Hemólisis intravascular severa
-• **EHRN:** Enfermedad hemolítica del recién nacido grave
-• **Tipo de anticuerpo:** IgG, reactivo a 37°C y en AGH
+• **Reacciones hemolíticas:** Agudas y tardías severas
+• **EHRN:** Moderada a severa
+• **Supervivencia:** Reducida significativamente
+• **Detección:** Obligatoria en screening
 
-🩸 **Manejo transfusional:**
-• **Fenotipado:** Buscar unidades K negativas
-• **Pruebas cruzadas:** Obligatorias
-• **Inventario:** Mantener sangre K- disponible
-• **Embarazo:** Monitoreo título y ecografías Doppler
+🔬 **Manejo transfusional:**
+• **Fenotipado:** Siempre K negativo
+• **Crossmatch:** Compatible obligatorio
+• **Inventario:** Mantener stock K- disponible
+• **Documentación:** Historia permanente
 
-📋 **Protocolo:**
-1. Identificar anti-K mediante panel
-2. Confirmar especificidad
-3. Proveer solo sangre K negativa
-4. Documentar en historial permanente
+📋 **Protocolo anti-K:**
+1. Panel de identificación 11-16 células
+2. Confirmar especificidad con células K+
+3. Descartar otros anticuerpos
+4. Proveer solo sangre K negativa
+5. Monitoreo post-transfusional`,
 
-*Esta información es educativa. Consulta siempre con el especialista en medicina transfusional.*`
+                'anti-d': `**Anti-D (Sistema Rh)**
+
+🧬 **Características:**
+• **Antígeno:** RhD, frecuencia 85% positivos
+• **Herencia:** Autosómica dominante
+• **Tipo:** IgG predominante, algunos IgM
+• **Significancia:** MUY ALTA
+
+⚠️ **Importancia clínica:**
+• **Reacciones:** Hemólisis intravascular severa
+• **EHRN:** Causa principal históricamente
+• **Inmunización:** 50-70% personas Rh- expuestas
+• **Prevención:** RhoGAM profiláctico
+
+🤱 **Manejo en embarazo:**
+• **Screening:** Todas las embarazadas
+• **Titulación:** Seguimiento seriado
+• **Doppler:** Monitoreo fetal si título >16
+• **RhoGAM:** 28 semanas y posparto
+
+📊 **Interpretación títulos:**
+• **<16:** Seguimiento rutinario
+• **16-32:** Vigilancia aumentada
+• **>32:** Referir medicina materno-fetal
+• **>64:** Monitoreo intensivo`,
+
+                'anti-e': `**Anti-E (Sistema Rh)**
+
+🧬 **Características:**
+• **Antígeno:** RhE, frecuencia 30% población
+• **Herencia:** Ligado a RhC/c y RhD
+• **Tipo:** IgG, reactivo AGH
+• **Significancia:** Moderada a alta
+
+⚠️ **Importancia clínica:**
+• **Reacciones:** Hemólisis retardada principalmente
+• **EHRN:** Leve a moderada
+• **Frecuencia:** 2-5% anticuerpos irregulares
+• **Detección:** Screening rutinario
+
+🔬 **Manejo:**
+• **Fenotipado:** E negativo obligatorio
+• **Crossmatch:** Compatible
+• **Seguimiento:** Monitoreo títulos
+• **Embarazo:** Evaluación fetal si presente`,
+
+                'anti-c': `**Anti-c (Sistema Rh)**
+
+🧬 **Características:**
+• **Antígeno:** Rhc, frecuencia 80% población
+• **Herencia:** Alélico con RhC
+• **Tipo:** IgG, AGH reactivo
+• **Significancia:** Moderada
+
+⚠️ **Importancia clínica:**
+• **Reacciones:** Hemólisis tardía
+• **EHRN:** Leve a moderada
+• **Compatibilidad:** c negativo necesario
+• **Detección:** Panel rutinario
+
+🔬 **Consideraciones:**
+• **Alotipificación:** c negativo para transfundir
+• **Embarazo:** Monitoreo si presente
+• **Crossmatch:** Siempre compatible
+• **Documentación:** Historia transfusional`
             },
 
-            'embarazada': {
-                category: 'Embarazo',
-                answer: `**Embarazada con Anti-D - Protocolo Completo**
+            // PRUEBAS DE LABORATORIO
+            pruebas: {
+                'crossmatch': `**Pruebas de Compatibilidad (Crossmatch)**
 
-🚨 **Evaluación inicial:**
-• **Determinar:** Si es inmunización previa o actual
-• **Título inicial:** Cuantificar nivel de anticuerpos
-• **Genotipo paterno:** Si es posible
-• **Historia obstétrica:** Embarazos/transfusiones previas
+🔬 **Tipos de crossmatch:**
 
-📊 **Seguimiento por títulos:**
-• **Título <16:** Seguimiento cada 4 semanas
-• **Título 16-64:** Seguimiento cada 2 semanas + Doppler
-• **Título >64:** Seguimiento semanal + centro especializado
+**1. CROSSMATCH MAYOR:**
+• **Qué es:** Suero paciente + GR donante
+• **Detecta:** Anticuerpos en paciente vs antígenos donante
+• **Fases:** Salina, 37°C, AGH
+• **Importancia:** Previene reacciones hemolíticas
 
-🔬 **Monitoreo fetal:**
-• **Ecografía Doppler:** ACM (arteria cerebral media)
-• **Cordocentesis:** Si Doppler sugiere anemia fetal
-• **Transfusión intrauterina:** En casos severos
+**2. CROSSMATCH MENOR:**
+• **Qué es:** Plasma donante + GR paciente
+• **Detecta:** Anticuerpos en donante vs antígenos paciente
+• **Uso:** Limitado, transfusiones masivas
+• **Menos crítico:** Dilución in vivo
 
-🩸 **Manejo transfusional materno:**
-• **Solo sangre Rh negativa**
-• **Crossmatch extendido**
-• **Evitar transfusiones innecesarias**
-• **Coordinar con obstetricia**
+**3. CROSSMATCH ABREVIADO:**
+• **Cuándo:** Paciente sin anticuerpos irregulares
+• **Procedimiento:** Solo fase AGH
+• **Tiempo:** 5-10 minutos
+• **Emergencias:** Protocolo acelerado
 
-⚠️ **Criterios de referencia:**
-• Título >32 en primer embarazo
-• Título >16 con historia de EHRN
-• Evidencia de anemia fetal
-• Hydrops fetal
+📋 **Interpretación resultados:**
+• **Grado 4+:** Incompatibilidad absoluta
+• **Grado 3+:** Incompatible, buscar causa
+• **Grado 2+:** Incompatible, investigar
+• **Grado 1+:** Débil, evaluar significancia
+• **Negativo:** Compatible para transfundir
 
-*Protocolo debe seguirse en conjunto con especialista en medicina materno-fetal.*`
-            },
+⚠️ **Crossmatch incompatible:**
+1. **Verificar:** Muestras e identidad
+2. **Repetir:** Tipificación ABO/Rh
+3. **Panel:** Identificación anticuerpos
+4. **DAT:** Descartar autoanticuerpos
+5. **Buscar:** Unidades compatibles`,
 
-            'dat': {
-                category: 'Pruebas',
-                answer: `**DAT Positivo - Interpretación y Manejo**
+                'panel_anticuerpos': `**Panel de Identificación de Anticuerpos**
 
-🔍 **¿Qué es el DAT?**
-• **Direct Antiglobulin Test** (Prueba directa de antiglobulina)
-• **Detecta:** IgG y/o C3d en superficie de glóbulos rojos
-• **Indica:** Sensibilización in vivo
+🔬 **Estructura del panel:**
+• **Células:** 11-16 glóbulos rojos O diferentes
+• **Antígenos:** 20+ sistemas sanguíneos
+• **Fases:** Salina, 37°C, AGH
+• **Controles:** Autocontrol incluído
 
-📋 **Causas principales:**
-• **Autoanticuerpos:** Anemia hemolítica autoinmune
+📊 **Sistemas incluidos:**
+• **Rh:** D, C, E, c, e
+• **Kell:** K, k, Kpa, Kpb, Jsa, Jsb
+• **Duffy:** Fya, Fyb
+• **Kidd:** Jka, Jkb
+• **MNS:** M, N, S, s
+• **Lutheran:** Lua, Lub
+• **Diego:** Dia, Dib
+• **Otros:** Lea, Leb, P1, etc.
+
+🔍 **Proceso de identificación:**
+1. **Patrón reactividad:** Comparar con panel
+2. **Regla de los tres:** Mínimo 3 células positivas
+3. **Exclusión:** Antígenos en células negativas
+4. **Dosis:** Homocigotos vs heterocigotos
+5. **Confirmación:** Células específicas
+
+📋 **Interpretación:**
+• **Patrón claro:** Anticuerpo específico identificado
+• **Patrón mixto:** Múltiples anticuerpos
+• **No específico:** Requiere estudios adicionales
+• **Autoreactividad:** DAT positivo`,
+
+                'dat_completo': `**DAT (Direct Antiglobulin Test) Completo**
+
+🔬 **Procedimiento DAT:**
+• **Lavado:** 3-4 veces con salina fisiológica
+• **AGH poliespecífico:** Anti-IgG + Anti-C3d
+• **Incubación:** 15-30 segundos
+• **Centrifugación:** 1000 rpm, 15 segundos
+• **Lectura:** Aglutinación macro y microscópica
+
+📊 **Tipos de AGH:**
+• **Poliespecífico:** IgG + C3d combinado
+• **Monoespecífico IgG:** Solo inmunoglobulina G
+• **Monoespecífico C3d:** Solo complemento
+• **IgA, IgM:** Para casos especiales
+
+🔍 **Interpretación por patrón:**
+• **IgG+ C3d-:** Anticuerpos "calientes" (AHAI caliente)
+• **IgG- C3d+:** Anticuerpos "fríos" o medicamentos
+• **IgG+ C3d+:** Patrón mixto, AHAI severa
+• **IgG- C3d-:** Negativo normal
+
+⚠️ **DAT positivo - Causas:**
+• **Autoinmune:** AHAI primaria o secundaria
 • **Aloanticuerpos:** Post-transfusional, EHRN
 • **Medicamentos:** Penicilina, cefalosporinas, quinidina
-• **Enfermedades:** LES, leucemias, infecciones
+• **Infecciones:** Mycoplasma, mononucleosis
+• **Enfermedades:** LES, LLC, linfomas
 
-🔬 **Interpretación por patrón:**
-• **IgG+/C3d-:** Anticuerpos calientes, AHAI
-• **IgG-/C3d+:** Anticuerpos fríos, hemólisis complement
-• **IgG+/C3d+:** Mixto, severidad mayor
-• **Débilmente positivo:** Puede ser clínicamente insignificante
+📋 **Algoritmo DAT positivo:**
+1. **Confirmar** positividad
+2. **Eluído** para identificar especificidad
+3. **Historia clínica** medicamentos/transfusiones
+4. **Laboratorios** hemólisis (LDH, bilirrubina)
+5. **Manejo** según causa identificada`,
 
-⚠️ **Manejo transfusional:**
-• **Investigar causa** antes de transfundir
-• **Pruebas adicionales:** Eluido, IAT, estudios de medicamentos
-• **Crossmatch:** Pueden ser incompatibles
-• **Transfusión:** Solo si clínicamente indicada
+                'eluido': `**Eluído - Identificación de Anticuerpos**
 
-📊 **Algoritmo diagnóstico:**
-1. Confirmar DAT positivo
-2. Eluido para identificar especificidad
-3. Investigar historia clínica y medicamentos
-4. Evaluar hemólisis (LDH, bilirrubina, haptoglobina)
+🔬 **¿Qué es el eluído?**
+• **Proceso:** Separar anticuerpos adheridos a GR
+• **Objetivo:** Identificar especificidad anticuerpos
+• **Indicación:** DAT positivo por IgG
+• **Métodos:** Calor, ácido, éter
 
-*Consultar hematólogo si hay evidencia de hemólisis activa.*`
+🧪 **Métodos de elución:**
+• **Método calor:** 56°C por 10 minutos
+• **Método ácido:** pH bajo (glycine-HCl)
+• **Método éter:** Disolvente orgánico
+• **Freeze-thaw:** Congelación-descongelación
+
+📊 **Interpretación:**
+• **Patrón específico:** Anti-D, -E, -K, etc.
+• **Patrón panreactivo:** Autoanticuerpo
+• **Negativo:** No se recuperan anticuerpos
+• **Mixto:** Múltiples especificidades
+
+⚠️ **Eluído específico:**
+• **Anti-D:** EHRN, transfusión incompatible
+• **Anti-E, -c:** Reacciones tardías
+• **Anti-K:** Reacciones severas
+• **Especificidad múltiple:** Aloinmunización compleja
+
+📋 **Protocolo eluído:**
+1. **Lavado** células DAT positivas
+2. **Elución** método elegido
+3. **Neutralización** pH si ácido
+4. **Prueba** vs panel identificación
+5. **Interpretación** patrón reactividad`
             },
 
-            'irradiada': {
-                category: 'Productos Especiales',
-                answer: `**Sangre Irradiada - Indicaciones y Protocolo**
+            // GENÉTICA Y HERENCIA
+            genetica: {
+                'herencia_abo': `**Genética del Sistema ABO**
 
-☢️ **¿Qué es?**
-• **Irradiación gamma:** 25 Gy mínimo
-• **Propósito:** Inactivar linfocitos T donantes
-• **Previene:** Enfermedad injerto vs huésped (TA-GVHD)
+🧬 **Bases genéticas:**
+• **Locus:** Cromosoma 9q34
+• **Alelos:** A¹, A², B, O (alelo nulo)
+• **Herencia:** Codominante A y B, O recesivo
+• **Productos:** Transferasas A y B
 
-🎯 **Indicaciones absolutas:**
-• **Inmunodeficiencias:** Primarias y secundarias
-• **Trasplante:** Médula ósea, órganos sólidos
-• **Quimioterapia:** Intensiva, agentes inmunosupresores
-• **Prematuros:** <1200g o <28 semanas
-• **Transfusiones intrauterinas**
+👨‍👩‍👧‍👦 **Predicción genética:**
 
-🏥 **Indicaciones relativas:**
-• **Transfusiones dirigidas** de familiares
-• **Productos HLA compatibles**
-• **Pacientes oncohematológicos**
-• **Post-quimioterapia** reciente
+**Padres A x B:**
+• **Posible:** AB (25%), A (25%), B (25%), O (25%)
+• **Nota:** Solo si ambos AO y BO
 
-⏰ **Vida útil post-irradiación:**
-• **Glóbulos rojos:** 28 días desde irradiación (máximo)
-• **Plaquetas:** Sin cambio (5 días)
-• **Plasma:** Sin cambio
+**Padres AB x O:**
+• **Resultado:** 50% A (AO), 50% B (BO)
+• **Imposible:** AB u O
 
-📋 **Protocolo:**
-1. **Identificar indicación** médica
-2. **Etiquetar** productos como "IRRADIADO"
-3. **Documentar** fecha de irradiación
-4. **Verificar** vida útil reducida
-5. **Trazabilidad** completa
+**Padres O x O:**
+• **Resultado:** 100% O (OO)
+• **Imposible:** A, B, o AB
 
-⚠️ **Embarazo:**
-• **SÍ es segura** para embarazadas
-• **No afecta** al feto
-• **Indicada** si madre tiene indicación médica
+📊 **Casos de exclusión:**
+• **Padres O + hijo AB:** Imposible genéticamente
+• **Padres AB + hijo O:** Imposible genéticamente
+• **Un padre AB + hijo O:** Exclusión paternidad
 
-*La irradiación NO afecta la eficacia de la transfusión.*`
+🔬 **Subgrupos A:**
+• **A1:** 80% población A, reacciona fuerte
+• **A2:** 20% población A, reacciona débil
+• **A3, Ax, Ael:** Variantes raras
+• **Anti-A1:** Presente en algunos A2`,
+
+                'herencia_rh': `**Genética del Sistema Rh**
+
+🧬 **Estructura genética:**
+• **Genes:** RHD y RHCE en cromosoma 1p36
+• **RHD:** Codifica antígeno D
+• **RHCE:** Codifica C/c y E/e
+• **Herencia:** Ligada, haplotipos heredados juntos
+
+📊 **Haplotipos comunes:**
+• **DCe** (R1): 42% caucásicos
+• **DcE** (R2): 14% caucásicos  
+• **Dce** (R0): 4% caucásicos, 44% africanos
+• **dce** (r): 37% caucásicos
+• **dCe** (r'): 2% caucásicos
+• **dcE** (r''): 1% caucásicos
+
+👨‍👩‍👧‍👦 **Predicción Rh:**
+
+**Padre DCe/dce x Madre dce/dce:**
+• **50% DCe/dce:** Rh positivo (R1r)
+• **50% dce/dce:** Rh negativo (rr)
+
+**Padre DCe/DcE x Madre dce/dce:**
+• **25% DCe/dce:** R1r
+• **25% DcE/dce:** R2r
+• **25% Dce/dce:** R0r
+• **25% dce/dce:** rr
+
+🤱 **Aplicación clínica:**
+• **Riesgo EHRN:** Predecir según genotipos paternos
+• **Probabilidad D+:** Calcular según haplotipos
+• **Consejería:** Informar riesgos futuros embarazos`,
+
+                'calculo_bebe': `**Cálculo Grupo Sanguíneo del Bebé**
+
+🧮 **Herramientas de predicción:**
+
+**SISTEMA ABO:**
+📊 **Tabla de probabilidades:**
+
+| Madre | Padre | A    | B    | AB   | O    |
+|-------|-------|------|------|------|------|
+| A     | A     | 75%  | 0%   | 0%   | 25%  |
+| A     | B     | 25%  | 25%  | 25%  | 25%  |
+| A     | AB    | 50%  | 0%   | 50%  | 0%   |
+| A     | O     | 50%  | 0%   | 0%   | 50%  |
+| B     | B     | 0%   | 75%  | 0%   | 25%  |
+| AB    | AB    | 25%  | 25%  | 50%  | 0%   |
+| O     | O     | 0%   | 0%   | 0%   | 100% |
+
+**SISTEMA RH:**
+• **D+ x D+:** 75-100% D+ (según genotipo)
+• **D+ x D-:** 0-100% D+ (según genotipo padre)
+• **D- x D-:** 100% D- (siempre)
+
+🔬 **Ejemplo de cálculo:**
+**Madre A Rh+ (AO, DCe/dce) x Padre B Rh- (BO, dce/dce):**
+
+**ABO:** 25% AB, 25% A, 25% B, 25% O
+**Rh:** 50% positivo, 50% negativo
+
+**Combinaciones posibles:**
+• 12.5% AB Rh+
+• 12.5% AB Rh-
+• 12.5% A Rh+
+• 12.5% A Rh-
+• 12.5% B Rh+
+• 12.5% B Rh-
+• 12.5% O Rh+
+• 12.5% O Rh-
+
+⚠️ **Limitaciones:**
+• **Genotipos exactos:** Necesarios para precisión
+• **Variantes raras:** No consideradas en cálculos básicos
+• **Mutaciones:** Eventos excepcionales posibles`
             },
 
-            'febril': {
-                category: 'Reacciones',
-                answer: `**Reacciones Transfusionales Febriles No Hemolíticas (RTFNH)**
-
-🌡️ **Definición:**
-• **Aumento ≥1°C** durante o post-transfusión
-• **Sin hemólisis** evidente
-• **Más frecuente:** 1-3% de transfusiones
-
-🔍 **Fisiopatología:**
-• **Anticuerpos anti-leucocitos** (HLA, HNA)
-• **Citoquinas** acumuladas durante almacenamiento
-• **Reacción pirógena** a productos bacterianos
-
-📋 **Manejo inmediato:**
-1. **DETENER** transfusión inmediatamente
-2. **Evaluar** signos vitales
-3. **Descartar** reacción hemolítica
-4. **Antipiréticos:** Paracetamol, metamizol
-5. **Observación** hasta estabilización
-
-🔬 **Investigación:**
-• **Verificar** identidad paciente-unidad
-• **Cultivos:** Si sospecha contaminación bacteriana
-• **Muestra post-transfusional:** Hemólisis, hemoglobinuria
-• **Repetir** tipificación y crossmatch
-
-🛡️ **Prevención:**
-• **Filtros leucocitos** (leucorreducción)
-• **Productos leucorreducidos** pre-almacenamiento
-• **Premedicación:** En pacientes con historia
-• **Lavado** de componentes en casos recurrentes
-
-📊 **Premedicación estándar:**
-• **Paracetamol** 650mg VO 30min antes
-• **Difenhidramina** 25-50mg VO/IV
-• **En casos severos:** Hidrocortisona 100mg IV
-
-⚠️ **Diferencial crítico:**
-• **Reacción hemolítica aguda**
-• **Sobrecarga circulatoria (TACO)**
-• **Lesión pulmonar (TRALI)**
-• **Sepsis por contaminación bacteriana**
-
-*Si la reacción es severa o recurrente, considerar estudio inmunohematológico completo.*`
-            },
-
-            'emergencia': {
-                category: 'Emergencias',
-                answer: `**Protocolo de Transfusión Masiva - Emergencia**
+            // PROTOCOLOS CLÍNICOS
+            protocolos: {
+                'emergencia_masiva': `**Protocolo de Transfusión Masiva**
 
 🚨 **Activación Código Rojo:**
-• **Criterios:** >4 unidades en 1h o >10 unidades en 24h
-• **Pérdida:** >30% volemia o >1500mL
-• **Hipotensión** + signos de shock
+• **Criterios:** >4U en 1h, >10U en 24h, >30% volemia
+• **Equipo:** Cirujano, anestesiólogo, banco de sangre
+• **Comunicación:** Activación inmediata 24/7
 
-⚡ **Respuesta inmediata (<5 min):**
-1. **O Rh negativo** (universal) disponible
-2. **Ratio 1:1:1** (GR:PFC:Plaquetas)
-3. **Activar** banco de sangre 24/7
-4. **Equipo multidisciplinario**
-
-🩸 **Productos iniciales:**
+⚡ **Respuesta <10 minutos:**
 • **6 unidades GR O-** (universal)
-• **6 unidades PFC AB** o tipo específico
-• **1 pool plaquetas** tipo específico
-• **Crioprecipitado** si fibrinógeno <100mg/dL
+• **6 unidades PFC AB** (universal)
+• **1 pool plaquetas** grupo específico
+• **Crioprecipitado** disponible
 
-🔬 **Laboratorios urgentes:**
-• **Tipificación ABO/Rh** (STAT)
-• **Crossmatch** abreviado
-• **Hemograma** c/ plaquetas
+🩸 **Ratio 1:1:1:**
+• **GR:PFC:Plaquetas** en proporción balanceada
+• **Previene:** Coagulopatía dilucional
+• **Mantiene:** Factores coagulación
+• **Objetivo:** Hemostasia efectiva
+
+📊 **Laboratorios STAT:**
+• **Tipificación:** ABO/Rh inmediato
+• **Crossmatch:** Abreviado si necesario
+• **Hemograma:** Hb, plaquetas
 • **Coagulación:** PT, PTT, fibrinógeno
-• **Química:** Lactato, calcio, K+
-
-📊 **Monitoreo continuo:**
-• **Signos vitales** cada 15min
-• **Laboratorios** cada 4-6 unidades
-• **Calcio** (hipocalcemia por citrato)
-• **Potasio** (hiperpotasemia)
-• **Temperatura** (hipotermia)
-
-⚠️ **Complicaciones a vigilar:**
-• **Coagulopatía** dilucional
-• **Hipotermia** (<35°C)
-• **Acidosis metabólica**
-• **Hipocalcemia** (citrato)
-• **Sobrecarga circulatoria**
+• **Química:** Calcio, potasio, lactato
 
 🎯 **Objetivos terapéuticos:**
-• **Plaquetas:** >50,000/μL
-• **Fibrinógeno:** >100-150mg/dL
-• **PT/PTT:** <1.5x normal
 • **Hematocrito:** >21%
+• **Plaquetas:** >50,000/μL
+• **Fibrinógeno:** >100-150 mg/dL
+• **PT/PTT:** <1.5x control
+• **Calcio:** >1.0 mmol/L
 
-*Coordinar siempre con equipo quirúrgico y anestesiología.*`
+⚠️ **Complicaciones vigilar:**
+• **Hipotermia:** <35°C
+• **Acidosis:** pH <7.2
+• **Hipocalcemia:** Citrato toxicidad
+• **Hiperpotasemia:** GR almacenados
+• **TACO:** Sobrecarga circulatoria
+
+📋 **Protocolo por fases:**
+**Fase 1 (0-30 min):**
+• O- universal mientras tipificación
+• Ratio 1:1:1 estricto
+• Laboratorios cada 30 min
+
+**Fase 2 (30-60 min):**
+• Productos tipo específico
+• Ajustar según laboratorios
+• Monitoreo continuo
+
+**Fase 3 (>60 min):**
+• Productos compatibles
+• Terapia dirigida por labs
+• Evaluar hemostasia`,
+
+                'reacciones_transfusionales': `**Manejo de Reacciones Transfusionales**
+
+🚨 **Protocolo de emergencia:**
+1. **DETENER** transfusión inmediatamente
+2. **Mantener** vía venosa con salina
+3. **Evaluar** signos vitales
+4. **Notificar** médico tratante
+5. **Enviar** muestras al banco
+
+📊 **Clasificación por severidad:**
+
+**LEVES:**
+• Fiebre <1°C
+• Urticaria localizada
+• Prurito leve
+• **Manejo:** Sintomático, observación
+
+**MODERADAS:**
+• Fiebre >1°C
+• Urticaria generalizada
+• Hipotensión leve
+• **Manejo:** Antihistamínicos, corticoides
+
+**SEVERAS:**
+• Hipotensión severa
+• Disnea, broncoespasmo
+• Hemoglobinuria
+• **Manejo:** Soporte vital, epinefrina
+
+⚠️ **Reacción hemolítica aguda:**
+• **Síntomas:** Dolor lumbar, fiebre alta, hemoglobinuria
+• **Laboratorio:** Hemólisis, LDH elevada, haptoglobina baja
+• **Tratamiento:** Fluidos, diuresis, soporte renal
+• **Investigación:** Error ABO, anticuerpos
+
+🔬 **Investigación post-reacción:**
+1. **Verificar** identidad paciente-unidad
+2. **Cultivos** si sospecha bacteriana
+3. **DAT** y muestra post-transfusional
+4. **Repetir** tipificación y crossmatch
+5. **Buscar** nuevos anticuerpos
+
+📋 **Prevención reacciones:**
+• **Premedicación:** Pacientes con historia
+• **Leucorreducción:** Productos filtrados
+• **Calentamiento:** Evitar hipotermia
+• **Velocidad adecuada:** Según tolerancia`,
+
+                'protocolos_especiales': `**Productos Sanguíneos Especiales**
+
+🩸 **SANGRE IRRADIADA:**
+• **Dosis:** 25 Gy gamma irradiación
+• **Objetivo:** Inactivar linfocitos T
+• **Previene:** TA-GVHD (enfermedad injerto vs huésped)
+• **Vida útil:** Reducida a 28 días
+
+**Indicaciones absolutas:**
+• Inmunodeficiencias congénitas
+• Trasplante médula ósea
+• Prematuros <1200g
+• Transfusiones intrauterinas
+• Productos HLA compatibles
+
+**Indicaciones relativas:**
+• Transfusiones de familiares
+• Quimioterapia intensiva
+• Trasplante órganos sólidos
+
+🧼 **COMPONENTES LAVADOS:**
+• **Proceso:** 3 lavados con salina
+• **Remueve:** Plasma, proteínas, anticuerpos
+• **Indicaciones:** Reacciones alérgicas severas
+• **Vida útil:** 24 horas post-lavado
+
+🦠 **PRODUCTOS CMV NEGATIVOS:**
+• **Pacientes:** Inmunocomprometidos CMV-
+• **Embarazadas:** CMV negativas
+• **Prematuros:** <1200g de madres CMV-
+• **Alternativa:** Leucorreducción
+
+❄️ **PRODUCTOS CONGELADOS:**
+• **Plasma fresco:** -18°C hasta 1 año
+• **Crioprecipitado:** -18°C hasta 1 año
+• **Glóbulos rojos:** Glicerol -80°C hasta 10 años
+• **Descongelación:** Procedimientos específicos`
             }
         };
 
-        // Función para buscar respuestas - Mejorada para GitHub Pages
-        function findExpertAnswer(question) {
-            try {
-                if (!question || typeof question !== 'string') {
-                    throw new Error('Pregunta inválida');
-                }
-
-                const q = question.toLowerCase().trim();
-                
-                // Búsqueda exacta por palabras clave
-                const searchTerms = {
-                    'anti-k': ['anti-k', 'antik', 'anti k', 'kell'],
-                    'embarazada': ['embarazada', 'embarazo', 'anti-d', 'antid', 'gestante'],
-                    'dat': ['dat', 'antiglobulina directa', 'coombs directa', 'coombs directo'],
-                    'irradiada': ['irradiada', 'irradiacion', 'irradiar', 'gamma'],
-                    'febril': ['febril', 'fiebre', 'rtfnh', 'temperatura'],
-                    'emergencia': ['emergencia', 'masiva', 'codigo rojo', 'trauma', 'hemorragia']
-                };
-
-                for (const [key, terms] of Object.entries(searchTerms)) {
-                    if (terms.some(term => q.includes(term))) {
-                        return expertKnowledge[key];
-                    }
-                }
-
-                // Respuesta por defecto si no encuentra coincidencia
-                return {
-                    category: 'Asistente IA',
-                    answer: `No encontré información específica sobre **"${question}"** en mi base de conocimiento especializada.
-
-📚 **Puedo ayudarte con estos temas expertos:**
-
-🔬 **Anticuerpos:**
-• Anti-K, Anti-D, Anti-E, Anti-c
-• Identificación y manejo clínico
-
-🤱 **Embarazo:**
-• Anti-D en embarazadas
-• Enfermedad hemolítica del RN
-• Monitoreo y seguimiento
-
-🔬 **Pruebas:**
-• DAT positivo
-• Crossmatch incompatible
-• Identificación de anticuerpos
-
-🩸 **Productos especiales:**
-• Sangre irradiada
-• Componentes lavados
-• CMV negativo
-
-⚠️ **Reacciones:**
-• Febriles no hemolíticas
-• Hemolíticas agudas
-• Alérgicas
-
-🚨 **Emergencias:**
-• Protocolos de transfusión masiva
-• Código rojo
-• Sangre de emergencia
-
-**¿Podrías reformular tu pregunta sobre alguno de estos temas?**`
-                };
-
-            } catch (error) {
-                console.error('Error en findExpertAnswer:', error);
-                return {
-                    category: 'Error',
-                    answer: 'Lo siento, hubo un error procesando tu consulta. Por favor intenta nuevamente.'
-                };
+        // FUNCIÓN DE IA EXPERTA EN BANCO DE SANGRE
+        function generateBloodBankResponse(question) {
+            const q = question.toLowerCase().trim();
+            
+            // 1. ANTICUERPOS ESPECÍFICOS
+            if (q.includes('anti-k') || q.includes('antik') || q.includes('kell')) {
+                return formatResponse('Anticuerpos', bloodBankKnowledge.anticuerpos['anti-k']);
             }
+            
+            if (q.includes('anti-d') || q.includes('antid') || (q.includes('rh') && q.includes('d'))) {
+                return formatResponse('Anticuerpos', bloodBankKnowledge.anticuerpos['anti-d']);
+            }
+            
+            if (q.includes('anti-e') || q.includes('antie')) {
+                return formatResponse('Anticuerpos', bloodBankKnowledge.anticuerpos['anti-e']);
+            }
+            
+            if (q.includes('anti-c') || q.includes('antic') || q.includes('rh c')) {
+                return formatResponse('Anticuerpos', bloodBankKnowledge.anticuerpos['anti-c']);
+            }
+            
+            // 2. PRUEBAS DE LABORATORIO
+            if (q.includes('crossmatch') || q.includes('cruces') || q.includes('compatibilidad') || q.includes('cross match')) {
+                return formatResponse('Crossmatch', bloodBankKnowledge.pruebas['crossmatch']);
+            }
+            
+            if (q.includes('panel') || q.includes('identificacion') || q.includes('anticuerpos irregulares')) {
+                return formatResponse('Panel', bloodBankKnowledge.pruebas['panel_anticuerpos']);
+            }
+            
+            if (q.includes('dat') || q.includes('antiglobulina directa') || q.includes('coombs directa')) {
+                return formatResponse('DAT', bloodBankKnowledge.pruebas['dat_completo']);
+            }
+            
+            if (q.includes('eluido') || q.includes('elusion') || q.includes('eluir')) {
+                return formatResponse('Eluído', bloodBankKnowledge.pruebas['eluido']);
+            }
+            
+            // 3. GENÉTICA Y HERENCIA
+            if ((q.includes('genetica') || q.includes('herencia') || q.includes('hereditario')) && q.includes('abo')) {
+                return formatResponse('Genética ABO', bloodBankKnowledge.genetica['herencia_abo']);
+            }
+            
+            if ((q.includes('genetica') || q.includes('herencia')) && q.includes('rh')) {
+                return formatResponse('Genética Rh', bloodBankKnowledge.genetica['herencia_rh']);
+            }
+            
+            if (q.includes('bebe') || q.includes('hijo') || q.includes('niño') || 
+                (q.includes('mama') && q.includes('papa')) || q.includes('padres')) {
+                return formatResponse('Cálculo Bebé', bloodBankKnowledge.genetica['calculo_bebe']);
+            }
+            
+            // 4. PROTOCOLOS CLÍNICOS
+            if (q.includes('emergencia') || q.includes('masiva') || q.includes('codigo rojo') || q.includes('trauma')) {
+                return formatResponse('Emergencia', bloodBankKnowledge.protocolos['emergencia_masiva']);
+            }
+            
+            if (q.includes('reaccion') || q.includes('reacciones') || q.includes('transfusional')) {
+                return formatResponse('Reacciones', bloodBankKnowledge.protocolos['reacciones_transfusionales']);
+            }
+            
+            if (q.includes('irradiada') || q.includes('lavado') || q.includes('cmv') || q.includes('especiales')) {
+                return formatResponse('Productos Especiales', bloodBankKnowledge.protocolos['protocolos_especiales']);
+            }
+            
+            // 5. RESPUESTAS CONTEXTUALES PARA BANCO DE SANGRE
+            if (q.includes('hola') || q.includes('buenas') || q.includes('saludos')) {
+                return formatResponse('Saludo', generateGreeting());
+            }
+            
+            if (q.includes('ayuda') || q.includes('que puedes') || q.includes('como funciona')) {
+                return formatResponse('Ayuda', generateHelpResponse());
+            }
+            
+            // 6. TEMAS RELACIONADOS CON BANCO DE SANGRE
+            if (q.includes('grupo') || q.includes('tipo') || q.includes('abo') || q.includes('tipificacion')) {
+                return formatResponse('Tipificación', generateABOResponse(q));
+            }
+            
+            if (q.includes('rh') || q.includes('rhesus') || q.includes('positivo') || q.includes('negativo')) {
+                return formatResponse('Sistema Rh', generateRhResponse(q));
+            }
+            
+            if (q.includes('embarazo') || q.includes('embarazada') || q.includes('gestante') || q.includes('prenatal')) {
+                return formatResponse('Embarazo', generatePregnancyResponse(q));
+            }
+            
+            if (q.includes('transfusion') || q.includes('transfundir') || q.includes('administrar')) {
+                return formatResponse('Transfusión', generateTransfusionResponse(q));
+            }
+            
+            // 7. RESPUESTA INTELIGENTE POR DEFECTO
+            return formatResponse('Consulta', generateIntelligentBloodBankResponse(q));
+        }
+        
+        function generateGreeting() {
+            return `¡Hola! Soy **Bludee IA**, tu experto especializado en medicina transfusional. 🩸🤖
+
+**Mi especialidad es banco de sangre completo:**
+
+🔬 **Anticuerpos:** Anti-K, Anti-D, Anti-E, Anti-c y más
+🧪 **Pruebas:** Crossmatch, panel de anticuerpos, DAT, eluído
+🧬 **Genética:** Herencia ABO/Rh, cálculos padre-madre-bebé
+🚨 **Protocolos:** Emergencias, reacciones, productos especiales
+🤱 **Embarazo:** Seguimiento anti-D, EHRN, monitoreo fetal
+
+**¿En qué puedo ayudarte hoy?** Pregúntame cualquier cosa sobre banco de sangre, por compleja que sea.`;
+        }
+        
+        function generateHelpResponse() {
+            return `**¿Qué puedo hacer por ti?** 🩸
+
+Como experto en medicina transfusional, puedo ayudarte con:
+
+🔬 **ANTICUERPOS:**
+• Identificación y significancia clínica
+• Manejo transfusional específico
+• Protocolos según especificidad
+
+🧪 **PRUEBAS DE LABORATORIO:**
+• Crossmatch y compatibilidad
+• Panel de identificación de anticuerpos
+• DAT y eluído - interpretación completa
+
+🧬 **GENÉTICA DE GRUPOS SANGUÍNEOS:**
+• Herencia ABO y Rh
+• Cálculos probabilísticos padre-madre-bebé
+• Predicciones genéticas
+
+🚨 **PROTOCOLOS CLÍNICOS:**
+• Transfusión masiva y emergencias
+• Manejo de reacciones transfusionales
+• Productos especiales (irradiados, lavados)
+
+🤱 **MEDICINA TRANSFUSIONAL EN EMBARAZO:**
+• Seguimiento anti-D y otros anticuerpos
+• EHRN - enfermedad hemolítica del RN
+• Protocolos obstétricos
+
+**¡Pregúntame lo que quieras!** Desde casos básicos hasta los más complejos.`;
+        }
+        
+        function generateABOResponse(question) {
+            return `**Sistema ABO - Fundamentos**
+
+🩸 **Grupos sanguíneos ABO:**
+• **Grupo A:** Antígeno A, anticuerpo anti-B
+• **Grupo B:** Antígeno B, anticuerpo anti-A  
+• **Grupo AB:** Antígenos A y B, sin anticuerpos
+• **Grupo O:** Sin antígenos, anticuerpos anti-A y anti-B
+
+🧬 **Base genética:**
+• **Genes:** A, B (codominantes), O (recesivo)
+• **Locus:** Cromosoma 9
+• **Transferasas:** A y B modifican antígeno H
+
+🔬 **Tipificación ABO:**
+• **Prueba directa:** Suero anti-A, anti-B vs GR paciente
+• **Prueba reversa:** Suero paciente vs células A1, B
+• **Concordancia:** Obligatoria entre directa y reversa
+
+⚠️ **Discrepancias ABO:**
+• **Subgrupos A:** A2 puede reaccionar débil
+• **Anticuerpos débiles:** Ancianos, inmunosuprimidos
+• **Proteínas anómalas:** Hipergammaglobulinemia
+• **Quimerismo:** Post-trasplante
+
+¿Tienes alguna pregunta específica sobre tipificación ABO?`;
+        }
+        
+        function generateRhResponse(question) {
+            return `**Sistema Rh - Información Completa**
+
+🧬 **Antígenos principales:**
+• **D:** Más importante, 85% población positiva
+• **C, E, c, e:** Antígenos secundarios
+• **Herencia:** Compleja, haplotipos DCe, DcE, etc.
+
+🔬 **Tipificación Rh:**
+• **Anti-D:** Obligatorio en toda tipificación
+• **Du débil:** Requiere AGH para detección
+• **Control Rh:** Descartar autoaglutinación
+
+🤱 **Importancia clínica:**
+• **EHRN:** Enfermedad hemolítica del recién nacido
+• **Reacciones:** Hemólisis severa si incompatible
+• **Profilaxis:** RhoGAM en embarazadas Rh negativas
+
+📊 **Genética Rh:**
+• **Rh positivo:** Al menos un gen D
+• **Rh negativo:** Ausencia completa gen D (dd)
+• **Herencia:** Mendeliana simple para D
+
+⚠️ **Variantes Rh:**
+• **Du débil:** Requiere técnicas especiales
+• **Rh variantes:** D parcial, categorías raras
+• **Tipificación extendida:** C, E, c, e según necesidad
+
+¿Necesitas información sobre algún aspecto específico del sistema Rh?`;
+        }
+        
+        function generatePregnancyResponse(question) {
+            return `**Medicina Transfusional en Embarazo**
+
+🤱 **Screening obstétrico:**
+• **Tipificación:** ABO/Rh obligatoria
+• **Anticuerpos irregulares:** Panel completo
+• **Seguimiento:** Seriado según anticuerpos detectados
+
+🩸 **Anti-D en embarazo:**
+• **Títulos:** Cuantificación seriada
+• **Doppler:** Monitoreo arteria cerebral media fetal
+• **RhoGAM:** Profilaxis 28 semanas y posparto
+• **Referencia:** Medicina materno-fetal si título >32
+
+📊 **Otros anticuerpos significativos:**
+• **Anti-K:** Monitoreo estrecho, EHRN severa
+• **Anti-E, -c:** Seguimiento según títulos
+• **Anti-Jka, -Jkb:** Potencial hemólisis tardía
+
+🔬 **Monitoreo fetal:**
+• **Títulos <16:** Seguimiento cada 4 semanas
+• **Títulos 16-32:** Cada 2 semanas + Doppler
+• **Títulos >32:** Semanal + centro especializado
+
+⚠️ **EHRN - Enfermedad hemolítica:**
+• **Prevención:** Identificación temprana anticuerpos
+• **Tratamiento:** Transfusión intrauterina si severa
+• **Neonatal:** Fototerapia, exanguinotransfusión
+
+¿Tienes algún caso específico de embarazo que quieras consultar?`;
+        }
+        
+        function generateTransfusionResponse(question) {
+            return `**Protocolos de Transfusión Sanguínea**
+
+🩸 **Preparación pre-transfusional:**
+• **Muestra:** Fresca (<72 horas)
+• **Identificación:** Doble verificación paciente
+• **Tipificación:** ABO/Rh confirmada
+• **Crossmatch:** Compatible obligatorio
+
+📋 **Selección de productos:**
+• **GR:** ABO idéntico, Rh compatible
+• **Plasma:** ABO compatible (reverso)
+• **Plaquetas:** ABO/Rh preferiblemente compatible
+• **Crioprecipitado:** ABO preferible
+
+⚠️ **Verificaciones críticas:**
+• **Identidad paciente:** Brazalete, pregunta directa
+• **Producto correcto:** Verificar etiquetas
+• **Compatibilidad:** Crossmatch negativo
+• **Caducidad:** Vigencia del producto
+
+🔬 **Durante la transfusión:**
+• **Signos vitales:** Baseline y cada 15 min
+• **Velocidad:** Según tolerancia y indicación
+• **Observación:** Reacciones adversas
+• **Documentación:** Completa en expediente
+
+🚨 **Emergencias transfusionales:**
+• **O negativo:** Universal para emergencias
+• **Crossmatch abreviado:** Si anticuerpos negativos
+• **Protocolo masivo:** Ratio 1:1:1
+
+¿Necesitas información sobre algún aspecto específico de la transfusión?`;
+        }
+        
+        function generateIntelligentBloodBankResponse(question) {
+            return `Interesante consulta sobre **"${question}"** en el contexto de banco de sangre.
+
+🩸 **Como experto en medicina transfusional**, puedo ayudarte con análisis detallado de:
+
+🔬 **TEMAS ESPECIALIZADOS:**
+• **Anticuerpos complejos** y sus implicaciones clínicas
+• **Genética avanzada** de grupos sanguíneos  
+• **Protocolos específicos** según casos clínicos
+• **Interpretación de pruebas** de laboratorio
+
+🧪 **CASOS CLÍNICOS:**
+• **Crossmatch incompatible** - investigación sistemática
+• **Paneles complejos** - múltiples anticuerpos
+• **Reacciones transfusionales** - manejo integral
+• **Emergencias obstétricas** - protocolos especializados
+
+💡 **SUGERENCIAS:**
+¿Podrías ser más específico sobre qué aspecto te interesa? Por ejemplo:
+• ¿Es sobre identificación de anticuerpos?
+• ¿Necesitas ayuda con interpretación de pruebas?
+• ¿Es un caso clínico complejo?
+• ¿Involucra genética o herencia?
+
+**¡Estoy aquí para ayudarte con cualquier complejidad en medicina transfusional!** 🧬`;
+        }
+        
+        function formatResponse(category, content) {
+            return {
+                category: category,
+                answer: content
+            };
         }
 
-        // Funciones principales mejoradas
+        // Funciones de interfaz (mantenidas igual)
         function toggleFolder(tab, folderId) {
             try {
-                // Remover clases activas
                 document.querySelectorAll('.folder-tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.folder-content').forEach(c => c.classList.remove('active'));
                 
-                // Agregar clase activa
                 tab.classList.add('active');
                 const content = document.querySelector('.folder-content.' + folderId);
                 if (content) {
@@ -1169,17 +1638,28 @@
                 minimizeChat();
             }
             
-            // Esperar un poco para que la animación se complete
             setTimeout(() => {
-                const moduleInfo = `Información sobre el módulo: **${moduleName}**
+                const moduleInfo = `Información sobre: **${moduleName}**
 
-Este módulo está en desarrollo. Pronto tendrá funcionalidades completas para la gestión de banco de sangre.
+🩸 **Sistema Bludee - Banco de Sangre**
 
-🔧 **Estado:** En construcción
-📅 **Disponibilidad:** Próximamente
-💡 **Tip:** Mientras tanto, puedo ayudarte con consultas médicas especializadas.
+Este módulo forma parte del sistema integral de gestión de componentes sanguíneos, diseñado específicamente para laboratorios en Puerto Rico.
 
-¿Te gustaría consultar algo sobre medicina transfusional?`;
+**🔧 Estado:** En desarrollo activo
+**🎯 Objetivo:** Gestión completa y segura de banco de sangre
+**📋 Funcionalidades planificadas:**
+• Interface médica especializada
+• Integración con sistemas hospitalarios
+• Protocolos automáticos de seguridad
+• Trazabilidad completa de componentes
+
+💡 **Mientras tanto, puedo ayudarte con:**
+• **Consultas médicas especializadas** sobre medicina transfusional
+• **Interpretación de pruebas** de laboratorio
+• **Protocolos clínicos** y manejo de casos
+• **Genética de grupos sanguíneos** y herencia
+
+¿Te gustaría consultar algo específico sobre medicina transfusional relacionado con este módulo?`;
                 
                 addMessage(moduleInfo, false);
             }, 500);
@@ -1190,10 +1670,7 @@ Este módulo está en desarrollo. Pronto tendrá funcionalidades completas para 
                 const assistant = document.getElementById('bludeeAssistant');
                 const toggle = document.querySelector('.bludee-toggle');
                 
-                if (!assistant || !toggle) {
-                    console.error('Elementos no encontrados');
-                    return;
-                }
+                if (!assistant || !toggle) return;
                 
                 if (isAssistantOpen) {
                     assistant.classList.remove('active', 'minimized');
@@ -1258,7 +1735,7 @@ Este módulo está en desarrollo. Pronto tendrá funcionalidades completas para 
                     minimizeBtn.innerHTML = '⬆️';
                     minimizeBtn.title = 'Maximizar';
                 } else {
-                    statusText.textContent = 'Especialista en medicina transfusional';
+                    statusText.textContent = 'Experto en medicina transfusional';
                     minimizeBtn.innerHTML = '⬇️';
                     minimizeBtn.title = 'Minimizar';
                 }
@@ -1274,20 +1751,23 @@ Este módulo está en desarrollo. Pronto tendrá funcionalidades completas para 
                 }
                 
                 setTimeout(() => {
-                    const welcomeMessage = `¡Hola! Soy **Bludee IA**, tu experto en medicina transfusional. 🤖🩸
+                    const welcomeMessage = `¡Bienvenido! Soy **Bludee IA** 🩸🤖
 
-Tengo conocimiento especializado sobre:
+**EXPERTO COMPLETO EN BANCO DE SANGRE**
 
-🔬 **Anticuerpos específicos** (Anti-K, Anti-D, etc.)
-🤱 **Embarazo y medicina transfusional**
-🔬 **Interpretación de pruebas** (DAT, crossmatch)
-🩸 **Productos especiales** (irradiados, lavados)
-⚠️ **Reacciones transfusionales**
-🚨 **Protocolos de emergencia**
+🔬 **Mi especialidad incluye:**
+• **Anticuerpos:** Anti-K, Anti-D, Anti-E, Anti-c y todos los sistemas
+• **Crossmatch:** Compatibilidad, investigación de incompatibilidades
+• **Panel de anticuerpos:** Identificación e interpretación completa
+• **DAT y eluído:** Análisis detallado de resultados
+• **Genética:** Herencia ABO/Rh, cálculos padre-madre-bebé
+• **Protocolos:** Emergencias, transfusión masiva, reacciones
+• **Embarazo:** Anti-D, EHRN, seguimiento obstétrico
 
-**💡 Tip:** Usa ⬇️ para minimizarme
+**💡 Puedes preguntarme CUALQUIER cosa sobre banco de sangre:**
+Desde conceptos básicos hasta casos clínicos complejos.
 
-**¿Qué te gustaría consultar?**`;
+**¿Qué consulta tienes hoy?**`;
                     
                     addMessage(welcomeMessage, false);
                     
@@ -1303,12 +1783,12 @@ Tengo conocimiento especializado sobre:
         function showQuickOptions() {
             try {
                 const quickOptions = [
-                    "¿Qué es un anti-K?",
-                    "Embarazada con anti-D",
-                    "DAT positivo",
-                    "Sangre irradiada",
-                    "Reacción febril",
-                    "Protocolo emergencia"
+                    "¿Qué es anti-K?",
+                    "Crossmatch incompatible",
+                    "Panel de anticuerpos",
+                    "Genética padre-madre-bebé",
+                    "Emergencia masiva",
+                    "Anti-D en embarazo"
                 ];
                 
                 const optionsHtml = quickOptions.map(option => 
@@ -1322,7 +1802,7 @@ Tengo conocimiento especializado sobre:
                 optionsDiv.className = 'message';
                 optionsDiv.innerHTML = `
                     <div class="bot-message">
-                        <div class="expert-tag">🎯 Consultas expertas</div>
+                        <div class="expert-tag">🩸 Consultas expertas</div>
                         <div class="quick-options">
                             ${optionsHtml}
                         </div>
@@ -1348,7 +1828,7 @@ Tengo conocimiento especializado sobre:
                 
                 let html = '';
                 if (!isUser) {
-                    html += `<div class="expert-tag">🩸 IA Especialista</div>`;
+                    html += `<div class="expert-tag">🩸 Experto MT</div>`;
                 }
                 
                 html += message
@@ -1360,6 +1840,14 @@ Tengo conocimiento especializado sobre:
                 messageDiv.appendChild(messageContent);
                 messagesContainer.appendChild(messageDiv);
                 scrollToBottom();
+
+                // Guardar en historial
+                conversationHistory.push({
+                    role: isUser ? 'user' : 'assistant',
+                    content: message,
+                    timestamp: new Date().toISOString()
+                });
+                
             } catch (error) {
                 console.error('Error en addMessage:', error);
             }
@@ -1438,11 +1926,11 @@ Tengo conocimiento especializado sobre:
                 // Mostrar indicador de escritura
                 showTyping();
                 
-                // Procesar respuesta con delay realista
+                // Procesar con IA especializada en banco de sangre
                 setTimeout(() => {
                     try {
                         hideTyping();
-                        const result = findExpertAnswer(message);
+                        const result = generateBloodBankResponse(message);
                         addMessage(result.answer, false);
                         
                         // Rehabilitar controles
@@ -1452,25 +1940,24 @@ Tengo conocimiento especializado sobre:
                     } catch (processingError) {
                         console.error('Error procesando respuesta:', processingError);
                         hideTyping();
-                        addMessage('Lo siento, hubo un error procesando tu consulta. Por favor intenta nuevamente.', false);
+                        addMessage('Ups, tuve un problema procesando esa consulta médica. ¿Podrías reformular tu pregunta sobre banco de sangre? 🩸', false);
                         
                         // Rehabilitar controles
                         input.disabled = false;
                         sendBtn.disabled = false;
                     }
-                }, 1000 + Math.random() * 1500);
+                }, 1000 + Math.random() * 1000);
                 
             } catch (error) {
                 console.error('Error en sendMessage:', error);
                 
-                // Asegurar que los controles se rehabiliten
                 const input = document.getElementById('chatInput');
                 const sendBtn = document.getElementById('sendBtn');
                 if (input) input.disabled = false;
                 if (sendBtn) sendBtn.disabled = false;
                 
                 hideTyping();
-                addMessage('Error temporal. Por favor intenta nuevamente.', false);
+                addMessage('Error temporal. Por favor intenta nuevamente tu consulta médica. 🔄', false);
             }
         }
 
@@ -1496,41 +1983,26 @@ Tengo conocimiento especializado sobre:
             }
         }
 
-        // Inicialización segura
+        // Inicialización
         function initializeApp() {
             try {
-                console.log('Bludee IA - Versión GitHub Pages cargada correctamente');
-                console.log('Base de conocimiento especializada activada');
+                console.log('🩸 Bludee IA - Experto en Banco de Sangre COMPLETO cargado');
+                console.log('✅ Base de conocimiento médico especializada activada');
+                console.log('🧬 Genética, crossmatch, panel de anticuerpos disponibles');
                 updateUI();
-                
-                // Verificar elementos críticos
-                const criticalElements = [
-                    'bludeeAssistant',
-                    'chatMessages',
-                    'chatInput',
-                    'sendBtn'
-                ];
-                
-                const missingElements = criticalElements.filter(id => !document.getElementById(id));
-                
-                if (missingElements.length > 0) {
-                    console.warn('Elementos faltantes:', missingElements);
-                } else {
-                    console.log('Todos los elementos críticos encontrados ✓');
-                }
                 
             } catch (error) {
                 console.error('Error en inicialización:', error);
             }
         }
 
-        // Event listeners seguros
+        // Event listeners
         document.addEventListener('DOMContentLoaded', initializeApp);
         window.addEventListener('load', initializeApp);
 
-        // Manejo de errores globales
+        // Manejo de errores
         window.addEventListener('error', function(e) {
-            console.error('Error global capturado:', e.error);
+            console.error('Error capturado:', e.error);
         });
 
     </script>
