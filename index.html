@@ -907,35 +907,26 @@
                     <div class="title">Recibir Unidad</div>
                     <div class="description">Nueva unidad</div>
                 </button>
-                <a href="inventario_actual.html" class="action-card">
-                    <div class="icon">📦</div>
-                    <div class="title">Ver Inventario</div>
-                    <div class="description">Estado actual</div>
-                </a>
+                <button class="action-card integrated-action" onclick="openIntegratedModule('dispatch')">
+                    <div class="icon">📤</div>
+                    <div class="title">Despachar Unidad</div>
+                    <div class="description">Enviar a área</div>
+                </button>
                 <button class="action-card integrated-action" onclick="openIntegratedModule('tracking')">
                     <div class="icon">📊</div>
-                    <div class="title">Módulo Integral</div>
-                    <div class="description">Todo en uno</div>
+                    <div class="title">Registro Completo</div>
+                    <div class="description">Ver todas las unidades</div>
                 </button>
             </div>
         </div>
 
         <!-- Menú Principal -->
         <div class="main-menu">
-            <!-- Módulo Integral -->
-            <div class="menu-section section-inventory">
-                <h3><span class="icon">🔄</span>Módulo Integral de Unidades</h3>
-                <button class="menu-item integrated" onclick="openIntegratedModule('receive')">📥 Recibir Nueva Unidad</button>
-                <button class="menu-item integrated" onclick="openIntegratedModule('dispatch')">📤 Despachar Unidad</button>
-                <button class="menu-item integrated" onclick="openIntegratedModule('emergency')">🚨 Despacho de Emergencia</button>
-                <button class="menu-item integrated" onclick="openIntegratedModule('tracking')">📊 Registro Completo</button>
-            </div>
-
             <!-- Inventario y Control -->
             <div class="menu-section section-inventory">
                 <h3><span class="icon">📦</span>Inventario y Control</h3>
-                <a class="menu-item" href="trazabilidad_banco_sangre.html">🔄 Trazabilidad</a>
                 <a class="menu-item" href="inventario_actual.html">📊 Inventario Actual</a>
+                <a class="menu-item" href="trazabilidad_banco_sangre.html">🔄 Trazabilidad</a>
                 <a class="menu-item" href="gestion_de_donantes.html">👥 Gestión de Donantes</a>
                 <a class="menu-item" href="modulo_componentes_devueltos.html">📦 Componentes Devueltos</a>
             </div>
@@ -945,8 +936,8 @@
                 <h3><span class="icon">🏥</span>Área Clínica</h3>
                 <a class="menu-item" href="notas_clinicas_internas.html">📝 Notas Clínicas</a>
                 <a class="menu-item" href="historial_transfusion_paciente.html">📋 Historial de Transfusión</a>
-                <a class="menu-item" href="#" onclick="showTransfusionModule()">💉 Registro de Transfusiones</a>
                 <a class="menu-item" href="prueba_de_compatibilidad.html">🔬 Pruebas de Compatibilidad</a>
+                <a class="menu-item" href="#" onclick="showTransfusionModule()">💉 Registro de Transfusiones</a>
             </div>
 
             <!-- Reportes y Análisis -->
@@ -958,22 +949,14 @@
                 <a class="menu-item" href="#" onclick="showQualityModule()">🎯 Indicadores de Calidad</a>
             </div>
 
-            <!-- Administración -->
+            <!-- Administración y Soporte -->
             <div class="menu-section section-admin">
-                <h3><span class="icon">⚙️</span>Administración</h3>
+                <h3><span class="icon">⚙️</span>Administración y Soporte</h3>
                 <a class="menu-item" href="usuarios.html">👥 Gestión de Usuarios</a>
-                <a class="menu-item" href="#" onclick="showPermissionsModule()">🔐 Roles y Permisos</a>
-                <a class="menu-item" href="#" onclick="showConfigModule()">⚙️ Configuración</a>
-                <a class="menu-item" href="#" onclick="showBackupModule()">💾 Respaldos</a>
-            </div>
-
-            <!-- Calidad y Soporte -->
-            <div class="menu-section section-quality">
-                <h3><span class="icon">🛡️</span>Calidad y Soporte</h3>
                 <a class="menu-item" href="chatbot.html">🤖 Asistente Virtual</a>
-                <a class="menu-item" href="#" onclick="showMaintenanceModule()">🔧 Mantenimiento</a>
-                <a class="menu-item" href="#" onclick="showHelpModule()">❓ Ayuda y Soporte</a>
-                <a class="menu-item" href="#" onclick="showTrainingModule()">📚 Capacitación</a>
+                <a class="menu-item" href="#" onclick="showConfigModule()">⚙️ Configuración del Sistema</a>
+                <a class="menu-item" href="#" onclick="showBackupModule()">💾 Respaldos y Mantenimiento</a>
+                <a class="menu-item" href="#" onclick="showHelpModule()">❓ Ayuda y Capacitación</a>
             </div>
         </div>
 
@@ -1152,6 +1135,7 @@
                             <option value="AB-">AB-</option>
                         </select>
                     </div>
+                    <!-- Detalles técnicos -->
                     <div class="form-group">
                         <label for="componente">Componente:</label>
                         <select id="componente">
@@ -1163,15 +1147,9 @@
                             <option value="Crioprecipitado">Crioprecipitado</option>
                         </select>
                     </div>
-
-                    <!-- Detalles técnicos -->
                     <div class="form-group">
                         <label for="volumen">Volumen (ml):</label>
                         <input type="number" id="volumen" placeholder="250">
-                    </div>
-                    <div class="form-group">
-                        <label for="suplidor">Suplidor:</label>
-                        <input type="text" id="suplidor" placeholder="Cruz Roja PR">
                     </div>
                     <div class="form-group">
                         <label for="fechaExpiracion">Fecha Expiración:</label>
@@ -1245,7 +1223,7 @@
             <div class="enhanced-table">
                 <div class="table-controls">
                     <div class="search-box">
-                        <input type="text" placeholder="🔍 Buscar por paciente, donante, record..." onkeyup="searchEntries(this.value)">
+                        <input type="text" placeholder="🔍 Buscar por paciente, record, unidad..." onkeyup="searchEntries(this.value)">
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <span id="totalEntries">Total: 0 entradas</span>
