@@ -1140,8 +1140,8 @@
                         <label for="componente">Componente:</label>
                         <select id="componente">
                             <option value="">Seleccionar...</option>
-                            <option value="Sangre Total">Sangre Total</option>
-                            <option value="Glóbulos Rojos">Glóbulos Rojos</option>
+                            <option value="PRBC Completa">PRBC Completa</option>
+                            <option value="PRBC Fraccionada">PRBC Fraccionada</option>
                             <option value="Plasma">Plasma</option>
                             <option value="Plaquetas">Plaquetas</option>
                             <option value="Crioprecipitado">Crioprecipitado</option>
@@ -1252,6 +1252,8 @@
                                 <th>H. Despachada</th>
                                 <th>Temp. Transport</th>
                                 <th>Inspección</th>
+                                <th>Persona Notificada</th>
+                                <th>Hora Notif.</th>
                                 <th>MT</th>
                                 <th>Released by</th>
                                 <th>Received by</th>
@@ -1281,6 +1283,8 @@
                                 <td>09:00</td>
                                 <td>4.2°C</td>
                                 <td>Aprobada</td>
+                                <td>Enf. Pérez</td>
+                                <td>08:35</td>
                                 <td>MT-José</td>
                                 <td>Lab-Ana</td>
                                 <td>Enf-Luis</td>
@@ -1433,6 +1437,7 @@
                 document.getElementById('transportTemp').parentElement.style.display = 'flex';
                 document.getElementById('inspeccion').parentElement.style.display = 'flex';
                 document.getElementById('personaNotificada').parentElement.style.display = 'flex';
+                document.getElementById('horaNotificacion').parentElement.style.display = 'flex';
                 document.getElementById('mt').parentElement.style.display = 'flex';
                 
                 // Cambiar label de timeReceived a "Time Arrived"
@@ -1530,6 +1535,7 @@
                 releasedBy: document.getElementById('releasedBy').value,
                 receivedBy: document.getElementById('receivedBy').value,
                 personaNotificada: document.getElementById('personaNotificada').value,
+                horaNotificacion: document.getElementById('horaNotificacion').value,
                 comentarios: document.getElementById('comentarios').value,
                 timestamp: new Date().toISOString()
             };
@@ -1626,6 +1632,8 @@
                     <td>${entry.timeDispatched || '-'}</td>
                     <td>${entry.transportTemp ? entry.transportTemp + '°C' : '-'}</td>
                     <td>${entry.inspeccion || '-'}</td>
+                    <td>${entry.personaNotificada || '-'}</td>
+                    <td>${entry.horaNotificacion || '-'}</td>
                     <td>${entry.mt || '-'}</td>
                     <td>${entry.releasedBy || '-'}</td>
                     <td>${entry.receivedBy || '-'}</td>
@@ -1689,7 +1697,7 @@
                 'Estado', 'Fecha', 'N° Unidad', 'Paciente', 'Record', 'Localización', 'Médico',
                 'ABO/Rh Paciente', 'ABO/Rh Donante', 'Componente', 'Volumen',
                 'Fecha Exp.', 'Suplidor', 'H. Recibida', 'H. Despachada', 'Temp. Transport',
-                'Inspección', 'MT', 'Released by', 'Received by', 'Devuelta', 'Comentarios'
+                'Inspección', 'Persona Notificada', 'Hora Notif.', 'MT', 'Released by', 'Received by', 'Devuelta', 'Comentarios'
             ];
             
             const csvContent = [
@@ -1700,7 +1708,7 @@
                     entry.aboRhDonante, entry.componente, entry.volumen,
                     entry.fechaExpiracion, entry.suplidor, entry.timeReceived,
                     entry.timeDispatched, entry.transportTemp, entry.inspeccion,
-                    entry.mt, entry.releasedBy, entry.receivedBy, entry.returned, entry.comentarios
+                    entry.personaNotificada, entry.horaNotificacion, entry.mt, entry.releasedBy, entry.receivedBy, entry.returned, entry.comentarios
                 ].map(field => `"${field || ''}"`).join(','))
             ].join('\n');
             
@@ -1887,7 +1895,7 @@
                     medico: 'Dr. Rodríguez',
                     aboRhPaciente: 'O+',
                     aboRhDonante: 'O+',
-                    componente: 'Glóbulos Rojos',
+                    componente: 'PRBC Completa',
                     volumen: '250',
                     fechaExpiracion: '2024-10-15',
                     suplidor: 'Cruz Roja PR',
