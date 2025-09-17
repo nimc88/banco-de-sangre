@@ -2,41 +2,76 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Menú Principal - Banco de Sangre</title>
+    <title>Menú Banco de Sangre</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f4f8;
-            padding: 20px;
+            background-color: #fefefe;
             text-align: center;
+            padding: 20px;
         }
         h1 {
             color: #b30000;
         }
-        .button {
+        .menu-button {
             display: block;
-            width: 300px;
+            width: 90%;
+            max-width: 300px;
             margin: 10px auto;
             padding: 15px;
-            background-color: #d9534f;
-            color: white;
-            text-decoration: none;
             font-size: 16px;
+            background-color: #e60000;
+            color: white;
+            border: none;
             border-radius: 8px;
+            text-decoration: none;
         }
-        .button:hover {
-            background-color: #c9302c;
+        .menu-button:hover {
+            background-color: #cc0000;
         }
     </style>
 </head>
 <body>
-    <h1>Menú Principal - Banco de Sangre</h1>
-    <a href="Registro de Unidad Recibida Simulador.html" class="button">Registrar Unidad Recibida</a>
-    <a href="Registro de Despacho de Unidad de Emergencia.html" class="button">Registro de Emergencia</a>
-    <a href="formulario_despacho_interactivo.html" class="button">Despachar Unidad</a>
-    <a href="modulo_componentes_devueltos.html" class="button">Componentes Devueltos</a>
-    <a href="trazabilidad_banco_sangre.html" class="button">Trazabilidad</a>
-    <a href="historial_transfusion_paciente.html" class="button">Historial de Transfusión</a>
+    <h1>Menú Principal</h1>
+    <a class="menu-button" href="Registro de Despacho de Unidad de Emergencia.html">Registro de Despacho de Emergencia</a>
+    <a class="menu-button" href="Registro de Unidad Recibida Simulador.html">Registro de Unidad Recibida</a>
+    <a class="menu-button" href="despacho_unidad_pdf_popup.html">Despacho de Unidad</a>
+    <a class="menu-button" href="modulo_componentes_devueltos.html">Componentes Devueltos</a>
+    <a class="menu-button" href="trazabilidad_banco_sangre.html">Trazabilidad</a>
+    <a class="menu-button" href="historial_transfusion_paciente.html">Historial de Transfusión</a>
+
+<div style="margin-top: 30px; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;">
+    <h3>Leyenda de Estado de Componentes</h3>
+    <ul style="list-style: none; padding-left: 0;">
+        <li><span style="height: 15px; width: 15px; background-color: green; border-radius: 50%; display: inline-block;"></span> Verde: Unidad fresca (más de 3 días de validez)</li>
+        <li><span style="height: 15px; width: 15px; background-color: gold; border-radius: 50%; display: inline-block;"></span> Amarillo: Próxima a vencer (1–3 días)</li>
+        <li><span style="height: 15px; width: 15px; background-color: red; border-radius: 50%; display: inline-block;"></span> Rojo: Vence hoy o ya vencida</li>
+        <li><span style="height: 15px; width: 15px; background-color: gray; border-radius: 50%; display: inline-block;"></span> Gris: No hay unidades disponibles</li>
+    </ul>
+</div>
+
+
+<script>
+    window.onload = function() {
+        // Simulación de unidades críticas (en un futuro será con datos reales)
+        let hayUnidadesCriticas = true;
+        let hayComponentesSinStock = true;
+
+        let mensaje = "";
+        if (hayUnidadesCriticas) {
+            mensaje += "⚠️ Atención: Existen unidades vencidas o próximas a vencer.\n";
+        }
+        if (hayComponentesSinStock) {
+            mensaje += "⚠️ Aviso: Algunos componentes no están disponibles para despacho.\n";
+        }
+
+        if (mensaje !== "") {
+            alert(mensaje);
+        }
+    };
+</script>
+
 </body>
 </html>
+
 
