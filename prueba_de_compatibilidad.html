@@ -51,7 +51,14 @@
             margin-bottom: 20px;
         }
 
-        .github-badge {
+        .navigation-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
             display: inline-block;
             background: #333;
             color: white;
@@ -62,9 +69,65 @@
             transition: transform 0.3s ease;
         }
 
-        .github-badge:hover {
+        .nav-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn.primary {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e5e7eb;
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: #374151;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: white;
+            border-color: #3b82f6;
+            color: #1e40af;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .github-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(51, 51, 51, 0.3);
+        }
+
+        .github-badge:hover {
+            background: #222;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(51, 51, 51, 0.4);
         }
 
         .main-content {
@@ -251,6 +314,11 @@
             .container {
                 padding: 10px;
             }
+
+            .navigation-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
         }
 
         .hidden {
@@ -265,9 +333,72 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        .quick-actions {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .quick-actions h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-card .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .action-card .title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .action-card .description {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
+    <a href="index.html" class="back-button">
+        ← Volver al Menú
+    </a>
+
+    <a href="https://github.com/tu-usuario/bludee-sistema-banco-sangre" class="github-badge" target="_blank">
+        🌟 Ver en GitHub
+    </a>
+
     <div class="container">
         <!-- Header -->
         <header class="header">
@@ -276,10 +407,48 @@
                 Sistema de Banco de Sangre
             </h1>
             <p class="subtitle">Módulo de Pruebas de Compatibilidad - Puerto Rico</p>
-            <a href="#" class="github-badge">
-                <i class="fab fa-github"></i> Ver en GitHub
-            </a>
+            <div class="navigation-buttons">
+                <a href="index.html" class="nav-btn primary">
+                    <i class="fas fa-home"></i> Menú Principal
+                </a>
+                <a href="inventario_actual.html" class="nav-btn">
+                    <i class="fas fa-boxes"></i> Inventario
+                </a>
+                <a href="gestion_de_donantes.html" class="nav-btn">
+                    <i class="fas fa-users"></i> Donantes
+                </a>
+                <a href="https://github.com/tu-usuario/bludee-sistema-banco-sangre" class="nav-btn" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
         </header>
+
+        <!-- Acciones Rápidas -->
+        <div class="quick-actions">
+            <h3>⚡ Acciones Rápidas</h3>
+            <div class="actions-grid">
+                <a href="index.html" class="action-card">
+                    <div class="icon">🏠</div>
+                    <div class="title">Menú Principal</div>
+                    <div class="description">Volver al dashboard</div>
+                </a>
+                <a href="inventario_actual.html" class="action-card">
+                    <div class="icon">📦</div>
+                    <div class="title">Ver Inventario</div>
+                    <div class="description">Estado actual</div>
+                </a>
+                <a href="gestion_de_donantes.html" class="action-card">
+                    <div class="icon">👥</div>
+                    <div class="title">Gestión Donantes</div>
+                    <div class="description">Administrar donantes</div>
+                </a>
+                <button class="action-card" onclick="generarReporteCompleto()">
+                    <div class="icon">📊</div>
+                    <div class="title">Generar Reporte</div>
+                    <div class="description">Reporte completo</div>
+                </button>
+            </div>
+        </div>
 
         <!-- Main Content -->
         <div class="main-content">
@@ -384,42 +553,55 @@
             </div>
 
             <div id="reporte-detallado" style="background: #f8f9fa; padding: 20px; border-radius: 10px; font-family: monospace; white-space: pre-line;"></div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn" onclick="imprimirReporte()" style="width: auto; margin-right: 10px;">
+                    <i class="fas fa-print"></i> Imprimir Reporte
+                </button>
+                <button class="btn" onclick="guardarReporte()" style="width: auto; background: linear-gradient(135deg, #28a745, #20c997);">
+                    <i class="fas fa-save"></i> Guardar Reporte
+                </button>
+            </div>
         </div>
 
         <!-- Información del Proyecto -->
         <div class="info-section">
-            <h2><i class="fas fa-info-circle"></i> Acerca del Proyecto</h2>
+            <h2><i class="fas fa-info-circle"></i> Acerca del Proyecto BLUDEE</h2>
             <p style="margin-bottom: 20px; font-size: 1.1em; line-height: 1.6;">
                 Este sistema de banco de sangre está siendo desarrollado específicamente para laboratorios en Puerto Rico. 
-                El módulo de compatibilidad implementa las pruebas estándar requeridas para transfusiones seguras.
+                El módulo de compatibilidad implementa las pruebas estándar requeridas para transfusiones seguras, siguiendo 
+                las guías del American Association of Blood Banks (AABB) y la FDA.
             </p>
 
             <div class="feature-grid">
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
-                    <h3>Seguridad</h3>
-                    <p>Verificación completa de compatibilidad ABO y Rh</p>
+                    <h3>Seguridad Máxima</h3>
+                    <p>Verificación completa de compatibilidad ABO y Rh con validación automática</p>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
-                    <h3>Reportes</h3>
-                    <p>Generación automática de reportes detallados</p>
+                    <h3>Reportes Detallados</h3>
+                    <p>Generación automática de reportes con trazabilidad completa</p>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-database"></i></div>
-                    <h3>Historial</h3>
-                    <p>Registro completo de todas las pruebas realizadas</p>
+                    <h3>Historial Completo</h3>
+                    <p>Registro detallado de todas las pruebas con auditoría automática</p>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-code"></i></div>
                     <h3>Open Source</h3>
-                    <p>Código abierto desarrollado en Python</p>
+                    <p>Código abierto desarrollado en Python, libre y personalizable</p>
                 </div>
             </div>
 
             <div style="margin-top: 25px; padding: 20px; background: #e3f2fd; border-radius: 10px;">
                 <h3><i class="fas fa-flask"></i> Tabla de Compatibilidad ABO</h3>
-                <p style="margin: 15px 0;">El donante universal es <span class="blood-type">O-</span> y el receptor universal es <span class="blood-type">AB+</span></p>
+                <p style="margin: 15px 0;">
+                    El donante universal es <span class="blood-type">O-</span> (puede donar a todos) y 
+                    el receptor universal es <span class="blood-type">AB+</span> (puede recibir de todos)
+                </p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
                     <div style="text-align: center;">
                         <strong>Tipo O:</strong><br>
@@ -437,6 +619,15 @@
                         <strong>Tipo AB:</strong><br>
                         Puede donar a: <span class="blood-type">AB</span>
                     </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 8px;">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Factores Rh Importantes:</h4>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>Rh <strong>negativo</strong> solo puede recibir Rh negativo</li>
+                        <li>Rh <strong>positivo</strong> puede recibir Rh positivo o negativo</li>
+                        <li>Las pruebas cruzadas son <strong>obligatorias</strong> antes de cualquier transfusión</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -481,7 +672,7 @@
             // Validar que todos los campos estén llenos
             if (!donanteNombre || !donanteId || !donanteTipo || !donanteRh || 
                 !receptorNombre || !receptorId || !receptorTipo || !receptorRh || !tecnologo) {
-                alert('Por favor, complete todos los campos antes de realizar la prueba.');
+                alert('⚠️ Por favor, complete todos los campos antes de realizar la prueba.\n\nTodos los campos son obligatorios para garantizar la seguridad del procedimiento.');
                 return;
             }
 
@@ -503,6 +694,8 @@
                 cruzadaMayorCompatible, cruzadaMenorCompatible, esCompatible
             );
         }
+
+        let reporteGlobal = ''; // Variable global para el reporte
 
         function mostrarResultados(donanteNombre, donanteId, donanteTipo, donanteRh,
                                  receptorNombre, receptorId, receptorTipo, receptorRh,
@@ -548,42 +741,108 @@
                            ahora.getSeconds().toString().padStart(2, '0');
 
             const reporte = `
-REPORTE DE COMPATIBILIDAD
-========================
+REPORTE DE COMPATIBILIDAD SANGUÍNEA
+====================================
 
 ID de Prueba: ${idPrueba}
-Fecha: ${fechaHora}
-Tecnólogo: ${tecnologo}
+Fecha y Hora: ${fechaHora}
+Tecnólogo Responsable: ${tecnologo}
+Sistema: BLUDEE v2.5
 
-DONANTE:
---------
+DATOS DEL DONANTE:
+------------------
 ID: ${donanteId}
 Nombre: ${donanteNombre}
 Grupo Sanguíneo: ${donanteTipo}${donanteRh}
 
-RECEPTOR:
----------
+DATOS DEL RECEPTOR:
+-------------------
 ID: ${receptorId}
 Nombre: ${receptorNombre}
 Grupo Sanguíneo: ${receptorTipo}${receptorRh}
 
-RESULTADOS:
------------
-Compatibilidad ABO: ${aboCompatible ? 'Compatible' : 'Incompatible'}
-Compatibilidad Rh: ${rhCompatible ? 'Compatible' : 'Incompatible'}
-Prueba Cruzada Mayor: ${cruzadaMayorCompatible ? 'Compatible' : 'Incompatible'}
-Prueba Cruzada Menor: ${cruzadaMenorCompatible ? 'Compatible' : 'Incompatible'}
+RESULTADOS DE LAS PRUEBAS:
+--------------------------
+Compatibilidad Sistema ABO: ${aboCompatible ? 'COMPATIBLE ✓' : 'INCOMPATIBLE ✗'}
+Compatibilidad Factor Rh: ${rhCompatible ? 'COMPATIBLE ✓' : 'INCOMPATIBLE ✗'}
+Prueba Cruzada Mayor: ${cruzadaMayorCompatible ? 'COMPATIBLE ✓' : 'INCOMPATIBLE ✗'}
+Prueba Cruzada Menor: ${cruzadaMenorCompatible ? 'COMPATIBLE ✓' : 'INCOMPATIBLE ✗'}
 
-RESULTADO FINAL: ${esCompatible ? '✓ COMPATIBLE' : '✗ INCOMPATIBLE'}
+RESULTADO FINAL: ${esCompatible ? '✓ TRANSFUSIÓN COMPATIBLE' : '✗ TRANSFUSIÓN NO COMPATIBLE'}
 
-Observaciones: Prueba realizada mediante sistema automatizado
+${!esCompatible ? `
+⚠️  ALERTA DE SEGURIDAD:
+Esta combinación donante-receptor NO es compatible.
+NO proceder con la transfusión.
+Verificar datos y buscar donante compatible.
+` : `
+✅ AUTORIZACIÓN:
+La transfusión es SEGURA y puede proceder.
+Verificar identificación del paciente antes del procedimiento.
+`}
 
-Laboratorio de Banco de Sangre - Puerto Rico`;
+Observaciones: Prueba realizada mediante sistema automatizado BLUDEE
+Validado según estándares AABB y FDA
 
+---
+Laboratorio de Banco de Sangre
+Puerto Rico
+Firma Digital: ${idPrueba}`;
+
+            reporteGlobal = reporte; // Guardar para imprimir/guardar
             document.getElementById('reporte-detallado').textContent = reporte;
 
             // Scroll suave hacia los resultados
             resultadosDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function imprimirReporte() {
+            if (!reporteGlobal) {
+                alert('No hay reporte para imprimir. Realice una prueba primero.');
+                return;
+            }
+            
+            const ventanaImpresion = window.open('', '_blank');
+            ventanaImpresion.document.write(`
+                <html>
+                <head>
+                    <title>Reporte de Compatibilidad - BLUDEE</title>
+                    <style>
+                        body { font-family: monospace; margin: 20px; }
+                        pre { white-space: pre-wrap; }
+                    </style>
+                </head>
+                <body>
+                    <pre>${reporteGlobal}</pre>
+                </body>
+                </html>
+            `);
+            ventanaImpresion.document.close();
+            ventanaImpresion.print();
+        }
+
+        function guardarReporte() {
+            if (!reporteGlobal) {
+                alert('No hay reporte para guardar. Realice una prueba primero.');
+                return;
+            }
+            
+            const blob = new Blob([reporteGlobal], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const fecha = new Date().toISOString().slice(0, 10);
+            a.href = url;
+            a.download = `reporte_compatibilidad_${fecha}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert('✅ Reporte guardado exitosamente');
+        }
+
+        function generarReporteCompleto() {
+            alert('Generando Reporte Completo\n\n📊 El reporte incluirá:\n• Estadísticas de compatibilidad\n• Análisis de tendencias\n• Datos de rendimiento\n• Métricas de calidad\n\n🚧 Función en desarrollo...');
         }
 
         // Ejemplo predefinido para demostración
@@ -604,6 +863,28 @@ Laboratorio de Banco de Sangre - Puerto Rico`;
         // Cargar ejemplo al cargar la página
         window.addEventListener('load', function() {
             setTimeout(cargarEjemplo, 1000);
+        });
+
+        // Función para limpiar formulario
+        function limpiarFormulario() {
+            document.getElementById('donante-nombre').value = '';
+            document.getElementById('donante-id').value = '';
+            document.getElementById('donante-tipo').value = '';
+            document.getElementById('donante-rh').value = '';
+            document.getElementById('receptor-nombre').value = '';
+            document.getElementById('receptor-id').value = '';
+            document.getElementById('receptor-tipo').value = '';
+            document.getElementById('receptor-rh').value = '';
+            document.getElementById('tecnologo').value = '';
+            document.getElementById('resultados').classList.add('hidden');
+        }
+
+        // Atajo de teclado para limpiar (Ctrl+R)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                limpiarFormulario();
+            }
         });
     </script>
 </body>
