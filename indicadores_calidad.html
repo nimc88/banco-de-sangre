@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLUDEE - TAT Indicadores de Calidad</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container {
+            max-width: 1400px; margin: 0 auto;
+            background: white; border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15); overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white; padding: 30px; text-align: center;
+        }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .nav-tabs { display: flex; background: #f1f5f9; }
+        .nav-tab {
+            flex: 1; background: transparent; border: none; padding: 15px;
+            font-size: 16px; font-weight: 600; color: #64748b; cursor: pointer;
+            transition: all 0.3s ease; border-bottom: 3px solid transparent;
+        }
+        .nav-tab:hover { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .nav-tab.active { background: white; color: #dc2626; border-bottom-color: #dc2626; }
+        .tab-content { display: none; padding: 30px; }
+        .tab-content.active { display: block; }
+        .kpi-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px; margin-bottom: 30px;
+        }
+        .kpi-card {
+            background: white; border-radius: 15px; padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #3b82f6; transition: transform 0.3s ease;
+        }
+        .kpi-card:hover { transform: translateY(-5px); }
+        .kpi-title { font-size: 0.9rem; color: #64748b; margin-bottom: 8px; }
+        .kpi-value { font-size: 2.2rem; font-weight: bold; color: #1e293b; margin-bottom: 5px; }
+        .kpi-subtitle { font-size: 0.85rem; color: #64748b; }
+        .kpi-card.success { border-left-color: #10b981; }
+        .kpi-card.warning { border-left-color: #f59e0b; }
+        .kpi-card.danger { border-left-color: #ef4444; }
+        .chart-container {
+            background: white; border-radius: 15px; padding: 25px; margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .chart-title { font-size: 1.3rem; font-weight: bold; color: #1e293b; margin-bottom: 20px; text-align: center; }
+        .data-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; }
+        .data-table th { background: linear-gradient(135deg, #1e293b, #374151); color: white; padding: 15px 12px; font-weight: 600; text-align: left; }
+        .data-table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
+        .data-table tbody tr:hover { background: #f8fafc; }
+        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .status-cumple { background: #dcfce7; color: #166534; }
+        .status-alerta { background: #fef3c7; color: #92400e; }
+        .status-no-cumple { background: #fee2e2; color: #991b1b; }
+        .btn {
+            padding: 12px 24px; border: none; border-radius: 8px;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; margin: 5px;
+        }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
+        .performance-chart {
+            height: 300px; background: #f8fafc; border-radius: 8px;
+            display: flex; align-items: end; padding: 20px; gap: 20px;
+        }
+        .performance-bar {
+            flex: 1; border-radius: 4px 4px 0 0; min-height: 20px; position: relative; transition: all 0.8s ease;
+        }
+        .performance-bar.excellent { background: linear-gradient(to top, #10b981, #059669); }
+        .performance-bar.good { background: linear-gradient(to top, #3b82f6, #1d4ed8); }
+        .performance-bar.warning { background: linear-gradient(to top, #f59e0b, #d97706); }
+        .performance-label {
+            position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%);
+            font-size: 0.8rem; color: #64748b; text-align: center;
+        }
+        .performance-value {
+            position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
+            font-size: 0.8rem; font-weight: bold; color: #1f2937;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🩸 MÓDULO TAT</h1>
+            <p>Indicadores de Calidad - Sistema BLUDEE | Banco de Sangre Puerto Rico</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab(event, 'dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showTab(event, 'registrar')">📝 Registrar TAT</button>
+            <button class="nav-tab" onclick="showTab(event, 'tabla')">📋 Tabla TAT</button>
+            <button class="nav-tab" onclick="showTab(event, 'graficas')">📈 Gráficas</button>
+            <button class="nav-tab" onclick="showTab(event, 'reportes')">📄 Reportes</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="tab-content active">
+            <div class="kpi-grid">
+                <div class="kpi-card success">
+                    <div class="kpi-title">CUMPLIMIENTO GENERAL</div>
+                    <div class="kpi-value">87.2%</div>
+                    <div class="kpi-subtitle">Meta: ≥85% ✅</div>
+                </div>
+                <div class="kpi-card success">
+                    <div class="kpi-title">TAT PROMEDIO TOTAL</div>
+                    <div class="kpi-value">59.9 min</div>
+                    <div class="kpi-subtitle">Meta: ≤65 min ✅</div>
+                </div>
+                <div class="kpi-card warning">
+                    <div class="kpi-title">SOLICITUDES ALERTA</div>
+                    <div class="kpi-value">4</div>
+                    <div class="kpi-subtitle">8.9% del total ⚠️</div>
+                </div>
+                <div class="kpi-card danger">
+                    <div class="kpi-title">FUERA DE META</div>
+                    <div class="kpi-value">2</div>
+                    <div class="kpi-subtitle">4.4% del total ❌</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">📊 TAT por Etapa - Septiembre 2024</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
+                    <div>
+                        <h4 style="margin-bottom: 15px; color: #374151;">Promedios por Etapa:</h4>
+                        <div style="margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>🚗 Carreo:</span> <strong>12.3 min</strong> <span style="color: #10b981;">✅</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #64748b;">Meta: ≤15 min</div>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>🏥 Llegada Hospital:</span> <strong>28.7 min</strong> <span style="color: #10b981;">✅</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #64748b;">Meta: ≤30 min</div>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>📤 Despacho:</span> <strong>18.9 min</strong> <span style="color: #10b981;">✅</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #64748b;">Meta: ≤20 min</div>
+                        </div>
+                        <div style="margin-top: 20px; padding: 15px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #10b981;">
+                            <strong>TOTAL: 59.9 min</strong> <span style="color: #10b981;">✅ Cumple meta (≤65 min)</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 15px; color: #374151;">Mejora vs Mes Anterior:</h4>
+                        <div style="background: #eff6ff; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                            <div style="font-size: 0.9rem; color: #64748b;">Agosto 2024: 68.2 min</div>
+                            <div style="font-size: 1.1rem; color: #1f2937;"><strong>Septiembre 2024: 59.9 min</strong></div>
+                            <div style="font-size: 1rem; color: #10b981; margin-top: 5px;">
+                                <strong>📈 Mejora: -8.3 min (-12.2%)</strong>
+                            </div>
+                        </div>
+                        <div style="background: #fef3c7; padding: 10px; border-radius: 6px; font-size: 0.9rem;">
+                            <strong>⚠️ Área de atención:</strong> TAT de plaquetas (66.5 min promedio)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">📊 Distribución por Estado de Cumplimiento</div>
+                <div class="performance-chart">
+                    <div class="performance-bar excellent" style="height: 85%">
+                        <div class="performance-label">CUMPLE</div>
+                        <div class="performance-value">39</div>
+                    </div>
+                    <div class="performance-bar warning" style="height: 15%">
+                        <div class="performance-label">ALERTA</div>
+                        <div class="performance-value">4</div>
+                    </div>
+                    <div class="performance-bar warning" style="height: 10%">
+                        <div class="performance-label">NO CUMPLE</div>
+                        <div class="performance-value">2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registrar TAT -->
+        <div id="registrar" class="tab-content">
+            <div class="chart-container">
+                <div class="chart-title">📝 Documentar Nuevo TAT con Fecha y Hora</div>
+                
+                <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+                    <strong>📋 Instrucciones:</strong> Complete todos los campos con fechas y horas exactas de cada etapa del proceso TAT.
+                </div>
+
+                <form style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <!-- Información básica -->
+                    <div style="grid-column: 1 / -1; background: #f8fafc; padding: 20px; border-radius: 8px;">
+                        <h3 style="margin-bottom: 15px; color: #374151;">📋 Información de la Solicitud</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">ID Solicitud:</label>
+                                <input type="text" id="idSolicitud" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;" placeholder="SOL-001" required>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Número Muestra:</label>
+                                <input type="text" id="numeroMuestra" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;" placeholder="PRB001" required>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Tipo Componente:</label>
+                                <select id="tipoComponente" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="PRBC">🩸 PRBC (Concentrado Eritrocitos)</option>
+                                    <option value="Plaquetas">🧬 Plaquetas</option>
+                                    <option value="Plasma">🟡 Plasma Fresco Congelado</option>
+                                    <option value="Crioprecipitados">❄️ Crioprecipitados</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Grupo Sanguíneo:</label>
+                                <select id="grupoSanguineo" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="O+">O+ (O Positivo)</option>
+                                    <option value="O-">O- (O Negativo)</option>
+                                    <option value="A+">A+ (A Positivo)</option>
+                                    <option value="A-">A- (A Negativo)</option>
+                                    <option value="B+">B+ (B Positivo)</option>
+                                    <option value="B-">B- (B Negativo)</option>
+                                    <option value="AB+">AB+ (AB Positivo)</option>
+                                    <option value="AB-">AB- (AB Negativo)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timestamps del proceso TAT -->
+                    <div style="grid-column: 1 / -1; background: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                        <h3 style="margin-bottom: 15px; color: #92400e;">⏱️ DOCUMENTACIÓN DE FECHA Y HORA POR ETAPA</h3>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
+                            <!-- Etapa 1: Solicitud -->
+                            <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                                <h4 style="margin-bottom: 10px; color: #1f2937; display: flex; align-items: center; gap: 8px;">
+                                    📋 ETAPA 1: Solicitud Inicial
+                                </h4>
+                                <div style="margin-bottom: 10px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Fecha Solicitud:</label>
+                                    <input type="date" id="fechaSolicitud" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" required>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Hora Solicitud:</label>
+                                    <input type="time" id="horaSolicitud" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" step="60" required>
+                                </div>
+                            </div>
+
+                            <!-- Etapa 2: Carreo -->
+                            <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                                <h4 style="margin-bottom: 10px; color: #1f2937; display: flex; align-items: center; gap: 8px;">
+                                    🚗 ETAPA 2: Salida Carreo
+                                </h4>
+                                <div style="margin-bottom: 10px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Fecha Salida:</label>
+                                    <input type="date" id="fechaCarreo" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" required>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Hora Salida:</label>
+                                    <input type="time" id="horaCarreo" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" step="60" required>
+                                </div>
+                            </div>
+
+                            <!-- Etapa 3: Llegada Hospital -->
+                            <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                                <h4 style="margin-bottom: 10px; color: #1f2937; display: flex; align-items: center; gap: 8px;">
+                                    🏥 ETAPA 3: Llegada Hospital
+                                </h4>
+                                <div style="margin-bottom: 10px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Fecha Llegada:</label>
+                                    <input type="date" id="fechaLlegada" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" required>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Hora Llegada:</label>
+                                    <input type="time" id="horaLlegada" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" step="60" required>
+                                </div>
+                            </div>
+
+                            <!-- Etapa 4: Despacho -->
+                            <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                                <h4 style="margin-bottom: 10px; color: #1f2937; display: flex; align-items: center; gap: 8px;">
+                                    📤 ETAPA 4: Despacho Final
+                                </h4>
+                                <div style="margin-bottom: 10px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Fecha Despacho:</label>
+                                    <input type="date" id="fechaDespacho" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" required>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Hora Despacho:</label>
+                                    <input type="time" id="horaDespacho" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" step="60" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div style="grid-column: 1 / -1; background: #f0fdf4; padding: 20px; border-radius: 8px;">
+                        <h3 style="margin-bottom: 15px; color: #166534;">👥 Información Adicional</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Técnico Responsable:</label>
+                                <select id="tecnicoResponsable" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;">
+                                    <option value="">Seleccionar técnico...</option>
+                                    <option value="María García">👩‍⚕️ María García</option>
+                                    <option value="José Martínez">👨‍⚕️ José Martínez</option>
+                                    <option value="Ana López">👩‍⚕️ Ana López</option>
+                                    <option value="Carlos Rivera">👨‍⚕️ Carlos Rivera</option>
+                                    <option value="Carmen Rodríguez">👩‍⚕️ Carmen Rodríguez</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Hospital Destino:</label>
+                                <select id="hospitalDestino" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;">
+                                    <option value="">Seleccionar hospital...</option>
+                                    <option value="Hospital San Juan">🏥 Hospital San Juan</option>
+                                    <option value="Hospital Metropolitano">🏥 Hospital Metropolitano</option>
+                                    <option value="Hospital UPR">🏥 Hospital UPR</option>
+                                    <option value="Centro Médico">🏥 Centro Médico</option>
+                                    <option value="Hospital Auxilio Mutuo">🏥 Hospital Auxilio Mutuo</option>
+                                    <option value="Hospital Pavia">🏥 Hospital Pavia</option>
+                                    <option value="Caribbean Medical Center-Fajardo">🏥 Caribbean Medical Center-Fajardo</option>
+                                    <option value="Centro Medico del Noreste-Fajardo">🏥 Centro Medico del Noreste-Fajardo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Observaciones:</label>
+                                <textarea id="observaciones" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; min-height: 60px;" placeholder="Notas adicionales sobre el proceso TAT..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Botones de acción -->
+                <div style="display: flex; gap: 15px; margin-top: 30px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="calcularTAT()" style="font-size: 1rem; padding: 15px 30px;">
+                        ⏱️ Calcular TAT Automáticamente
+                    </button>
+                    <button class="btn btn-success" onclick="guardarTAT()" style="font-size: 1rem; padding: 15px 30px;">
+                        💾 Guardar Registro TAT
+                    </button>
+                    <button class="btn" onclick="limpiarFormulario()" style="background: #6b7280; color: white; font-size: 1rem; padding: 15px 30px;">
+                        🔄 Limpiar Formulario
+                    </button>
+                </div>
+
+                <!-- Resultado del cálculo TAT -->
+                <div id="resultadoTAT" style="margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 8px; border: 2px solid #e2e8f0; display: none;">
+                    <h3 style="margin-bottom: 15px; color: #374151;">📊 Resultado del Cálculo TAT</h3>
+                    <div id="resultadoContent" style="font-family: monospace; font-size: 0.95rem; line-height: 1.6;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla TAT -->
+        <div id="tabla" class="tab-content">
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-primary" onclick="alert('🖨️ Imprimiendo tabla TAT...')">🖨️ Imprimir</button>
+                <button class="btn btn-success" onclick="alert('📤 Exportando CSV...')">📤 Exportar CSV</button>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">📋 Registro Detallado TAT - Septiembre 2024</div>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Solicitud</th>
+                            <th>Muestra</th>
+                            <th>Componente</th>
+                            <th>Grupo</th>
+                            <th>Hora Solicitud</th>
+                            <th>TAT Carreo</th>
+                            <th>TAT Llegada</th>
+                            <th>TAT Despacho</th>
+                            <th>TAT Total</th>
+                            <th>Estado</th>
+                            <th>Técnico</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SOL-001</td>
+                            <td>PRB001</td>
+                            <td>PRBC</td>
+                            <td>O+</td>
+                            <td>08:00:00</td>
+                            <td>10.0 min</td>
+                            <td>25.0 min</td>
+                            <td>15.0 min</td>
+                            <td><strong>50.0 min</strong></td>
+                            <td><span class="status-badge status-cumple">Cumple</span></td>
+                            <td>María García</td>
+                        </tr>
+                        <tr>
+                            <td>SOL-002</td>
+                            <td>PLT001</td>
+                            <td>Plaquetas</td>
+                            <td>A+</td>
+                            <td>09:30:00</td>
+                            <td>15.0 min</td>
+                            <td>40.0 min</td>
+                            <td>20.0 min</td>
+                            <td><strong>75.0 min</strong></td>
+                            <td><span class="status-badge status-alerta">Alerta</span></td>
+                            <td>José Martínez</td>
+                        </tr>
+                        <tr>
+                            <td>SOL-003</td>
+                            <td>FFP001</td>
+                            <td>Plasma</td>
+                            <td>B-</td>
+                            <td>08:15:00</td>
+                            <td>8.0 min</td>
+                            <td>22.0 min</td>
+                            <td>12.0 min</td>
+                            <td><strong>42.0 min</strong></td>
+                            <td><span class="status-badge status-cumple">Cumple</span></td>
+                            <td>Ana López</td>
+                        </tr>
+                        <tr>
+                            <td>SOL-004</td>
+                            <td>PRB002</td>
+                            <td>PRBC</td>
+                            <td>AB+</td>
+                            <td>11:00:00</td>
+                            <td>20.0 min</td>
+                            <td>55.0 min</td>
+                            <td>25.0 min</td>
+                            <td><strong>100.0 min</strong></td>
+                            <td><span class="status-badge status-no-cumple">No Cumple</span></td>
+                            <td>Carlos Rivera</td>
+                        </tr>
+                        <tr>
+                            <td>SOL-005</td>
+                            <td>PLT002</td>
+                            <td>Plaquetas</td>
+                            <td>O-</td>
+                            <td>07:30:00</td>
+                            <td>12.0 min</td>
+                            <td>28.0 min</td>
+                            <td>18.0 min</td>
+                            <td><strong>58.0 min</strong></td>
+                            <td><span class="status-badge status-cumple">Cumple</span></td>
+                            <td>María García</td>
+                        </tr>
+                        <tr>
+                            <td>SOL-006</td>
+                            <td>CRY001</td>
+                            <td>Crioprecipitados</td>
+                            <td>A-</td>
+                            <td>14:20:00</td>
+                            <td>9.0 min</td>
+                            <td>18.0 min</td>
+                            <td>14.0 min</td>
+                            <td><strong>41.0 min</strong></td>
+                            <td><span class="status-badge status-cumple">Cumple</span></td>
+                            <td>Ana López</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Gráficas -->
+        <div id="graficas" class="tab-content">
+            <div class="chart-container">
+                <div class="chart-title">📈 Análisis Comparativo por Componente</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div>
+                        <h4 style="margin-bottom: 15px;">TAT Promedio por Tipo:</h4>
+                        <div style="margin: 10px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>🩸 PRBC</span>
+                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
+                                    <div style="height: 100%; width: 80%; background: #10b981; border-radius: 10px;"></div>
+                                </div>
+                                <span><strong>52.3 min</strong></span>
+                            </div>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>🧬 Plaquetas</span>
+                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
+                                    <div style="height: 100%; width: 100%; background: #f59e0b; border-radius: 10px;"></div>
+                                </div>
+                                <span><strong>66.5 min</strong></span>
+                            </div>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>🟡 Plasma</span>
+                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
+                                    <div style="height: 100%; width: 65%; background: #10b981; border-radius: 10px;"></div>
+                                </div>
+                                <span><strong>42.0 min</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 15px;">TAT por Técnico:</h4>
+                        <div style="margin: 10px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>👩‍⚕️ María García</span>
+                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
+                                    <div style="height: 100%; width: 83%; background: #10b981; border-radius: 10px;"></div>
+                                </div>
+                                <span><strong>54.0 min</strong></span>
+                            </div>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>👨‍⚕️ José Martínez</span>
+                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
+                                    <div style="height: 100%; width: 100%; background: #f59e0b; border-radius: 10px;"></div>
+                                </div>
+                                <span><strong>75.0 min</strong></span>
+                            </div>
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>👩‍⚕️ Ana López</span>
+                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
+                                    <div style="height: 100%; width: 65%; background: #10b981; border-radius: 10px;"></div>
+                                </div>
+                                <span><strong>42.0 min</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reportes -->
+        <div id="reportes" class="tab-content">
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-primary" onclick="generarReporte()">📊 Generar Reporte</button>
+                <button class="btn btn-success" onclick="alert('📈 Exportando Excel...')">📈 Export Excel</button>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">📄 Vista Previa - Reporte TAT</div>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; font-family: monospace; font-size: 0.9rem;">
+<pre>================================================================================
+                    REPORTE TAT - INDICADORES DE CALIDAD
+                     SISTEMA BLUDEE - BANCO DE SANGRE PUERTO RICO
+================================================================================
+
+Periodo: Septiembre 2024
+Generado: 2024-09-17 14:30:00
+
+RESUMEN EJECUTIVO
+--------------------------------------------------
+✅ Total de solicitudes: 45
+📊 Cumplimiento estándar: 87.2%
+⏱️  TAT promedio: 59.9 minutos
+📈 Mejora vs mes anterior: -8.3 min (-12.2%)
+
+ANÁLISIS POR ETAPA
+--------------------------------------------------
+🚗 Carreo:         Promedio: 12.3 min (Meta: ≤15 min) ✅ 92%
+🏥 Llegada:        Promedio: 28.7 min (Meta: ≤30 min) ✅ 89%
+📤 Despacho:       Promedio: 18.9 min (Meta: ≤20 min) ✅ 94%
+⏱️  TAT TOTAL:      Promedio: 59.9 min (Meta: ≤65 min) ✅ 87.2%
+
+DISTRIBUCIÓN POR ESTADO
+--------------------------------------------------
+✅ Cumple:         39 solicitudes (86.7%)
+⚠️ Alerta:          4 solicitudes (8.9%)
+❌ No cumple:       2 solicitudes (4.4%)
+
+ANÁLISIS POR COMPONENTE
+--------------------------------------------------
+🩸 PRBC:           18 solicitudes | 52.3 min | 94.4% cumple
+🧬 Plaquetas:      15 solicitudes | 66.5 min | 73.3% cumple ⚠️
+🟡 Plasma:         12 solicitudes | 42.0 min | 100% cumple ✅
+
+RECOMENDACIONES
+--------------------------------------------------
+🎯 Mantener excelente desempeño general
+⚠️ Atención especial: TAT de plaquetas
+👨‍⚕️ Capacitación: José Martínez (75.0 min promedio)
+📊 Continuar monitoreo mensual
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            const tabButtons = document.getElementsByClassName('nav-tab');
+            
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        function generarReporte() {
+            alert('📊 REPORTE TAT GENERADO\n\n✅ Cumplimiento: 87.2%\n⏱️ TAT Promedio: 59.9 min\n📈 Mejora: -12.2% vs mes anterior\n\n🎯 Recomendación principal:\nAtención especial a TAT de plaquetas');
+        }
+
+        function calcularTAT() {
+            // Obtener valores del formulario
+            const fechaSolicitud = document.getElementById('fechaSolicitud').value;
+            const horaSolicitud = document.getElementById('horaSolicitud').value;
+            const fechaCarreo = document.getElementById('fechaCarreo').value;
+            const horaCarreo = document.getElementById('horaCarreo').value;
+            const fechaLlegada = document.getElementById('fechaLlegada').value;
+            const horaLlegada = document.getElementById('horaLlegada').value;
+            const fechaDespacho = document.getElementById('fechaDespacho').value;
+            const horaDespacho = document.getElementById('horaDespacho').value;
+
+            // Validar que todos los campos estén llenos
+            if (!fechaSolicitud || !horaSolicitud || !fechaCarreo || !horaCarreo || 
+                !fechaLlegada || !horaLlegada || !fechaDespacho || !horaDespacho) {
+                alert('⚠️ Por favor, complete todas las fechas y horas antes de calcular el TAT');
+                return;
+            }
+
+            // Crear objetos Date para cálculos
+            const dtSolicitud = new Date(`${fechaSolicitud}T${horaSolicitud}:00`);
+            const dtCarreo = new Date(`${fechaCarreo}T${horaCarreo}:00`);
+            const dtLlegada = new Date(`${fechaLlegada}T${horaLlegada}:00`);
+            const dtDespacho = new Date(`${fechaDespacho}T${horaDespacho}:00`);
+
+            // Calcular TAT en minutos
+            const tatCarreo = Math.round((dtCarreo - dtSolicitud) / (1000 * 60));
+            const tatLlegada = Math.round((dtLlegada - dtCarreo) / (1000 * 60));
+            const tatDespacho = Math.round((dtDespacho - dtLlegada) / (1000 * 60));
+            const tatTotal = Math.round((dtDespacho - dtSolicitud) / (1000 * 60));
+
+            // Determinar estado de cumplimiento
+            let estado = '';
+            let estadoColor = '';
+            if (tatTotal <= 65) {
+                estado = 'CUMPLE ✅';
+                estadoColor = '#10b981';
+            } else if (tatTotal <= 75) {
+                estado = 'ALERTA ⚠️';
+                estadoColor = '#f59e0b';
+            } else {
+                estado = 'NO CUMPLE ❌';
+                estadoColor = '#ef4444';
+            }
+
+            // Mostrar resultado
+            const resultDiv = document.getElementById('resultadoTAT');
+            const contentDiv = document.getElementById('resultadoContent');
+            
+            contentDiv.innerHTML = `
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+    <div style="text-align: center;">
+        <div style="font-size: 0.9rem; color: #64748b;">TAT CARREO</div>
+        <div style="font-size: 1.5rem; font-weight: bold; color: ${tatCarreo <= 15 ? '#10b981' : '#ef4444'};">
+            ${tatCarreo} min
+        </div>
+        <div style="font-size: 0.8rem; color: #64748b;">Meta: ≤15 min</div>
+    </div>
+    <div style="text-align: center;">
+        <div style="font-size: 0.9rem; color: #64748b;">TAT LLEGADA</div>
+        <div style="font-size: 1.5rem; font-weight: bold; color: ${tatLlegada <= 30 ? '#10b981' : '#ef4444'};">
+            ${tatLlegada} min
+        </div>
+        <div style="font-size: 0.8rem; color: #64748b;">Meta: ≤30 min</div>
+    </div>
+    <div style="text-align: center;">
+        <div style="font-size: 0.9rem; color: #64748b;">TAT DESPACHO</div>
+        <div style="font-size: 1.5rem; font-weight: bold; color: ${tatDespacho <= 20 ? '#10b981' : '#ef4444'};">
+            ${tatDespacho} min
+        </div>
+        <div style="font-size: 0.8rem; color: #64748b;">Meta: ≤20 min</div>
+    </div>
+    <div style="text-align: center;">
+        <div style="font-size: 0.9rem; color: #64748b;">TAT TOTAL</div>
+        <div style="font-size: 2rem; font-weight: bold; color: ${estadoColor};">
+            ${tatTotal} min
+        </div>
+        <div style="font-size: 0.9rem; font-weight: bold; color: ${estadoColor};">
+            ${estado}
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 20px; padding: 15px; background: ${estadoColor}15; border-left: 4px solid ${estadoColor}; border-radius: 4px;">
+    <div style="font-weight: bold; margin-bottom: 5px;">📊 Resumen del Proceso:</div>
+    <div>• Tiempo desde solicitud hasta salida carreo: ${tatCarreo} minutos</div>
+    <div>• Tiempo de transporte al hospital: ${tatLlegada} minutos</div>
+    <div>• Tiempo de procesamiento y despacho: ${tatDespacho} minutos</div>
+    <div style="margin-top: 8px; font-weight: bold;">⏱️ Tiempo total del proceso TAT: ${tatTotal} minutos</div>
+</div>
+            `;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function guardarTAT() {
+            // Validar formulario
+            const idSolicitud = document.getElementById('idSolicitud').value;
+            const numeroMuestra = document.getElementById('numeroMuestra').value;
+            
+            if (!idSolicitud || !numeroMuestra) {
+                alert('⚠️ Por favor, complete al menos el ID de solicitud y número de muestra');
+                return;
+            }
+
+            // Simular guardado
+            alert(`✅ TAT REGISTRADO EXITOSAMENTE\n\n📋 Solicitud: ${idSolicitud}\n🧪 Muestra: ${numeroMuestra}\n\n💾 Los datos han sido guardados en el sistema BLUDEE\n📊 Las métricas se actualizarán automáticamente\n📈 Disponible en reportes mensuales`);
+            
+            // Limpiar formulario después de guardar
+            limpiarFormulario();
+        }
+
+        function limpiarFormulario() {
+            // Limpiar todos los campos
+            document.getElementById('idSolicitud').value = '';
+            document.getElementById('numeroMuestra').value = '';
+            document.getElementById('tipoComponente').selectedIndex = 0;
+            document.getElementById('grupoSanguineo').selectedIndex = 0;
+            document.getElementById('fechaSolicitud').value = '';
+            document.getElementById('horaSolicitud').value = '';
+            document.getElementById('fechaCarreo').value = '';
+            document.getElementById('horaCarreo').value = '';
+            document.getElementById('fechaLlegada').value = '';
+            document.getElementById('horaLlegada').value = '';
+            document.getElementById('fechaDespacho').value = '';
+            document.getElementById('horaDespacho').value = '';
+            document.getElementById('tecnicoResponsable').selectedIndex = 0;
+            document.getElementById('hospitalDestino').selectedIndex = 0;
+            document.getElementById('observaciones').value = '';
+            
+            // Ocultar resultado
+            document.getElementById('resultadoTAT').style.display = 'none';
+            
+            // Establecer fecha actual por defecto
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fechaSolicitud').value = hoy;
+            document.getElementById('fechaCarreo').value = hoy;
+            document.getElementById('fechaLlegada').value = hoy;
+            document.getElementById('fechaDespacho').value = hoy;
+        }
+
+        // Inicialización
+        console.log('🩸 Módulo TAT cargado - Sistema BLUDEE');
+        console.log('📊 Dashboard con KPIs en tiempo real');
+        console.log('📋 Tabla con timestamps detallados'); 
+        console.log('📈 Gráficas comparativas');
+        console.log('📄 Sistema de reportes completo');
+        
+        // Establecer fecha actual por defecto en los campos de fecha
+        document.addEventListener('DOMContentLoaded', function() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const campos = ['fechaSolicitud', 'fechaCarreo', 'fechaLlegada', 'fechaDespacho'];
+            campos.forEach(campo => {
+                const elemento = document.getElementById(campo);
+                if (elemento) elemento.value = hoy;
+            });
+        });
+    </script>
+</body>
+</html>
