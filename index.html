@@ -400,6 +400,175 @@
             box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
         }
 
+        /* ESTILOS PARA EL REGISTRO DE SEGUIMIENTO */
+        .tracking-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            z-index: 1001;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        .tracking-page.active {
+            display: block;
+        }
+
+        .landscape-container {
+            min-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tracking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #c41e3a;
+        }
+
+        .tracking-header h2 {
+            color: #c41e3a;
+            margin: 0;
+        }
+
+        .tracking-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .close-btn, .add-entry-btn, .print-btn {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .add-entry-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .print-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .close-btn:hover, .add-entry-btn:hover, .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .tracking-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        .tracking-table th,
+        .tracking-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .tracking-table th {
+            background-color: #c41e3a;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        .tracking-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .tracking-table tbody tr:hover {
+            background-color: #e8f4fd;
+        }
+
+        .add-entry-form {
+            display: none;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .form-buttons {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -408,6 +577,24 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        @media print {
+            .tracking-page {
+                position: static;
+                display: block !important;
+            }
+            .tracking-header button,
+            .add-entry-form {
+                display: none !important;
+            }
+            body {
+                margin: 0;
+            }
+            .landscape-container {
+                width: 100%;
+                min-width: unset;
             }
         }
 
@@ -441,13 +628,23 @@
             .legend-grid {
                 grid-template-columns: 1fr;
             }
+
+            .landscape-container {
+                min-width: unset;
+                overflow-x: auto;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <button class="logout-btn" onclick="logout()">🚪 Cerrar Sesión</button>
     
-    <div class="container">
+    <!-- PÁGINA PRINCIPAL -->
+    <div class="container" id="mainPage">
         <!-- Header Principal -->
         <div class="header">
             <h1>🩸 BLUDEE</h1>
@@ -515,11 +712,11 @@
                     <div class="title">Ver Inventario</div>
                     <div class="description">Estado actual</div>
                 </a>
-                <a href="gestion_de_donantes.html" class="action-card">
-                    <div class="icon">👥</div>
-                    <div class="title">Gestión Donantes</div>
-                    <div class="description">Administrar donantes</div>
-                </a>
+                <button class="action-card" onclick="openTrackingLog()">
+                    <div class="icon">📊</div>
+                    <div class="title">Registro Seguimiento</div>
+                    <div class="description">Tabla de control</div>
+                </button>
             </div>
         </div>
 
@@ -554,6 +751,7 @@
             <!-- Reportes y Análisis -->
             <div class="menu-section section-reports">
                 <h3><span class="icon">📊</span>Reportes y Análisis</h3>
+                <button class="menu-item" onclick="openTrackingLog()">📊 Registro de Seguimiento</button>
                 <a class="menu-item" href="expedientes_mensuales.html">📋 Expedientes Mensuales</a>
                 <a class="menu-item" href="auditorias_y_logs.html">📋 Auditorías y Logs</a>
                 <a class="menu-item" href="#" onclick="showStatsModule()">📈 Estadísticas Generales</a>
@@ -609,6 +807,244 @@
         </div>
     </div>
 
+    <!-- PÁGINA DE REGISTRO DE SEGUIMIENTO -->
+    <div class="tracking-page" id="trackingPage">
+        <div class="landscape-container">
+            <div class="tracking-header">
+                <div>
+                    <h2>📊 Registro de Seguimiento - Banco de Sangre</h2>
+                    <p>Laboratorio: <strong>Hospital General PR</strong> | Fecha: <strong id="currentDate"></strong></p>
+                </div>
+                <div class="tracking-buttons">
+                    <button class="close-btn" onclick="closeTrackingLog()">❌ Cerrar</button>
+                    <button class="add-entry-btn" onclick="toggleAddForm()">➕ Agregar Entrada</button>
+                    <button class="print-btn" onclick="printLog()">🖨️ Imprimir</button>
+                </div>
+            </div>
+
+            <!-- Formulario para agregar nueva entrada -->
+            <div class="add-entry-form" id="addEntryForm">
+                <h3>Agregar Nueva Entrada al Registro</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="fecha">Fecha:</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paciente">Paciente:</label>
+                        <input type="text" id="paciente" placeholder="Nombre del paciente" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="record">Record:</label>
+                        <input type="text" id="record" placeholder="Número de record">
+                    </div>
+                    <div class="form-group">
+                        <label for="localizacion">Localización:</label>
+                        <select id="localizacion">
+                            <option value="">Seleccionar...</option>
+                            <option value="Emergencia">Emergencia</option>
+                            <option value="Cirugía">Cirugía</option>
+                            <option value="UCI">UCI</option>
+                            <option value="Medicina Interna">Medicina Interna</option>
+                            <option value="Pediatría">Pediatría</option>
+                            <option value="Obstetricia">Obstetricia</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="medico">Médico:</label>
+                        <input type="text" id="medico" placeholder="Dr/Dra. Nombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="aboRhPaciente">ABO/Rh Paciente:</label>
+                        <select id="aboRhPaciente">
+                            <option value="">Seleccionar...</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numDonante">Núm. Donante:</label>
+                        <input type="text" id="numDonante" placeholder="ID del donante">
+                    </div>
+                    <div class="form-group">
+                        <label for="aboRhDonante">ABO/Rh Donante:</label>
+                        <select id="aboRhDonante">
+                            <option value="">Seleccionar...</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaExpiracion">Fecha Expiración:</label>
+                        <input type="date" id="fechaExpiracion">
+                    </div>
+                    <div class="form-group">
+                        <label for="componente">Componente:</label>
+                        <select id="componente">
+                            <option value="">Seleccionar...</option>
+                            <option value="Sangre Total">Sangre Total</option>
+                            <option value="Glóbulos Rojos">Glóbulos Rojos</option>
+                            <option value="Plasma">Plasma</option>
+                            <option value="Plaquetas">Plaquetas</option>
+                            <option value="Crioprecipitado">Crioprecipitado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="volumen">Volumen (ml):</label>
+                        <input type="number" id="volumen" placeholder="250">
+                    </div>
+                    <div class="form-group">
+                        <label for="suplidor">Suplidor:</label>
+                        <input type="text" id="suplidor" placeholder="Cruz Roja PR">
+                    </div>
+                    <div class="form-group">
+                        <label for="timeArrived">Time Arrived:</label>
+                        <input type="time" id="timeArrived">
+                    </div>
+                    <div class="form-group">
+                        <label for="transportTemp">Transport Temp (°C):</label>
+                        <input type="number" id="transportTemp" step="0.1" placeholder="4.0">
+                    </div>
+                    <div class="form-group">
+                        <label for="inspeccion">Inspección:</label>
+                        <select id="inspeccion">
+                            <option value="">Seleccionar...</option>
+                            <option value="Aprobada">Aprobada</option>
+                            <option value="Rechazada">Rechazada</option>
+                            <option value="Pendiente">Pendiente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="personaNotificada">Persona Notificada:</label>
+                        <input type="text" id="personaNotificada" placeholder="Nombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="horaNotificacion">Hora:</label>
+                        <input type="time" id="horaNotificacion">
+                    </div>
+                    <div class="form-group">
+                        <label for="mt">MT:</label>
+                        <input type="text" id="mt" placeholder="Técnico">
+                    </div>
+                    <div class="form-group">
+                        <label for="releasedBy">Released by:</label>
+                        <input type="text" id="releasedBy" placeholder="Nombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="receivedBy">Received by:</label>
+                        <input type="text" id="receivedBy" placeholder="Nombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="inspeccionFinal">Inspección Final:</label>
+                        <select id="inspeccionFinal">
+                            <option value="">Seleccionar...</option>
+                            <option value="Conforme">Conforme</option>
+                            <option value="No Conforme">No Conforme</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaFinal">Fecha Final:</label>
+                        <input type="date" id="fechaFinal">
+                    </div>
+                    <div class="form-group">
+                        <label for="horaFinal">Hora Final:</label>
+                        <input type="time" id="horaFinal">
+                    </div>
+                    <div class="form-group">
+                        <label for="returned">Returned:</label>
+                        <select id="returned">
+                            <option value="No">No</option>
+                            <option value="Sí">Sí</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="comentarios">Comentarios:</label>
+                        <input type="text" id="comentarios" placeholder="Observaciones adicionales">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="toggleAddForm()">Cancelar</button>
+                        <button type="button" class="btn btn-success" onclick="addNewEntry()">Agregar Entrada</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Seguimiento -->
+            <table class="tracking-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Paciente</th>
+                        <th>Record</th>
+                        <th>Localización</th>
+                        <th>Médico</th>
+                        <th>ABO/Rh Paciente</th>
+                        <th>Núm. Donante</th>
+                        <th>ABO/Rh Donante</th>
+                        <th>Fecha Exp.</th>
+                        <th>Componente</th>
+                        <th>Volumen</th>
+                        <th>Suplidor</th>
+                        <th>Time Arrived</th>
+                        <th>Transport Temp</th>
+                        <th>Inspección</th>
+                        <th>Persona Notificada</th>
+                        <th>Hora</th>
+                        <th>MT</th>
+                        <th>Released by</th>
+                        <th>Received by</th>
+                        <th>Inspección Final</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Returned</th>
+                        <th>Comentarios</th>
+                    </tr>
+                </thead>
+                <tbody id="trackingTableBody">
+                    <!-- Entrada de ejemplo -->
+                    <tr>
+                        <td>2024-09-17</td>
+                        <td>María González</td>
+                        <td>MG-001</td>
+                        <td>Emergencia</td>
+                        <td>Dr. Rodríguez</td>
+                        <td>O+</td>
+                        <td>D-12345</td>
+                        <td>O+</td>
+                        <td>2024-10-15</td>
+                        <td>Glóbulos Rojos</td>
+                        <td>250ml</td>
+                        <td>Cruz Roja PR</td>
+                        <td>08:30</td>
+                        <td>4.2°C</td>
+                        <td>Aprobada</td>
+                        <td>Enf. Pérez</td>
+                        <td>08:35</td>
+                        <td>MT-José</td>
+                        <td>Lab-Ana</td>
+                        <td>Enf-Luis</td>
+                        <td>Conforme</td>
+                        <td>2024-09-17</td>
+                        <td>09:00</td>
+                        <td>No</td>
+                        <td>Transfusión exitosa</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <script>
         // Variables globales
         let currentUser = {
@@ -646,6 +1082,139 @@
             if (confirm('¿Confirma que es una situación de EMERGENCIA?\n\nEsto activará el protocolo de despacho urgente.')) {
                 window.location.href = 'Registro de Despacho de Unidad de Emergencia.html';
             }
+        }
+
+        // FUNCIONES DEL REGISTRO DE SEGUIMIENTO
+        function openTrackingLog() {
+            document.getElementById('trackingPage').classList.add('active');
+            document.getElementById('mainPage').style.display = 'none';
+            
+            // Actualizar fecha actual
+            const today = new Date();
+            document.getElementById('currentDate').textContent = today.toLocaleDateString('es-PR');
+            
+            // Establecer fecha de hoy en el formulario
+            document.getElementById('fecha').value = today.toISOString().split('T')[0];
+        }
+
+        function closeTrackingLog() {
+            document.getElementById('trackingPage').classList.remove('active');
+            document.getElementById('mainPage').style.display = 'block';
+            
+            // Ocultar formulario si está abierto
+            document.getElementById('addEntryForm').style.display = 'none';
+        }
+
+        function toggleAddForm() {
+            const form = document.getElementById('addEntryForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addNewEntry() {
+            // Obtener todos los valores del formulario
+            const formData = {
+                fecha: document.getElementById('fecha').value,
+                paciente: document.getElementById('paciente').value,
+                record: document.getElementById('record').value,
+                localizacion: document.getElementById('localizacion').value,
+                medico: document.getElementById('medico').value,
+                aboRhPaciente: document.getElementById('aboRhPaciente').value,
+                numDonante: document.getElementById('numDonante').value,
+                aboRhDonante: document.getElementById('aboRhDonante').value,
+                fechaExpiracion: document.getElementById('fechaExpiracion').value,
+                componente: document.getElementById('componente').value,
+                volumen: document.getElementById('volumen').value + 'ml',
+                suplidor: document.getElementById('suplidor').value,
+                timeArrived: document.getElementById('timeArrived').value,
+                transportTemp: document.getElementById('transportTemp').value + '°C',
+                inspeccion: document.getElementById('inspeccion').value,
+                personaNotificada: document.getElementById('personaNotificada').value,
+                horaNotificacion: document.getElementById('horaNotificacion').value,
+                mt: document.getElementById('mt').value,
+                releasedBy: document.getElementById('releasedBy').value,
+                receivedBy: document.getElementById('receivedBy').value,
+                inspeccionFinal: document.getElementById('inspeccionFinal').value,
+                fechaFinal: document.getElementById('fechaFinal').value,
+                horaFinal: document.getElementById('horaFinal').value,
+                returned: document.getElementById('returned').value,
+                comentarios: document.getElementById('comentarios').value
+            };
+
+            // Validar campos obligatorios
+            if (!formData.fecha || !formData.paciente) {
+                alert('⚠️ Por favor complete al menos la fecha y el nombre del paciente');
+                return;
+            }
+
+            // Crear nueva fila en la tabla
+            const tableBody = document.getElementById('trackingTableBody');
+            const newRow = tableBody.insertRow(0);
+
+            // Agregar celdas con los datos
+            Object.values(formData).forEach(value => {
+                const cell = newRow.insertCell();
+                cell.textContent = value || '-';
+            });
+
+            // Limpiar formulario
+            document.getElementById('addEntryForm').querySelectorAll('input, select').forEach(input => {
+                if (input.type !== 'date') {
+                    input.value = '';
+                }
+            });
+
+            // Ocultar formulario
+            toggleAddForm();
+
+            // Actualizar contador
+            updateSystemStats();
+
+            alert('✅ Entrada agregada exitosamente al registro');
+        }
+
+        function printLog() {
+            window.print();
+        }
+
+        // FUNCIÓN PARA INTEGRACIÓN AUTOMÁTICA CON DESPACHO
+        function addEntryFromDispatch(dispatchData) {
+            const tableBody = document.getElementById('trackingTableBody');
+            const newRow = tableBody.insertRow(0);
+
+            const cellData = [
+                dispatchData.fecha || new Date().toISOString().split('T')[0],
+                dispatchData.paciente || '-',
+                dispatchData.record || '-',
+                dispatchData.localizacion || '-',
+                dispatchData.medico || '-',
+                dispatchData.aboRhPaciente || '-',
+                dispatchData.numDonante || '-',
+                dispatchData.aboRhDonante || '-',
+                dispatchData.fechaExpiracion || '-',
+                dispatchData.componente || '-',
+                dispatchData.volumen || '-',
+                dispatchData.suplidor || '-',
+                dispatchData.timeArrived || new Date().toLocaleTimeString('es-PR', {hour: '2-digit', minute: '2-digit'}),
+                dispatchData.transportTemp || '-',
+                'Pendiente',
+                dispatchData.personaNotificada || '-',
+                dispatchData.horaNotificacion || '-',
+                dispatchData.mt || '-',
+                dispatchData.releasedBy || '-',
+                dispatchData.receivedBy || '-',
+                '-', // Inspección final
+                '-', // Fecha final
+                '-', // Hora final
+                'No', // Returned
+                dispatchData.comentarios || 'Despacho automático'
+            ];
+
+            cellData.forEach(value => {
+                const cell = newRow.insertCell();
+                cell.textContent = value;
+            });
+
+            updateSystemStats();
         }
 
         // Módulos en desarrollo
@@ -689,14 +1258,11 @@
         function logout() {
             if (confirm('¿Está seguro que desea cerrar sesión?')) {
                 alert('Cerrando sesión...\n\nGracias por usar BLUDEE.');
-                // Aquí redirigirías a la página de login
-                // window.location.href = 'login.html';
             }
         }
 
         // Cargar estadísticas del sistema
         function loadSystemStats() {
-            // Simulación de datos en tiempo real
             const stats = {
                 available: Math.floor(Math.random() * 20) + 35,
                 pending: Math.floor(Math.random() * 5) + 1,
@@ -709,13 +1275,16 @@
             document.getElementById('critical-alerts').textContent = stats.critical;
             document.getElementById('active-users').textContent = stats.users;
 
-            // Mostrar alertas si hay críticas
             if (stats.critical > 0) {
                 showCriticalAlerts(stats);
             }
         }
 
-        // Mostrar alertas críticas
+        function updateSystemStats() {
+            const rows = document.getElementById('trackingTableBody').rows.length;
+            document.getElementById('pending-requests').textContent = Math.max(1, rows - 1);
+        }
+
         function showCriticalAlerts(stats) {
             const alertsBanner = document.getElementById('alerts-banner');
             const alertsList = document.getElementById('alerts-list');
@@ -736,17 +1305,14 @@
             }
         }
 
-        // Verificar autenticación
         function checkAuthentication() {
-            // Simulación de verificación
-            const isAuthenticated = true; // En producción, verificar con el servidor
+            const isAuthenticated = true;
             
             if (!isAuthenticated) {
                 window.location.href = 'login.html';
                 return;
             }
             
-            // Cargar información del usuario
             document.getElementById('username').textContent = currentUser.name;
             document.getElementById('user-role').textContent = currentUser.role;
             document.getElementById('user-avatar').textContent = currentUser.initials;
@@ -768,29 +1334,22 @@
                         event.preventDefault();
                         navigateTo('inventario_actual.html');
                         break;
-                    case '4':
+                    case 'r':
                         event.preventDefault();
-                        navigateTo('gestion_de_donantes.html');
-                        break;
-                    case '5':
-                        event.preventDefault();
-                        navigateTo('prueba_de_compatibilidad.html');
+                        openTrackingLog();
                         break;
                 }
             }
         });
 
-        // Verificar conexión
         function checkConnection() {
             if (!navigator.onLine) {
                 alert('⚠️ Conexión perdida\n\nAlgunas funciones pueden no estar disponibles.');
             }
         }
 
-        // Mostrar notificaciones
         function showNotification(message, type = 'info') {
             console.log(`${type.toUpperCase()}: ${message}`);
-            // En producción, mostrar notificaciones toast
         }
 
         // Inicialización
@@ -799,23 +1358,18 @@
             updateDateTime();
             loadSystemStats();
             
-            // Actualizar estadísticas cada 30 segundos
             setInterval(loadSystemStats, 30000);
-            
-            // Actualizar hora cada segundo
             setInterval(updateDateTime, 1000);
             
             showNotification('Sistema BLUDEE iniciado correctamente', 'success');
         });
 
-        // Eventos de conexión
         window.addEventListener('online', () => showNotification('Conexión restablecida', 'success'));
         window.addEventListener('offline', checkConnection);
 
-        // Prevenir cierre accidental
         window.addEventListener('beforeunload', function(e) {
             if (document.querySelector('.menu-item:hover') || document.querySelector('.action-card:hover')) {
-                return; // Permitir navegación normal
+                return;
             }
             
             e.preventDefault();
@@ -824,4 +1378,3 @@
     </script>
 </body>
 </html>
-
