@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Banco de Sangre - Puerto Rico</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #d63384;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header .subtitle {
+            color: #6c757d;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .github-badge {
+            display: inline-block;
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .github-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .result-card {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .compatibility-result {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .compatible {
+            color: #28a745;
+        }
+
+        .incompatible {
+            color: #dc3545;
+        }
+
+        .test-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .test-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .test-item h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .test-status {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .info-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .blood-type {
+            display: inline-block;
+            background: #d63384;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>
+                <i class="fas fa-heartbeat"></i>
+                Sistema de Banco de Sangre
+            </h1>
+            <p class="subtitle">Módulo de Pruebas de Compatibilidad - Puerto Rico</p>
+            <a href="#" class="github-badge">
+                <i class="fab fa-github"></i> Ver en GitHub
+            </a>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Donante -->
+            <div class="card">
+                <h2><i class="fas fa-user-plus"></i> Datos del Donante</h2>
+                <div class="form-group">
+                    <label for="donante-nombre">Nombre Completo:</label>
+                    <input type="text" id="donante-nombre" placeholder="Ej: María González Rivera">
+                </div>
+                <div class="form-group">
+                    <label for="donante-id">ID del Paciente:</label>
+                    <input type="text" id="donante-id" placeholder="Ej: D001">
+                </div>
+                <div class="form-group">
+                    <label for="donante-tipo">Tipo de Sangre:</label>
+                    <select id="donante-tipo">
+                        <option value="">Seleccionar...</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="AB">AB</option>
+                        <option value="O">O</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="donante-rh">Factor Rh:</label>
+                    <select id="donante-rh">
+                        <option value="">Seleccionar...</option>
+                        <option value="+">Positivo (+)</option>
+                        <option value="-">Negativo (-)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Receptor -->
+            <div class="card">
+                <h2><i class="fas fa-user"></i> Datos del Receptor</h2>
+                <div class="form-group">
+                    <label for="receptor-nombre">Nombre Completo:</label>
+                    <input type="text" id="receptor-nombre" placeholder="Ej: José Martínez López">
+                </div>
+                <div class="form-group">
+                    <label for="receptor-id">ID del Paciente:</label>
+                    <input type="text" id="receptor-id" placeholder="Ej: R001">
+                </div>
+                <div class="form-group">
+                    <label for="receptor-tipo">Tipo de Sangre:</label>
+                    <select id="receptor-tipo">
+                        <option value="">Seleccionar...</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="AB">AB</option>
+                        <option value="O">O</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="receptor-rh">Factor Rh:</label>
+                    <select id="receptor-rh">
+                        <option value="">Seleccionar...</option>
+                        <option value="+">Positivo (+)</option>
+                        <option value="-">Negativo (-)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón de Prueba -->
+        <div class="card">
+            <div class="form-group">
+                <label for="tecnologo">Tecnólogo Responsable:</label>
+                <input type="text" id="tecnologo" placeholder="Ej: Dra. Carmen Ruiz">
+            </div>
+            <button class="btn" onclick="realizarPruebaCompatibilidad()">
+                <i class="fas fa-vial"></i> Realizar Prueba de Compatibilidad
+            </button>
+        </div>
+
+        <!-- Resultados -->
+        <div id="resultados" class="result-card hidden">
+            <div class="result-header">
+                <h2><i class="fas fa-clipboard-check"></i> Resultados de Compatibilidad</h2>
+                <div id="resultado-final" class="compatibility-result"></div>
+            </div>
+            
+            <div class="test-results">
+                <div class="test-item">
+                    <h4>Sistema ABO</h4>
+                    <div id="resultado-abo" class="test-status"></div>
+                </div>
+                <div class="test-item">
+                    <h4>Factor Rh</h4>
+                    <div id="resultado-rh" class="test-status"></div>
+                </div>
+                <div class="test-item">
+                    <h4>Prueba Cruzada Mayor</h4>
+                    <div id="resultado-cruzada-mayor" class="test-status"></div>
+                </div>
+                <div class="test-item">
+                    <h4>Prueba Cruzada Menor</h4>
+                    <div id="resultado-cruzada-menor" class="test-status"></div>
+                </div>
+            </div>
+
+            <div id="reporte-detallado" style="background: #f8f9fa; padding: 20px; border-radius: 10px; font-family: monospace; white-space: pre-line;"></div>
+        </div>
+
+        <!-- Información del Proyecto -->
+        <div class="info-section">
+            <h2><i class="fas fa-info-circle"></i> Acerca del Proyecto</h2>
+            <p style="margin-bottom: 20px; font-size: 1.1em; line-height: 1.6;">
+                Este sistema de banco de sangre está siendo desarrollado específicamente para laboratorios en Puerto Rico. 
+                El módulo de compatibilidad implementa las pruebas estándar requeridas para transfusiones seguras.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h3>Seguridad</h3>
+                    <p>Verificación completa de compatibilidad ABO y Rh</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+                    <h3>Reportes</h3>
+                    <p>Generación automática de reportes detallados</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-database"></i></div>
+                    <h3>Historial</h3>
+                    <p>Registro completo de todas las pruebas realizadas</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-code"></i></div>
+                    <h3>Open Source</h3>
+                    <p>Código abierto desarrollado en Python</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 25px; padding: 20px; background: #e3f2fd; border-radius: 10px;">
+                <h3><i class="fas fa-flask"></i> Tabla de Compatibilidad ABO</h3>
+                <p style="margin: 15px 0;">El donante universal es <span class="blood-type">O-</span> y el receptor universal es <span class="blood-type">AB+</span></p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div style="text-align: center;">
+                        <strong>Tipo O:</strong><br>
+                        Puede donar a: <span class="blood-type">O</span> <span class="blood-type">A</span> <span class="blood-type">B</span> <span class="blood-type">AB</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <strong>Tipo A:</strong><br>
+                        Puede donar a: <span class="blood-type">A</span> <span class="blood-type">AB</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <strong>Tipo B:</strong><br>
+                        Puede donar a: <span class="blood-type">B</span> <span class="blood-type">AB</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <strong>Tipo AB:</strong><br>
+                        Puede donar a: <span class="blood-type">AB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tabla de compatibilidad ABO
+        const compatibilidadABO = {
+            'O': ['O', 'A', 'B', 'AB'],
+            'A': ['A', 'AB'],
+            'B': ['B', 'AB'],
+            'AB': ['AB']
+        };
+
+        function verificarCompatibilidadABO(donanteTipo, receptorTipo) {
+            return compatibilidadABO[donanteTipo].includes(receptorTipo);
+        }
+
+        function verificarCompatibilidadRh(donanteRh, receptorRh) {
+            // Rh negativo puede recibir solo Rh negativo
+            // Rh positivo puede recibir Rh positivo o negativo
+            if (receptorRh === '-' && donanteRh === '+') {
+                return false;
+            }
+            return true;
+        }
+
+        function realizarPruebaCompatibilidad() {
+            // Obtener datos del formulario
+            const donanteNombre = document.getElementById('donante-nombre').value;
+            const donanteId = document.getElementById('donante-id').value;
+            const donanteTipo = document.getElementById('donante-tipo').value;
+            const donanteRh = document.getElementById('donante-rh').value;
+            
+            const receptorNombre = document.getElementById('receptor-nombre').value;
+            const receptorId = document.getElementById('receptor-id').value;
+            const receptorTipo = document.getElementById('receptor-tipo').value;
+            const receptorRh = document.getElementById('receptor-rh').value;
+            
+            const tecnologo = document.getElementById('tecnologo').value;
+
+            // Validar que todos los campos estén llenos
+            if (!donanteNombre || !donanteId || !donanteTipo || !donanteRh || 
+                !receptorNombre || !receptorId || !receptorTipo || !receptorRh || !tecnologo) {
+                alert('Por favor, complete todos los campos antes de realizar la prueba.');
+                return;
+            }
+
+            // Realizar pruebas de compatibilidad
+            const aboCompatible = verificarCompatibilidadABO(donanteTipo, receptorTipo);
+            const rhCompatible = verificarCompatibilidadRh(donanteRh, receptorRh);
+            
+            // Las pruebas cruzadas dependen de ABO y Rh
+            const cruzadaMayorCompatible = aboCompatible && rhCompatible;
+            const cruzadaMenorCompatible = aboCompatible && rhCompatible;
+            
+            const esCompatible = aboCompatible && rhCompatible && cruzadaMayorCompatible;
+
+            // Mostrar resultados
+            mostrarResultados(
+                donanteNombre, donanteId, donanteTipo, donanteRh,
+                receptorNombre, receptorId, receptorTipo, receptorRh,
+                tecnologo, aboCompatible, rhCompatible, 
+                cruzadaMayorCompatible, cruzadaMenorCompatible, esCompatible
+            );
+        }
+
+        function mostrarResultados(donanteNombre, donanteId, donanteTipo, donanteRh,
+                                 receptorNombre, receptorId, receptorTipo, receptorRh,
+                                 tecnologo, aboCompatible, rhCompatible, 
+                                 cruzadaMayorCompatible, cruzadaMenorCompatible, esCompatible) {
+            
+            // Mostrar la sección de resultados
+            const resultadosDiv = document.getElementById('resultados');
+            resultadosDiv.classList.remove('hidden');
+            resultadosDiv.classList.add('fade-in');
+
+            // Resultado final
+            const resultadoFinal = document.getElementById('resultado-final');
+            if (esCompatible) {
+                resultadoFinal.innerHTML = '<i class="fas fa-check-circle"></i> COMPATIBLE';
+                resultadoFinal.className = 'compatibility-result compatible';
+            } else {
+                resultadoFinal.innerHTML = '<i class="fas fa-times-circle"></i> INCOMPATIBLE';
+                resultadoFinal.className = 'compatibility-result incompatible';
+            }
+
+            // Resultados individuales
+            document.getElementById('resultado-abo').innerHTML = aboCompatible ? 
+                '<span class="compatible">✓ Compatible</span>' : '<span class="incompatible">✗ Incompatible</span>';
+            
+            document.getElementById('resultado-rh').innerHTML = rhCompatible ? 
+                '<span class="compatible">✓ Compatible</span>' : '<span class="incompatible">✗ Incompatible</span>';
+            
+            document.getElementById('resultado-cruzada-mayor').innerHTML = cruzadaMayorCompatible ? 
+                '<span class="compatible">✓ Compatible</span>' : '<span class="incompatible">✗ Incompatible</span>';
+            
+            document.getElementById('resultado-cruzada-menor').innerHTML = cruzadaMenorCompatible ? 
+                '<span class="compatible">✓ Compatible</span>' : '<span class="incompatible">✗ Incompatible</span>';
+
+            // Generar reporte detallado
+            const ahora = new Date();
+            const fechaHora = ahora.toLocaleDateString('es-PR') + ' ' + ahora.toLocaleTimeString('es-PR');
+            const idPrueba = 'COMP_' + ahora.getFullYear() + 
+                           (ahora.getMonth() + 1).toString().padStart(2, '0') + 
+                           ahora.getDate().toString().padStart(2, '0') + '_' + 
+                           ahora.getHours().toString().padStart(2, '0') + 
+                           ahora.getMinutes().toString().padStart(2, '0') + 
+                           ahora.getSeconds().toString().padStart(2, '0');
+
+            const reporte = `
+REPORTE DE COMPATIBILIDAD
+========================
+
+ID de Prueba: ${idPrueba}
+Fecha: ${fechaHora}
+Tecnólogo: ${tecnologo}
+
+DONANTE:
+--------
+ID: ${donanteId}
+Nombre: ${donanteNombre}
+Grupo Sanguíneo: ${donanteTipo}${donanteRh}
+
+RECEPTOR:
+---------
+ID: ${receptorId}
+Nombre: ${receptorNombre}
+Grupo Sanguíneo: ${receptorTipo}${receptorRh}
+
+RESULTADOS:
+-----------
+Compatibilidad ABO: ${aboCompatible ? 'Compatible' : 'Incompatible'}
+Compatibilidad Rh: ${rhCompatible ? 'Compatible' : 'Incompatible'}
+Prueba Cruzada Mayor: ${cruzadaMayorCompatible ? 'Compatible' : 'Incompatible'}
+Prueba Cruzada Menor: ${cruzadaMenorCompatible ? 'Compatible' : 'Incompatible'}
+
+RESULTADO FINAL: ${esCompatible ? '✓ COMPATIBLE' : '✗ INCOMPATIBLE'}
+
+Observaciones: Prueba realizada mediante sistema automatizado
+
+Laboratorio de Banco de Sangre - Puerto Rico`;
+
+            document.getElementById('reporte-detallado').textContent = reporte;
+
+            // Scroll suave hacia los resultados
+            resultadosDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Ejemplo predefinido para demostración
+        function cargarEjemplo() {
+            document.getElementById('donante-nombre').value = 'María González Rivera';
+            document.getElementById('donante-id').value = 'D001';
+            document.getElementById('donante-tipo').value = 'O';
+            document.getElementById('donante-rh').value = '-';
+            
+            document.getElementById('receptor-nombre').value = 'José Martínez López';
+            document.getElementById('receptor-id').value = 'R001';
+            document.getElementById('receptor-tipo').value = 'A';
+            document.getElementById('receptor-rh').value = '+';
+            
+            document.getElementById('tecnologo').value = 'Dra. Carmen Ruiz';
+        }
+
+        // Cargar ejemplo al cargar la página
+        window.addEventListener('load', function() {
+            setTimeout(cargarEjemplo, 1000);
+        });
+    </script>
+</body>
+</html>
