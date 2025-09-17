@@ -1403,19 +1403,72 @@
             const tipo = document.getElementById('tipoOperacion').value;
             const statusBadge = document.getElementById('entryStatus');
             
+            // Ocultar todos los campos primero
+            const allGroups = document.querySelectorAll('.form-group');
+            allGroups.forEach(group => group.style.display = 'none');
+            
+            // Siempre mostrar campos básicos
+            document.getElementById('fecha').parentElement.style.display = 'flex';
+            document.getElementById('tipoOperacion').parentElement.style.display = 'flex';
+            document.getElementById('numeroUnidad').parentElement.style.display = 'flex';
+            document.getElementById('estadoUnidad').parentElement.style.display = 'flex';
+            
             if (tipo === 'recibo') {
                 statusBadge.className = 'status-badge status-recibida';
                 statusBadge.textContent = 'RECIBIDA';
                 document.getElementById('estadoUnidad').value = 'recibida';
+                
+                // Mostrar campos específicos para RECIBO
+                document.getElementById('paciente').parentElement.style.display = 'flex';
+                document.getElementById('record').parentElement.style.display = 'flex';
+                document.getElementById('localizacion').parentElement.style.display = 'flex';
+                document.getElementById('medico').parentElement.style.display = 'flex';
+                document.getElementById('aboRhPaciente').parentElement.style.display = 'flex';
+                document.getElementById('aboRhDonante').parentElement.style.display = 'flex';
+                document.getElementById('fechaExpiracion').parentElement.style.display = 'flex';
+                document.getElementById('componente').parentElement.style.display = 'flex';
+                document.getElementById('volumen').parentElement.style.display = 'flex';
+                document.getElementById('suplidor').parentElement.style.display = 'flex';
+                document.getElementById('timeReceived').parentElement.style.display = 'flex';
+                document.getElementById('transportTemp').parentElement.style.display = 'flex';
+                document.getElementById('inspeccion').parentElement.style.display = 'flex';
+                document.getElementById('personaNotificada').parentElement.style.display = 'flex';
+                document.getElementById('mt').parentElement.style.display = 'flex';
+                
+                // Cambiar label de timeReceived a "Time Arrived"
+                document.querySelector('label[for="timeReceived"]').textContent = 'Time Arrived:';
+                
             } else if (tipo === 'despacho') {
                 statusBadge.className = 'status-badge status-proceso';
                 statusBadge.textContent = 'EN PROCESO';
                 document.getElementById('estadoUnidad').value = 'proceso';
+                
+                // Mostrar campos específicos para DESPACHO
+                document.getElementById('releasedBy').parentElement.style.display = 'flex';
+                document.getElementById('receivedBy').parentElement.style.display = 'flex';
+                document.getElementById('inspeccion').parentElement.style.display = 'flex';
+                document.getElementById('timeDispatched').parentElement.style.display = 'flex';
+                document.getElementById('returned').parentElement.style.display = 'flex';
+                document.getElementById('comentarios').parentElement.style.display = 'flex';
+                
+                // Cambiar label de timeDispatched a "Hora"
+                document.querySelector('label[for="timeDispatched"]').textContent = 'Hora:';
+                
             } else if (tipo === 'emergencia') {
                 statusBadge.className = 'status-badge status-despachada';
                 statusBadge.textContent = 'EMERGENCIA';
                 document.getElementById('estadoUnidad').value = 'despachada';
+                
+                // Mostrar TODOS los campos para EMERGENCIA
+                allGroups.forEach(group => group.style.display = 'flex');
+                
+                // Restaurar labels originales
+                document.querySelector('label[for="timeReceived"]').textContent = 'Hora Recibida:';
+                document.querySelector('label[for="timeDispatched"]').textContent = 'Hora Despachada:';
             }
+            
+            // Siempre mostrar los botones de acción
+            document.querySelector('.form-actions').style.display = 'flex';
         }
 
         function saveEntry() {
