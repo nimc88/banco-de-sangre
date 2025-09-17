@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bludee - Inventario Actual</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      border-radius: 20px;
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+    }
+
+    .breadcrumb {
+      background: #f1f5f9;
+      padding: 15px 30px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .breadcrumb a {
+      color: #1e40af;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .form-container {
+      padding: 40px;
+    }
+
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #e5e7eb;
+      border-radius: 50px;
+      padding: 12px 20px;
+      color: #374151;
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .back-button:hover {
+      background: white;
+      border-color: #3b82f6;
+      color: #1e40af;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .dashboard-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      position: relative;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--card-color);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .card-total { --card-color: linear-gradient(135deg, #059669, #10b981); }
+    .card-prbc { --card-color: linear-gradient(135deg, #dc2626, #ef4444); }
+    .card-platelets { --card-color: linear-gradient(135deg, #2563eb, #3b82f6); }
+    .card-plasma { --card-color: linear-gradient(135deg, #ea580c, #f97316); }
+    .card-cryo { --card-color: linear-gradient(135deg, #7c3aed, #8b5cf6); }
+    .card-alerts { --card-color: linear-gradient(135deg, #dc2626, #ef4444); }
+
+    .dashboard-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .dashboard-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .dashboard-label {
+      font-size: 0.9rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .dashboard-total { color: #059669; }
+    .dashboard-prbc { color: #dc2626; }
+    .dashboard-platelets { color: #2563eb; }
+    .dashboard-plasma { color: #ea580c; }
+    .dashboard-cryo { color: #7c3aed; }
+    .dashboard-alerts { color: #dc2626; }
+
+    .alerts-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    .alerts-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .alert-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border-left: 4px solid var(--alert-color);
+      background: var(--alert-bg);
+      transition: all 0.3s ease;
+    }
+
+    .alert-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert-critical {
+      --alert-color: #dc2626;
+      --alert-bg: #fef2f2;
+    }
+
+    .alert-warning {
+      --alert-color: #f59e0b;
+      --alert-bg: #fefbf0;
+    }
+
+    .alert-info {
+      --alert-color: #3b82f6;
+      --alert-bg: #eff6ff;
+    }
+
+    .alert-icon {
+      font-size: 1.2rem;
+      margin-right: 12px;
+      color: var(--alert-color);
+    }
+
+    .alert-content {
+      flex: 1;
+    }
+
+    .alert-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 2px;
+    }
+
+    .alert-description {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .filters-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    .filters-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    select, input {
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-bar {
+      position: relative;
+      grid-column: 1 / -1;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding-left: 40px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 16px;
+    }
+
+    .view-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .view-btn {
+      padding: 10px 20px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      background: #f8fafc;
+      color: #374151;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .view-btn.active,
+    .view-btn:hover {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    .inventory-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    .inventory-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .inventory-card {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+      position: relative;
+      border-left: 4px solid var(--status-color);
+    }
+
+    .inventory-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-status-fresh { --status-color: #10b981; }
+    .card-status-expiring { --status-color: #f59e0b; }
+    .card-status-critical { --status-color: #dc2626; }
+    .card-status-reserved { --status-color: #3b82f6; }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .card-id {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #1f2937;
+    }
+
+    .card-status {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-fresh {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-expiring {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-critical {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-reserved {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .card-body {
+      margin-bottom: 15px;
+    }
+
+    .card-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-label {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-bottom: 2px;
+    }
+
+    .info-value {
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .blood-type-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .component-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .component-prbc {
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    .component-platelets {
+      background: #eff6ff;
+      color: #1e40af;
+    }
+
+    .component-plasma {
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .component-cryo {
+      background: #f3e8ff;
+      color: #7c2d12;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #f8fafc;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .inventory-table {
+      width: 100%;
+      border-collapse: collapse;
+      display: none;
+    }
+
+    .inventory-table.show {
+      display: table;
+    }
+
+    .inventory-table th,
+    .inventory-table td {
+      padding: 12px 8px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .inventory-table th {
+      background: #f1f5f9;
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .inventory-table tr:hover {
+      background: #f9fafb;
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .temperature-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .temp-normal {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .temp-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .temp-critical {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .location-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 16px;
+      }
+
+      .header {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .form-container {
+        padding: 20px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .inventory-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .view-controls {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .export-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .inventory-table {
+        font-size: 0.85rem;
+      }
+
+      .inventory-table th,
+      .inventory-table td {
+        padding: 8px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-button">
+    ← Volver al Menú
+  </a>
+
+  <div class="container">
+    <div class="header">
+      <h1>📦 Inventario Actual</h1>
+      <p>Sistema Bludee - Control de Componentes Sanguíneos</p>
+    </div>
+
+    <div class="breadcrumb">
+      <a href="index.html">🗃️ Bludee</a> / 
+      <a href="index.html">Inventario y Recepción</a> / 
+      <span>Inventario Actual</span>
+    </div>
+
+    <div class="form-container">
+      <!-- Dashboard de Resumen -->
+      <div class="dashboard-grid">
+        <div class="dashboard-card card-total">
+          <div class="dashboard-icon">📦</div>
+          <div class="dashboard-number dashboard-total" id="total-units">156</div>
+          <div class="dashboard-label">Total Unidades</div>
+        </div>
+
+        <div class="dashboard-card card-prbc">
+          <div class="dashboard-icon">🩸</div>
+          <div class="dashboard-number dashboard-prbc" id="prbc-units">89</div>
+          <div class="dashboard-label">PRBC</div>
+        </div>
+
+        <div class="dashboard-card card-platelets">
+          <div class="dashboard-icon">🔵</div>
+          <div class="dashboard-number dashboard-platelets" id="platelets-units">34</div>
+          <div class="dashboard-label">Plaquetas</div>
+        </div>
+
+        <div class="dashboard-card card-plasma">
+          <div class="dashboard-icon">🟡</div>
+          <div class="dashboard-number dashboard-plasma" id="plasma-units">28</div>
+          <div class="dashboard-label">Plasma</div>
+        </div>
+
+        <div class="dashboard-card card-cryo">
+          <div class="dashboard-icon">🟣</div>
+          <div class="dashboard-number dashboard-cryo" id="cryo-units">5</div>
+          <div class="dashboard-label">Crioprecipitado</div>
+        </div>
+
+        <div class="dashboard-card card-alerts">
+          <div class="dashboard-icon">⚠️</div>
+          <div class="dashboard-number dashboard-alerts" id="alert-units">7</div>
+          <div class="dashboard-label">Alertas</div>
+        </div>
+      </div>
+
+      <!-- Alertas Críticas -->
+      <div class="alerts-section">
+        <h2 class="section-title">
+          <span class="section-icon">🚨</span>
+          Alertas Críticas
+        </h2>
+        
+        <div class="alert-item alert-critical">
+          <div class="alert-icon">🔴</div>
+          <div class="alert-content">
+            <div class="alert-title">3 unidades vencen hoy</div>
+            <div class="alert-description">PRBC A456, Plaquetas B789, Plasma C123 - Requieren atención inmediata</div>
+          </div>
+        </div>
+
+        <div class="alert-item alert-warning">
+          <div class="alert-icon">🟡</div>
+          <div class="alert-content">
+            <div class="alert-title">4 unidades vencen en 24 horas</div>
+            <div class="alert-description">Revisar para despacho prioritario o descarte seguro</div>
+          </div>
+        </div>
+
+        <div class="alert-item alert-info">
+          <div class="alert-icon">🌡️</div>
+          <div class="alert-content">
+            <div class="alert-title">Refrigerador R-02 - Temperatura estable</div>
+            <div class="alert-description">Todos los parámetros dentro del rango normal (2-6°C)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros de Búsqueda -->
+      <div class="filters-section">
+        <h2 class="section-title">
+          <span class="section-icon">🔍</span>
+          Filtros de Búsqueda
+        </h2>
+        
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="component_type">🩸 Tipo de Componente</label>
+            <select id="component_type" onchange="applyFilters()">
+              <option value="">Todos</option>
+              <option value="PRBC">PRBC</option>
+              <option value="Plaquetas">Plaquetas</option>
+              <option value="Plasma">Plasma</option>
+              <option value="Crioprecipitado">Crioprecipitado</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="blood_type">🅰️ Grupo Sanguíneo</label>
+            <select id="blood_type" onchange="applyFilters()">
+              <option value="">Todos</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="status_filter">📊 Estado</label>
+            <select id="status_filter" onchange="applyFilters()">
+              <option value="">Todos</option>
+              <option value="fresh">Fresco</option>
+              <option value="expiring">Próximo a vencer</option>
+              <option value="critical">Crítico</option>
+              <option value="reserved">Reservado</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="location_filter">📍 Ubicación</label>
+            <select id="location_filter" onchange="applyFilters()">
+              <option value="">Todas</option>
+              <option value="R-01">Refrigerador R-01</option>
+              <option value="R-02">Refrigerador R-02</option>
+              <option value="R-03">Refrigerador R-03</option>
+              <option value="F-01">Congelador F-01</option>
+              <option value="RT-01">Temp. Ambiente RT-01</option>
+            </select>
+          </div>
+
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search_inventory" placeholder="Buscar por ID, donante, o información específica..." oninput="applyFilters()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Controles de Vista -->
+      <div class="view-controls">
+        <button class="view-btn active" onclick="switchView('grid')">📊 Vista de Tarjetas</button>
+        <button class="view-btn" onclick="switchView('table')">📋 Vista de Tabla</button>
+      </div>
+
+      <!-- Inventario Principal -->
+      <div class="inventory-section">
+        <h2 class="section-title">
+          <span class="section-icon">📦</span>
+          Inventario Detallado
+          <span style="font-size: 0.9rem; color: #6b7280; font-weight: normal;" id="results-count">
+            156 unidades disponibles
+          </span>
+        </h2>
+
+        <!-- Vista de Tarjetas -->
+        <div class="inventory-grid" id="inventory-grid">
+          <!-- Tarjeta PRBC -->
+          <div class="inventory-card card-status-fresh" data-type="PRBC" data-blood="O+" data-status="fresh" data-location="R-01">
+            <div class="card-header">
+              <div class="card-id">A001</div>
+              <div class="card-status status-fresh">Fresco</div>
+            </div>
+            <div class="card-body">
+              <div class="card-info">
+                <div class="info-item">
+                  <div class="info-label">Tipo</div>
+                  <div class="info-value">
+                    <span class="component-badge component-prbc">PRBC</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Grupo</div>
+                  <div class="info-value">
+                    <span class="blood-type-badge">O+</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Volumen</div>
+                  <div class="info-value">250 mL</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Vence</div>
+                  <div class="info-value">28/08/2025</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Temperatura</div>
+                  <div class="info-value">
+                    <span class="temperature-indicator temp-normal">🌡️ 4°C</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Ubicación</div>
+                  <div class="info-value">
+                    <span class="location-badge">📍 R-01-A3</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-secondary" onclick="viewDetails('A001')">👁️ Detalles</button>
+              <button class="btn btn-primary" onclick="dispatchUnit('A001')">📤 Despachar</button>
+            </div>
+          </div>
+
+          <!-- Tarjeta Plaquetas -->
+          <div class="inventory-card card-status-expiring" data-type="Plaquetas" data-blood="A-" data-status="expiring" data-location="RT-01">
+            <div class="card-header">
+              <div class="card-id">B456</div>
+              <div class="card-status status-expiring">Próximo a Vencer</div>
+            </div>
+            <div class="card-body">
+              <div class="card-info">
+                <div class="info-item">
+                  <div class="info-label">Tipo</div>
+                  <div class="info-value">
+                    <span class="component-badge component-platelets">Plaquetas</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Grupo</div>
+                  <div class="info-value">
+                    <span class="blood-type-badge">A-</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Volumen</div>
+                  <div class="info-value">300 mL</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Vence</div>
+                  <div class="info-value" style="color: #f59e0b; font-weight: bold;">18/07/2025</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Temperatura</div>
+                  <div class="info-value">
+                    <span class="temperature-indicator temp-normal">🌡️ 22°C</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Ubicación</div>
+                  <div class="info-value">
+                    <span class="location-badge">📍 RT-01-B2</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-secondary" onclick="viewDetails('B456')">👁️ Detalles</button>
+              <button class="btn btn-primary" onclick="dispatchUnit('B456')">⚡ Despachar Urgente</button>
+            </div>
+          </div>
+
+          <!-- Tarjeta Plasma -->
+          <div class="inventory-card card-status-critical" data-type="Plasma" data-blood="AB+" data-status="critical" data-location="F-01">
+            <div class="card-header">
+              <div class="card-id">C789</div>
+              <div class="card-status status-critical">Crítico</div>
+            </div>
+            <div class="card-body">
+              <div class="card-info">
+                <div class="info-item">
+                  <div class="info-label">Tipo</div>
+                  <div class="info-value">
+                    <span class="component-badge component-plasma">Plasma</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Grupo</div>
+                  <div class="info-value">
+                    <span class="blood-type-badge">AB+</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Volumen</div>
+                  <div class="info-value">200 mL</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Vence</div>
+                  <div class="info-value" style="color: #dc2626; font-weight: bold;">16/07/2025</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Temperatura</div>
+                  <div class="info-value">
+                    <span class="temperature-indicator temp-normal">🌡️ -22°C</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Ubicación</div>
+                  <div class="info-value">
+                    <span class="location-badge">📍 F-01-C1</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-secondary" onclick="viewDetails('C789')">👁️ Detalles</button>
+              <button class="btn btn-primary" onclick="discardUnit('C789')" style="background: #dc2626;">🗑️ Descartar</button>
+            </div>
+          </div>
+
+          <!-- Tarjeta Reservada -->
+          <div class="inventory-card card-status-reserved" data-type="PRBC" data-blood="B+" data-status="reserved" data-location="R-02">
+            <div class="card-header">
+              <div class="card-id">D012</div>
+              <div class="card-status status-reserved">Reservado</div>
+            </div>
+            <div class="card-body">
+              <div class="card-info">
+                <div class="info-item">
+                  <div class="info-label">Tipo</div>
+                  <div class="info-value">
+                    <span class="component-badge component-prbc">PRBC</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Grupo</div>
+                  <div class="info-value">
+                    <span class="blood-type-badge">B+</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Volumen</div>
+                  <div class="info-value">250 mL</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Vence</div>
+                  <div class="info-value">25/08/2025</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Reservado para</div>
+                  <div class="info-value" style="color: #3b82f6; font-weight: bold;">Paciente M.García</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Ubicación</div>
+                  <div class="info-value">
+                    <span class="location-badge">📍 R-02-A1</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-secondary" onclick="viewDetails('D012')">👁️ Detalles</button>
+              <button class="btn btn-secondary" onclick="unreserveUnit('D012')">🔓 Liberar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista de Tabla -->
+        <div style="overflow-x: auto;">
+          <table class="inventory-table" id="inventory-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Tipo</th>
+                <th>Grupo</th>
+                <th>Volumen</th>
+                <th>Vencimiento</th>
+                <th>Estado</th>
+                <th>Ubicación</th>
+                <th>Temperatura</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-table-body">
+              <!-- Se cargarán dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Botones de Exportación -->
+      <div class="export-buttons">
+        <button class="btn btn-secondary" onclick="exportInventory('excel')">
+          📊 Exportar Excel
+        </button>
+        <button class="btn btn-secondary" onclick="exportInventory('pdf')">
+          📄 Exportar PDF
+        </button>
+        <button class="btn btn-primary" onclick="refreshInventory()">
+          🔄 Actualizar Inventario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentView = 'grid';
+    let allUnits = []; // Base de datos simulada
+
+    // Datos simulados del inventario
+    const inventoryData = [
+      {
+        id: 'A001', type: 'PRBC', bloodType: 'O+', volume: '250 mL',
+        expiry: '2025-08-28', status: 'fresh', location: 'R-01-A3',
+        temperature: '4°C', donor: 'DON-001', received: '2025-07-14'
+      },
+      {
+        id: 'B456', type: 'Plaquetas', bloodType: 'A-', volume: '300 mL',
+        expiry: '2025-07-18', status: 'expiring', location: 'RT-01-B2',
+        temperature: '22°C', donor: 'DON-002', received: '2025-07-15'
+      },
+      {
+        id: 'C789', type: 'Plasma', bloodType: 'AB+', volume: '200 mL',
+        expiry: '2025-07-16', status: 'critical', location: 'F-01-C1',
+        temperature: '-22°C', donor: 'DON-003', received: '2025-06-15'
+      },
+      {
+        id: 'D012', type: 'PRBC', bloodType: 'B+', volume: '250 mL',
+        expiry: '2025-08-25', status: 'reserved', location: 'R-02-A1',
+        temperature: '4°C', donor: 'DON-004', received: '2025-07-16',
+        reservedFor: 'Paciente M.García'
+      },
+      {
+        id: 'E345', type: 'Crioprecipitado', bloodType: 'O-', volume: '15 mL',
+        expiry: '2026-01-15', status: 'fresh', location: 'F-01-D2',
+        temperature: '-25°C', donor: 'DON-005', received: '2025-07-10'
+      }
+    ];
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+      allUnits = [...inventoryData];
+      updateDashboard();
+      loadTableData();
+      applyFilters();
+    });
+
+    function updateDashboard() {
+      const total = allUnits.length;
+      const prbc = allUnits.filter(u => u.type === 'PRBC').length;
+      const platelets = allUnits.filter(u => u.type === 'Plaquetas').length;
+      const plasma = allUnits.filter(u => u.type === 'Plasma').length;
+      const cryo = allUnits.filter(u => u.type === 'Crioprecipitado').length;
+      const alerts = allUnits.filter(u => u.status === 'critical' || u.status === 'expiring').length;
+
+      document.getElementById('total-units').textContent = total;
+      document.getElementById('prbc-units').textContent = prbc;
+      document.getElementById('platelets-units').textContent = platelets;
+      document.getElementById('plasma-units').textContent = plasma;
+      document.getElementById('cryo-units').textContent = cryo;
+      document.getElementById('alert-units').textContent = alerts;
+    }
+
+    function switchView(view) {
+      currentView = view;
+      
+      // Actualizar botones
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // Mostrar/ocultar vistas
+      if (view === 'grid') {
+        document.getElementById('inventory-grid').style.display = 'grid';
+        document.getElementById('inventory-table').classList.remove('show');
+      } else {
+        document.getElementById('inventory-grid').style.display = 'none';
+        document.getElementById('inventory-table').classList.add('show');
+      }
+    }
+
+    function loadTableData() {
+      const tbody = document.getElementById('inventory-table-body');
+      tbody.innerHTML = '';
+      
+      allUnits.forEach(unit => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${unit.id}</strong></td>
+          <td><span class="component-badge component-${unit.type.toLowerCase()}">${unit.type}</span></td>
+          <td><span class="blood-type-badge">${unit.bloodType}</span></td>
+          <td>${unit.volume}</td>
+          <td style="color: ${getExpiryColor(unit.status)}">${formatDate(unit.expiry)}</td>
+          <td><span class="card-status status-${unit.status}">${getStatusLabel(unit.status)}</span></td>
+          <td><span class="location-badge">📍 ${unit.location}</span></td>
+          <td><span class="temperature-indicator temp-normal">🌡️ ${unit.temperature}</span></td>
+          <td>
+            <div style="display: flex; gap: 5px;">
+              <button class="btn btn-secondary" onclick="viewDetails('${unit.id}')" style="padding: 4px 8px; font-size: 0.8rem;">👁️</button>
+              <button class="btn btn-primary" onclick="dispatchUnit('${unit.id}')" style="padding: 4px 8px; font-size: 0.8rem;">📤</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function applyFilters() {
+      const componentType = document.getElementById('component_type').value;
+      const bloodType = document.getElementById('blood_type').value;
+      const statusFilter = document.getElementById('status_filter').value;
+      const locationFilter = document.getElementById('location_filter').value;
+      const searchTerm = document.getElementById('search_inventory').value.toLowerCase();
+      
+      const cards = document.querySelectorAll('.inventory-card');
+      let visibleCount = 0;
+      
+      cards.forEach(card => {
+        const cardType = card.getAttribute('data-type');
+        const cardBlood = card.getAttribute('data-blood');
+        const cardStatus = card.getAttribute('data-status');
+        const cardLocation = card.getAttribute('data-location');
+        const cardText = card.textContent.toLowerCase();
+        
+        let show = true;
+        
+        if (componentType && cardType !== componentType) show = false;
+        if (bloodType && cardBlood !== bloodType) show = false;
+        if (statusFilter && cardStatus !== statusFilter) show = false;
+        if (locationFilter && !cardLocation.startsWith(locationFilter)) show = false;
+        if (searchTerm && !cardText.includes(searchTerm)) show = false;
+        
+        card.style.display = show ? 'block' : 'none';
+        if (show) visibleCount++;
+      });
+      
+      document.getElementById('results-count').textContent = `${visibleCount} unidades disponibles`;
+    }
+
+    function viewDetails(unitId) {
+      const unit = allUnits.find(u => u.id === unitId);
+      if (unit) {
+        alert(`Detalles de la Unidad ${unitId}\n\n` +
+              `Tipo: ${unit.type}\n` +
+              `Grupo Sanguíneo: ${unit.bloodType}\n` +
+              `Volumen: ${unit.volume}\n` +
+              `Vencimiento: ${formatDate(unit.expiry)}\n` +
+              `Estado: ${getStatusLabel(unit.status)}\n` +
+              `Ubicación: ${unit.location}\n` +
+              `Temperatura: ${unit.temperature}\n` +
+              `Donante: ${unit.donor}\n` +
+              `Fecha Recepción: ${formatDate(unit.received)}\n` +
+              (unit.reservedFor ? `Reservado para: ${unit.reservedFor}` : ''));
+      }
+    }
+
+    function dispatchUnit(unitId) {
+      if (confirm(`¿Confirma el despacho de la unidad ${unitId}?`)) {
+        alert(`Redirigiendo al módulo de despacho para la unidad ${unitId}...`);
+        // En producción: window.location.href = `despacho_unidad_pdf_popup.html?unit=${unitId}`;
+      }
+    }
+
+    function discardUnit(unitId) {
+      if (confirm(`⚠️ ¿Confirma el descarte de la unidad ${unitId}?\n\nEsta acción no se puede deshacer.`)) {
+        alert(`Unidad ${unitId} marcada para descarte.\n\nDocumentando razón del descarte...`);
+        // Aquí se removería de la base de datos y se documentaría
+      }
+    }
+
+    function unreserveUnit(unitId) {
+      if (confirm(`¿Confirma liberar la reserva de la unidad ${unitId}?`)) {
+        alert(`Unidad ${unitId} liberada y disponible para despacho.`);
+        // Aquí se actualizaría el estado en la base de datos
+      }
+    }
+
+    function exportInventory(format) {
+      if (format === 'excel') {
+        alert('Exportando inventario a Excel...\n\nIncluirá todos los datos filtrados con detalles completos.');
+      } else if (format === 'pdf') {
+        alert('Generando reporte PDF del inventario...\n\nIncluirá gráficos y análisis detallado.');
+      }
+    }
+
+    function refreshInventory() {
+      alert('Actualizando inventario...\n\nSincronizando con la base de datos en tiempo real.');
+      // Aquí se recargarían los datos desde el servidor
+      updateDashboard();
+      loadTableData();
+      applyFilters();
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        'fresh': 'Fresco',
+        'expiring': 'Próximo a Vencer',
+        'critical': 'Crítico',
+        'reserved': 'Reservado'
+      };
+      return labels[status] || status;
+    }
+
+    function getExpiryColor(status) {
+      const colors = {
+        'fresh': '#059669',
+        'expiring': '#f59e0b',
+        'critical': '#dc2626',
+        'reserved': '#3b82f6'
+      };
+      return colors[status] || '#6b7280';
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-PR');
+    }
+  </script>
+</body>
+</html>
