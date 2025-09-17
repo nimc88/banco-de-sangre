@@ -1092,7 +1092,7 @@
                         </select>
                     </div>
 
-                    <!-- Información del paciente/donante -->
+                    <!-- Información del paciente -->
                     <div class="form-group">
                         <label for="paciente">Paciente:</label>
                         <input type="text" id="paciente" placeholder="Nombre del paciente">
@@ -1100,10 +1100,6 @@
                     <div class="form-group">
                         <label for="record">Record:</label>
                         <input type="text" id="record" placeholder="Número de record">
-                    </div>
-                    <div class="form-group">
-                        <label for="numDonante">Núm. Donante:</label>
-                        <input type="text" id="numDonante" placeholder="ID del donante">
                     </div>
                     <div class="form-group">
                         <label for="localizacion">Localización/Destino:</label>
@@ -1117,6 +1113,10 @@
                             <option value="Obstetricia">Obstetricia</option>
                             <option value="Banco de Sangre">Banco de Sangre</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="suplidor">Suplidor:</label>
+                        <input type="text" id="suplidor" placeholder="Cruz Roja PR">
                     </div>
 
                     <!-- Información médica -->
@@ -1265,7 +1265,6 @@
                                 <th>Localización</th>
                                 <th>Médico</th>
                                 <th>ABO/Rh Paciente</th>
-                                <th>N° Donante</th>
                                 <th>ABO/Rh Donante</th>
                                 <th>Componente</th>
                                 <th>Volumen</th>
@@ -1483,7 +1482,6 @@
                 estadoUnidad: document.getElementById('estadoUnidad').value,
                 paciente: document.getElementById('paciente').value,
                 record: document.getElementById('record').value,
-                numDonante: document.getElementById('numDonante').value,
                 localizacion: document.getElementById('localizacion').value,
                 medico: document.getElementById('medico').value,
                 aboRhPaciente: document.getElementById('aboRhPaciente').value,
@@ -1588,7 +1586,6 @@
                     <td>${entry.localizacion || '-'}</td>
                     <td>${entry.medico || '-'}</td>
                     <td>${entry.aboRhPaciente || '-'}</td>
-                    <td>${entry.numDonante || '-'}</td>
                     <td>${entry.aboRhDonante || '-'}</td>
                     <td>${entry.componente || '-'}</td>
                     <td>${entry.volumen ? entry.volumen + 'ml' : '-'}</td>
@@ -1659,7 +1656,7 @@
             
             const headers = [
                 'Estado', 'Fecha', 'N° Unidad', 'Paciente', 'Record', 'Localización', 'Médico',
-                'ABO/Rh Paciente', 'N° Donante', 'ABO/Rh Donante', 'Componente', 'Volumen',
+                'ABO/Rh Paciente', 'ABO/Rh Donante', 'Componente', 'Volumen',
                 'Fecha Exp.', 'Suplidor', 'H. Recibida', 'H. Despachada', 'Temp. Transport',
                 'Inspección', 'MT', 'Released by', 'Received by', 'Devuelta', 'Comentarios'
             ];
@@ -1669,7 +1666,7 @@
                 ...currentEntries.map(entry => [
                     entry.estadoUnidad, entry.fecha, entry.numeroUnidad, entry.paciente,
                     entry.record, entry.localizacion, entry.medico, entry.aboRhPaciente,
-                    entry.numDonante, entry.aboRhDonante, entry.componente, entry.volumen,
+                    entry.aboRhDonante, entry.componente, entry.volumen,
                     entry.fechaExpiracion, entry.suplidor, entry.timeReceived,
                     entry.timeDispatched, entry.transportTemp, entry.inspeccion,
                     entry.mt, entry.releasedBy, entry.receivedBy, entry.returned, entry.comentarios
@@ -1855,7 +1852,6 @@
                     estadoUnidad: 'despachada',
                     paciente: 'María González',
                     record: 'MG-001',
-                    numDonante: 'D-12345',
                     localizacion: 'Emergencia',
                     medico: 'Dr. Rodríguez',
                     aboRhPaciente: 'O+',
@@ -1884,4 +1880,5 @@
     </script>
 </body>
 </html>
+
    
