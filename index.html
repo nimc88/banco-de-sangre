@@ -1394,14 +1394,16 @@
         }
 
         // FUNCIONES DEL MÓDULO INTEGRAL
-        function openIntegratedModule(mode = 'tracking') {
+        async function openIntegratedModule(mode = 'tracking') {
             document.getElementById('integratedModule').classList.add('active');
             document.getElementById('mainPage').style.display = 'none';
-            
-            // Actualizar fecha actual
+
             const today = new Date();
             document.getElementById('moduleDate').textContent = today.toLocaleDateString('es-PR');
-            
+
+            // ✅ Cargar entradas desde Firebase
+            await cargarEntradasDeFirebase();
+
             // Configurar según el modo
             if (mode === 'receive') {
                 document.getElementById('moduleTitle').innerHTML = '📥 Recibir Nueva Unidad';
@@ -1415,8 +1417,32 @@
             } else {
                 document.getElementById('moduleTitle').innerHTML = '🔄 Módulo Integral de Unidades';
             }
-            
+
             updateEntryCounter();
+        }
+
+        // ✅ Carga todas las entradas desde Firebase y las muestra en la tabla
+        async function cargarEntradasDeFirebase() {
+            try {
+                var snapshot = await db.collection("entradas_unidades")
+                    .orderBy("fechaGuardado", "desc")
+                    .limit(200)
+                    .get();
+
+                currentEntries = [];
+                snapshot.forEach(function(doc) {
+                    var data = doc.data();
+                    data.firebaseId = doc.id; // guardamos el id de Firebase
+                    currentEntries.push(data);
+                });
+
+                updateTable();
+                updateEntryCounter();
+                console.log("✅ " + currentEntries.length + " entradas cargadas desde Firebase");
+            } catch(e) {
+                console.error("❌ Error al cargar desde Firebase:", e.message);
+                // Si falla Firebase, la tabla queda con lo que había en memoria
+            }
         }
 
         function closeIntegratedModule() {
@@ -1962,7 +1988,6 @@
   </script>
 </body>
 </html>
-   
 
 
    
