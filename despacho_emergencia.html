@@ -1017,25 +1017,31 @@
       doc.setFillColor(220, 38, 38);
       doc.rect(0, 0, 210, 35, 'F');
       
-      // Logo/Icono de Bludee
+      // Logo texto izquierda
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(20);
-      doc.text("🩸", 15, 20);
-      
-      // Título principal
-      doc.setFontSize(18);
+      doc.setFontSize(22);
       doc.setFont(undefined, 'bold');
-      doc.text("BLUDEE - SISTEMA DE BANCO DE SANGRE", 105, 15, { align: 'center' });
-      
-      // Subtítulo
+      doc.text("BLUDEE", 15, 18);
+
+      // Línea separadora vertical decorativa
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(0.5);
+      doc.line(58, 8, 58, 28);
+
+      // Título principal
       doc.setFontSize(14);
       doc.setFont(undefined, 'bold');
-      doc.text("REGISTRO DE TRANSFUSIÓN - UNIDAD DE EMERGENCIA", 105, 25, { align: 'center' });
+      doc.text("SISTEMA DE BANCO DE SANGRE", 105, 13, { align: 'center' });
+      
+      // Subtítulo
+      doc.setFontSize(11);
+      doc.setFont(undefined, 'bold');
+      doc.text("REGISTRO DE TRANSFUSION - UNIDAD DE EMERGENCIA", 105, 23, { align: 'center' });
       
       // Badge de emergencia
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
-      doc.text("⚡ PROTOCOLO DE EMERGENCIA ACTIVADO ⚡", 105, 31, { align: 'center' });
+      doc.text("*** PROTOCOLO DE EMERGENCIA ACTIVADO ***", 105, 31, { align: 'center' });
 
       // Resetear color de texto
       doc.setTextColor(0, 0, 0);
@@ -1088,30 +1094,86 @@
       });
 
       // Sección de firmas
-      const finalY = doc.lastAutoTable.finalY + 20;
-      
-      doc.setFontSize(14);
+      const finalY = doc.lastAutoTable.finalY + 15;
+
+      doc.setFontSize(13);
       doc.setFont(undefined, 'bold');
+      doc.setTextColor(0, 0, 0);
       doc.text("FIRMAS DE AUTORIZACIÓN", 105, finalY, { align: 'center' });
-      
+
+      // Línea separadora bajo el título
+      doc.setDrawColor(220, 38, 38);
+      doc.setLineWidth(0.5);
+      doc.line(20, finalY + 3, 190, finalY + 3);
+
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
-      
-      // Líneas para firmas
-      const leftX = 20;
-      const rightX = 120;
-      const signY = finalY + 30;
-      
-      doc.line(leftX, signY, leftX + 70, signY);
-      doc.line(rightX, signY, rightX + 70, signY);
-      
-      doc.text("Firma del Tecnólogo Médico (MT)", leftX, signY + 8);
-      doc.text(`${document.getElementById("tecnologo").value}`, leftX, signY + 15);
-      doc.text(`Fecha: ${new Date().toLocaleDateString('es-PR')}`, leftX, signY + 22);
-      
-      doc.text("Firma del Enfermero(a) Receptor", rightX, signY + 8);
-      doc.text(`${document.getElementById("enfermero").value}`, rightX, signY + 15);
-      doc.text(`Fecha: ${new Date().toLocaleDateString('es-PR')}`, rightX, signY + 22);
+      doc.setDrawColor(180, 180, 180);
+      doc.setLineWidth(0.3);
+
+      const leftX  = 20;
+      const rightX = 115;
+      const signY  = finalY + 12;
+      const sigW   = 80;   // ancho imagen firma
+      const sigH   = 28;   // alto imagen firma
+
+      // ── FIRMA TECNÓLOGO ──
+      doc.setFont(undefined, 'bold');
+      doc.setFontSize(9);
+      doc.text("Tecnólogo Médico (MT)", leftX, signY);
+      doc.setFont(undefined, 'normal');
+
+      // Recuadro de fondo para la firma
+      doc.setFillColor(248, 248, 248);
+      doc.rect(leftX, signY + 2, sigW, sigH, 'FD');
+
+      // Imagen de la firma digital si existe
+      if (signatureMTData) {
+        doc.addImage(signatureMTData, 'PNG', leftX + 1, signY + 3, sigW - 2, sigH - 2);
+      } else {
+        doc.setTextColor(180, 180, 180);
+        doc.setFontSize(8);
+        doc.text("Sin firma", leftX + sigW/2, signY + sigH/2 + 2, { align: 'center' });
+        doc.setTextColor(0, 0, 0);
+      }
+
+      // Línea y datos bajo la firma
+      doc.setDrawColor(100, 100, 100);
+      doc.line(leftX, signY + sigH + 4, leftX + sigW, signY + sigH + 4);
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      doc.text(document.getElementById("tecnologo").value, leftX, signY + sigH + 10);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Fecha: " + new Date().toLocaleDateString('es-PR'), leftX, signY + sigH + 16);
+
+      // ── FIRMA ENFERMERO ──
+      doc.setFont(undefined, 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Enfermero(a) Receptor", rightX, signY);
+      doc.setFont(undefined, 'normal');
+
+      doc.setFillColor(248, 248, 248);
+      doc.rect(rightX, signY + 2, sigW, sigH, 'FD');
+
+      if (signatureData) {
+        doc.addImage(signatureData, 'PNG', rightX + 1, signY + 3, sigW - 2, sigH - 2);
+      } else {
+        doc.setTextColor(180, 180, 180);
+        doc.setFontSize(8);
+        doc.text("Sin firma", rightX + sigW/2, signY + sigH/2 + 2, { align: 'center' });
+        doc.setTextColor(0, 0, 0);
+      }
+
+      doc.setDrawColor(100, 100, 100);
+      doc.line(rightX, signY + sigH + 4, rightX + sigW, signY + sigH + 4);
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      doc.text(document.getElementById("enfermero").value, rightX, signY + sigH + 10);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Fecha: " + new Date().toLocaleDateString('es-PR'), rightX, signY + sigH + 16);
+
+      doc.setTextColor(0, 0, 0);
 
       // Footer mejorado
       const pageHeight = doc.internal.pageSize.height;
@@ -1131,7 +1193,7 @@
       doc.setTextColor(220, 38, 38);
       doc.setFontSize(10);
       doc.setFont(undefined, 'bold');
-      doc.text("⚡ PROTOCOLO DE EMERGENCIA ⚡", 105, pageHeight - 3, { align: 'center' });
+      doc.text("*** PROTOCOLO DE EMERGENCIA ***", 105, pageHeight - 3, { align: 'center' });
 
       // Guardar PDF
       const fileName = `Emergencia_${document.getElementById("id_componente").value}_${new Date().toISOString().slice(0, 10)}.pdf`;
