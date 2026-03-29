@@ -4,6 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bludee - Gestión de Donantes</title>
+  <!-- Firebase: SDK + configuración + función de guardado (todo junto en el head) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Configuración de tu proyecto Bludee en Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyCl3zl4lMGoh8hGhjVJtB3Te7ioDX5X65U",
+      authDomain: "bludee-pr.firebaseapp.com",
+      projectId: "bludee-pr",
+      storageBucket: "bludee-pr.firebasestorage.app",
+      messagingSenderId: "476330144377",
+      appId: "1:476330144377:web:88d31603514ca265409aa8",
+      measurementId: "G-P8RCZGG5Q3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+
+    // Guarda el donante en Firestore (llamada desde GestorDonantes)
+    async function guardarDananteEnFirebase(donante) {
+        try {
+            await db.collection("donantes").add({
+                nombre: donante.nombre,
+                apellido: donante.apellido,
+                email: donante.email || "",
+                telefono: donante.telefono,
+                tipoSangre: donante.tipoSangre,
+                fechaNacimiento: donante.fechaNacimiento,
+                direccion: donante.direccion || "",
+                fechaRegistro: new Date().toISOString(),
+                estatus: "Activo"
+            });
+            console.log("✅ Donante guardado en Firebase correctamente");
+        } catch (error) {
+            console.error("❌ Error al guardar en Firebase:", error);
+        }
+    }
+  </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -689,6 +726,9 @@
         };
 
         this.agregarDonante(nuevoDonante);
+
+        // ✅ GUARDAR EN FIREBASE (además de localStorage)
+        guardarDananteEnFirebase(nuevoDonante);
         
         // Mostrar mensaje de éxito
         document.getElementById('mensaje-exito').classList.add('show');
@@ -1286,54 +1326,7 @@
       }
     });
   </script>
-  <!-- 1. Librerías de Firebase (Versión compatible con tu código actual) -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- 2. Configuración y Conexión -->
-  <script>
-    // Tu configuración real
-    const firebaseConfig = {
-      apiKey: "AIzaSyCl3zl4lMGoh8hGhjVJtB3Te7ioDX5X65U",
-      authDomain: "bludee-pr.firebaseapp.com",
-      projectId: "bludee-pr",
-      storageBucket: "bludee-pr.firebasestorage.app",
-      messagingSenderId: "476330144377",
-      appId: "1:476330144377:web:88d31603514ca265409aa8",
-      measurementId: "G-P8RCZGG5Q3"
-    };
-
-    // Inicializar Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // Función para el Plan Piloto (Guardar Donante)
-    async function registrarNuevoDonanteFirebase(event) {
-        event.preventDefault(); // Evita que la página se recargue
-        
-        const nombre = document.getElementById('nombre').value;
-        const apellido = document.getElementById('apellido').value;
-        const telefono = document.getElementById('telefono').value;
-        const tipoSangre = document.getElementById('tipoSangre').value;
-
-        try {
-            await db.collection("donantes").add({
-                nombre: nombre,
-                apellido: apellido,
-                telefono: telefono,
-                tipoSangre: tipoSangre,
-                fechaRegistro: new Date().toISOString(),
-                estatus: "Activo"
-            });
-            alert("¡Donante guardado en la nube de Bludee!");
-            cerrarModal('modal-nuevo-donante');
-        } catch (error) {
-            console.error("Error:", error);
-            alert("No se pudo guardar. Revisa la conexión.");
-        }
-    }
-
-    // Conectar el formulario con la función de arriba
-    document.getElementById('form-nuevo-donante').onsubmit = registrarNuevoDonanteFirebase;
 </body>
 </html>
+
