@@ -4,6 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bludee - Registrar Unidad Recibida</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyCl3zl4lMGoh8hGhjVJtB3Te7ioDX5X65U",
+      authDomain: "bludee-pr.firebaseapp.com",
+      projectId: "bludee-pr",
+      storageBucket: "bludee-pr.firebasestorage.app",
+      messagingSenderId: "476330144377",
+      appId: "1:476330144377:web:88d31603514ca265409aa8"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db   = firebase.firestore();
+
+    // 🔐 Guardia — si no hay sesión activa manda al login
+    auth.onAuthStateChanged(function(user) {
+      if (!user) window.location.href = 'login.html';
+    });
+  </script>
   <style>
     * {
       margin: 0;
@@ -379,6 +401,16 @@
   </style>
 </head>
 <body>
+  <!-- Botón cerrar sesión -->
+  <div style="position:fixed;top:16px;right:20px;z-index:9999;">
+    <button onclick="auth.signOut().then(function(){window.location.href='login.html'})" style="
+      background:rgba(220,38,38,0.92);color:white;border:none;border-radius:50px;
+      padding:8px 18px;font-size:0.85rem;font-weight:600;cursor:pointer;
+      box-shadow:0 2px 12px rgba(0,0,0,0.2);display:flex;align-items:center;gap:6px;">
+      🚪 Cerrar sesión
+    </button>
+  </div>
+
   <a href="index.html" class="back-button">
     ← Volver al Menú
   </a>
@@ -589,7 +621,7 @@
         <button type="button" class="btn btn-secondary" onclick="simularEnvio()">
           🔄 Limpiar
         </button>
-        <button type="button" class="btn btn-primary" onclick="simularEnvio()">
+        <button type="button" class="btn btn-primary" onclick="simularEnvio(); guardarEnFirebase()">
           💾 Guardar Registro
         </button>
       </div>
@@ -703,6 +735,47 @@
       document.getElementById('fecha_recibo').value = datetime;
     });
   </script>
+
+  <script>
+    // 💾 Guardar en Firebase — colección: unidades_recibidas
+    async function guardarEnFirebase() {
+      try {
+        var user = auth.currentUser;
+        await db.collection("unidades_recibidas").add({
+              id_componente: (document.getElementById('id_componente') ? document.getElementById('id_componente').value : ''), 
+              tipo_componente: (document.getElementById('tipo_componente') ? document.getElementById('tipo_componente').value : ''), 
+              grupo_sangre: (document.getElementById('grupo_sangre') ? document.getElementById('grupo_sangre').value : ''), 
+              rh_componente: (document.getElementById('rh_componente') ? document.getElementById('rh_componente').value : ''), 
+              volumen: (document.getElementById('volumen') ? document.getElementById('volumen').value : ''), 
+              fecha_recibo: (document.getElementById('fecha_recibo') ? document.getElementById('fecha_recibo').value : ''), 
+              nombre_paciente: (document.getElementById('nombre_paciente') ? document.getElementById('nombre_paciente').value : ''), 
+              numero_record: (document.getElementById('numero_record') ? document.getElementById('numero_record').value : ''), 
+              grupo_sangre_paciente: (document.getElementById('grupo_sangre_paciente') ? document.getElementById('grupo_sangre_paciente').value : ''), 
+              rh_paciente: (document.getElementById('rh_paciente') ? document.getElementById('rh_paciente').value : ''), 
+              doctor: (document.getElementById('doctor') ? document.getElementById('doctor').value : ''), 
+              tecnologo: (document.getElementById('tecnologo') ? document.getElementById('tecnologo').value : ''), 
+              enfermero: (document.getElementById('enfermero') ? document.getElementById('enfermero').value : ''), 
+              fecha_notificacion: (document.getElementById('fecha_notificacion') ? document.getElementById('fecha_notificacion').value : ''), 
+              guardadoPor: user ? user.email : 'desconocido',
+              fechaGuardado: new Date().toISOString()
+        });
+        mostrarToast('✅ Guardado en Firebase correctamente');
+      } catch(e) {
+        console.error('Error Firebase:', e);
+        mostrarToast('⚠️ Error al guardar en la nube', true);
+      }
+    }
+
+    function mostrarToast(msg, esError) {
+      var t = document.createElement('div');
+      t.textContent = msg;
+      t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;padding:12px 20px;border-radius:10px;font-weight:600;font-size:0.9rem;color:white;box-shadow:0 4px 16px rgba(0,0,0,0.25);animation:fadeIn .3s ease;background:' + (esError ? '#dc2626' : '#16a34a');
+      document.body.appendChild(t);
+      setTimeout(function(){ t.remove(); }, 3500);
+    }
+  </script>
 </body>
 </html>
+  
+
   
