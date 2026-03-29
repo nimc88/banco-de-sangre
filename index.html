@@ -1248,6 +1248,10 @@
                         <label for="personaNotificada">Persona Notificada:</label>
                         <input type="text" id="personaNotificada" placeholder="Nombre">
                     </div>
+                    <div class="form-group">
+                        <label for="horaNotificacion">Hora Notificación:</label>
+                        <input type="time" id="horaNotificacion">
+                    </div>
 
                     <!-- Comentarios -->
                     <div class="form-group form-row-full">
@@ -1457,10 +1461,10 @@
             allGroups.forEach(group => group.style.display = 'none');
             
             // Siempre mostrar campos básicos
-            document.getElementById('fecha').parentElement.style.display = 'flex';
-            document.getElementById('tipoOperacion').parentElement.style.display = 'flex';
-            document.getElementById('numeroUnidad').parentElement.style.display = 'flex';
-            document.getElementById('estadoUnidad').parentElement.style.display = 'flex';
+            (document.getElementById('fecha') && document.getElementById('fecha').parentElement) && (document.getElementById('fecha').parentElement.style.display = 'flex')
+            (document.getElementById('tipoOperacion') && document.getElementById('tipoOperacion').parentElement) && (document.getElementById('tipoOperacion').parentElement.style.display = 'flex')
+            (document.getElementById('numeroUnidad') && document.getElementById('numeroUnidad').parentElement) && (document.getElementById('numeroUnidad').parentElement.style.display = 'flex')
+            (document.getElementById('estadoUnidad') && document.getElementById('estadoUnidad').parentElement) && (document.getElementById('estadoUnidad').parentElement.style.display = 'flex')
             
             if (tipo === 'recibo') {
                 statusBadge.className = 'status-badge status-recibida';
@@ -1468,22 +1472,22 @@
                 document.getElementById('estadoUnidad').value = 'recibida';
                 
                 // Mostrar campos específicos para RECIBO
-                document.getElementById('paciente').parentElement.style.display = 'flex';
-                document.getElementById('record').parentElement.style.display = 'flex';
-                document.getElementById('localizacion').parentElement.style.display = 'flex';
-                document.getElementById('medico').parentElement.style.display = 'flex';
-                document.getElementById('aboRhPaciente').parentElement.style.display = 'flex';
-                document.getElementById('aboRhDonante').parentElement.style.display = 'flex';
-                document.getElementById('fechaExpiracion').parentElement.style.display = 'flex';
-                document.getElementById('componente').parentElement.style.display = 'flex';
-                document.getElementById('volumen').parentElement.style.display = 'flex';
-                document.getElementById('suplidor').parentElement.style.display = 'flex';
-                document.getElementById('timeReceived').parentElement.style.display = 'flex';
-                document.getElementById('transportTemp').parentElement.style.display = 'flex';
-                document.getElementById('inspeccion').parentElement.style.display = 'flex';
-                document.getElementById('personaNotificada').parentElement.style.display = 'flex';
-                document.getElementById('horaNotificacion').parentElement.style.display = 'flex';
-                document.getElementById('mt').parentElement.style.display = 'flex';
+                (document.getElementById('paciente') && document.getElementById('paciente').parentElement) && (document.getElementById('paciente').parentElement.style.display = 'flex')
+                (document.getElementById('record') && document.getElementById('record').parentElement) && (document.getElementById('record').parentElement.style.display = 'flex')
+                (document.getElementById('localizacion') && document.getElementById('localizacion').parentElement) && (document.getElementById('localizacion').parentElement.style.display = 'flex')
+                (document.getElementById('medico') && document.getElementById('medico').parentElement) && (document.getElementById('medico').parentElement.style.display = 'flex')
+                (document.getElementById('aboRhPaciente') && document.getElementById('aboRhPaciente').parentElement) && (document.getElementById('aboRhPaciente').parentElement.style.display = 'flex')
+                (document.getElementById('aboRhDonante') && document.getElementById('aboRhDonante').parentElement) && (document.getElementById('aboRhDonante').parentElement.style.display = 'flex')
+                (document.getElementById('fechaExpiracion') && document.getElementById('fechaExpiracion').parentElement) && (document.getElementById('fechaExpiracion').parentElement.style.display = 'flex')
+                (document.getElementById('componente') && document.getElementById('componente').parentElement) && (document.getElementById('componente').parentElement.style.display = 'flex')
+                (document.getElementById('volumen') && document.getElementById('volumen').parentElement) && (document.getElementById('volumen').parentElement.style.display = 'flex')
+                (document.getElementById('suplidor') && document.getElementById('suplidor').parentElement) && (document.getElementById('suplidor').parentElement.style.display = 'flex')
+                (document.getElementById('timeReceived') && document.getElementById('timeReceived').parentElement) && (document.getElementById('timeReceived').parentElement.style.display = 'flex')
+                (document.getElementById('transportTemp') && document.getElementById('transportTemp').parentElement) && (document.getElementById('transportTemp').parentElement.style.display = 'flex')
+                (document.getElementById('inspeccion') && document.getElementById('inspeccion').parentElement) && (document.getElementById('inspeccion').parentElement.style.display = 'flex')
+                (document.getElementById('personaNotificada') && document.getElementById('personaNotificada').parentElement) && (document.getElementById('personaNotificada').parentElement.style.display = 'flex')
+                (document.getElementById('horaNotificacion') && document.getElementById('horaNotificacion').parentElement) && (document.getElementById('horaNotificacion').parentElement.style.display = 'flex')
+                (document.getElementById('mt') && document.getElementById('mt').parentElement) && (document.getElementById('mt').parentElement.style.display = 'flex')
                 
                 // Cambiar label de timeReceived a "Time Arrived"
                 document.querySelector('label[for="timeReceived"]').textContent = 'Time Arrived:';
@@ -1494,12 +1498,12 @@
                 document.getElementById('estadoUnidad').value = 'proceso';
                 
                 // Mostrar campos específicos para DESPACHO
-                document.getElementById('releasedBy').parentElement.style.display = 'flex';
-                document.getElementById('receivedBy').parentElement.style.display = 'flex';
-                document.getElementById('inspeccion').parentElement.style.display = 'flex';
-                document.getElementById('timeDispatched').parentElement.style.display = 'flex';
-                document.getElementById('returned').parentElement.style.display = 'flex';
-                document.getElementById('comentarios').parentElement.style.display = 'flex';
+                (document.getElementById('releasedBy') && document.getElementById('releasedBy').parentElement) && (document.getElementById('releasedBy').parentElement.style.display = 'flex')
+                (document.getElementById('receivedBy') && document.getElementById('receivedBy').parentElement) && (document.getElementById('receivedBy').parentElement.style.display = 'flex')
+                (document.getElementById('inspeccion') && document.getElementById('inspeccion').parentElement) && (document.getElementById('inspeccion').parentElement.style.display = 'flex')
+                (document.getElementById('timeDispatched') && document.getElementById('timeDispatched').parentElement) && (document.getElementById('timeDispatched').parentElement.style.display = 'flex')
+                (document.getElementById('returned') && document.getElementById('returned').parentElement) && (document.getElementById('returned').parentElement.style.display = 'flex')
+                (document.getElementById('comentarios') && document.getElementById('comentarios').parentElement) && (document.getElementById('comentarios').parentElement.style.display = 'flex')
                 
                 // Cambiar label de timeDispatched a "Hora"
                 document.querySelector('label[for="timeDispatched"]').textContent = 'Hora:';
@@ -1577,34 +1581,39 @@
             }, 500);
         }
 
+        function getVal(id) {
+            var el = document.getElementById(id);
+            return el ? el.value : '';
+        }
+
         function collectFormData() {
             return {
                 id: editingIndex >= 0 ? currentEntries[editingIndex].id : `BLD-${Date.now()}`,
-                fecha: document.getElementById('fecha').value,
-                numeroUnidad: document.getElementById('numeroUnidad').value,
-                tipoOperacion: document.getElementById('tipoOperacion').value,
-                estadoUnidad: document.getElementById('estadoUnidad').value,
-                paciente: document.getElementById('paciente').value,
-                record: document.getElementById('record').value,
-                localizacion: document.getElementById('localizacion').value,
-                medico: document.getElementById('medico').value,
-                aboRhPaciente: document.getElementById('aboRhPaciente').value,
-                aboRhDonante: document.getElementById('aboRhDonante').value,
-                componente: document.getElementById('componente').value,
-                volumen: document.getElementById('volumen').value,
-                suplidor: document.getElementById('suplidor').value,
-                fechaExpiracion: document.getElementById('fechaExpiracion').value,
-                transportTemp: document.getElementById('transportTemp').value,
-                timeReceived: document.getElementById('timeReceived').value,
-                timeDispatched: document.getElementById('timeDispatched').value,
-                inspeccion: document.getElementById('inspeccion').value,
-                returned: document.getElementById('returned').value,
-                mt: document.getElementById('mt').value,
-                releasedBy: document.getElementById('releasedBy').value,
-                receivedBy: document.getElementById('receivedBy').value,
-                personaNotificada: document.getElementById('personaNotificada').value,
-                horaNotificacion: document.getElementById('horaNotificacion').value,
-                comentarios: document.getElementById('comentarios').value,
+                fecha:             getVal('fecha'),
+                numeroUnidad:      getVal('numeroUnidad'),
+                tipoOperacion:     getVal('tipoOperacion'),
+                estadoUnidad:      getVal('estadoUnidad'),
+                paciente:          getVal('paciente'),
+                record:            getVal('record'),
+                localizacion:      getVal('localizacion'),
+                medico:            getVal('medico'),
+                aboRhPaciente:     getVal('aboRhPaciente'),
+                aboRhDonante:      getVal('aboRhDonante'),
+                componente:        getVal('componente'),
+                volumen:           getVal('volumen'),
+                suplidor:          getVal('suplidor'),
+                fechaExpiracion:   getVal('fechaExpiracion'),
+                transportTemp:     getVal('transportTemp'),
+                timeReceived:      getVal('timeReceived'),
+                timeDispatched:    getVal('timeDispatched'),
+                inspeccion:        getVal('inspeccion'),
+                returned:          getVal('returned'),
+                mt:                getVal('mt'),
+                releasedBy:        getVal('releasedBy'),
+                receivedBy:        getVal('receivedBy'),
+                personaNotificada: getVal('personaNotificada'),
+                horaNotificacion:  getVal('horaNotificacion'),
+                comentarios:       getVal('comentarios'),
                 timestamp: new Date().toISOString()
             };
         }
@@ -1997,7 +2006,6 @@
   </script>
 </body>
 </html>
-
    
 
 
