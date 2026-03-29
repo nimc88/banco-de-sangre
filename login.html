@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bludee — Acceso al Sistema</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyCl3zl4lMGoh8hGhjVJtB3Te7ioDX5X65U",
+      authDomain: "bludee-pr.firebaseapp.com",
+      projectId: "bludee-pr",
+      storageBucket: "bludee-pr.firebasestorage.app",
+      messagingSenderId: "476330144377",
+      appId: "1:476330144377:web:88d31603514ca265409aa8"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --red-dark:   #991b1b;
+      --red:        #dc2626;
+      --red-light:  #ef4444;
+      --red-pale:   #fef2f2;
+      --navy:       #0f172a;
+      --navy-mid:   #1e293b;
+      --text:       #1f2937;
+      --muted:      #6b7280;
+      --border:     #e5e7eb;
+      --white:      #ffffff;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      background: var(--navy);
+      overflow: hidden;
+    }
+
+    /* ── Left panel – branding ── */
+    .panel-left {
+      width: 45%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 56px;
+      overflow: hidden;
+    }
+
+    .panel-left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, #7f1d1d 0%, #dc2626 45%, #ef4444 100%);
+    }
+
+    /* decorative blood drop shapes */
+    .drop {
+      position: absolute;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      opacity: 0.12;
+    }
+    .drop-1 { width: 220px; height: 220px; top: -60px; right: -40px; background: white; }
+    .drop-2 { width: 140px; height: 140px; bottom: 80px; left: -30px; background: white; }
+    .drop-3 { width: 80px;  height: 80px;  top: 55%;   right: 60px;  background: white; }
+
+    .panel-left-content { position: relative; z-index: 1; }
+
+    .logo-mark {
+      width: 56px; height: 56px;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      margin-bottom: 32px;
+      backdrop-filter: blur(4px);
+    }
+
+    .brand-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 3.2rem;
+      color: white;
+      line-height: 1;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+    }
+
+    .brand-tagline {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.75);
+      font-weight: 400;
+      line-height: 1.6;
+      max-width: 280px;
+      margin-bottom: 48px;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255,255,255,0.85);
+      font-size: 0.9rem;
+    }
+
+    .feature-icon {
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    /* ── Right panel – form ── */
+    .panel-right {
+      flex: 1;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .login-card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 36px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 17px;
+      pointer-events: none;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: white;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+    }
+
+    .show-pass {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--muted);
+      padding: 0;
+      line-height: 1;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--red), var(--red-light));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      box-shadow: 0 4px 14px rgba(220,38,38,0.35);
+    }
+
+    .btn-login:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(220,38,38,0.45);
+    }
+
+    .btn-login:active:not(:disabled) { transform: translateY(0); }
+
+    .btn-login:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn-login .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error / success messages */
+    .msg {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .msg.show { display: flex; }
+    .msg.error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .msg.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 0.825rem;
+      color: var(--red);
+      text-decoration: none;
+      margin-top: -12px;
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+    .forgot-link:hover { text-decoration: underline; }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .switch-link {
+      display: block;
+      text-align: center;
+      margin-top: 22px;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+    .switch-link a {
+      color: var(--red);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .switch-link a:hover { text-decoration: underline; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      .panel-left { display: none; }
+      .panel-right { background: var(--navy); }
+      .login-card {
+        background: white;
+        padding: 36px 28px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Left branding panel ── -->
+  <div class="panel-left">
+    <div class="drop drop-1"></div>
+    <div class="drop drop-2"></div>
+    <div class="drop drop-3"></div>
+    <div class="panel-left-content">
+      <div class="logo-mark">🩸</div>
+      <div class="brand-name">Bludee</div>
+      <p class="brand-tagline">Sistema de gestión para bancos de sangre en Puerto Rico</p>
+      <ul class="feature-list">
+        <li>
+          <span class="feature-icon">👥</span>
+          Registro y seguimiento de donantes
+        </li>
+        <li>
+          <span class="feature-icon">📅</span>
+          Programación de citas automática
+        </li>
+        <li>
+          <span class="feature-icon">🔔</span>
+          Recordatorios y alertas de elegibilidad
+        </li>
+        <li>
+          <span class="feature-icon">📊</span>
+          Métricas y reportes en tiempo real
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── Right panel ── -->
+  <div class="panel-right">
+    <div class="login-card">
+
+      <!-- Mensajes globales -->
+      <div class="msg error" id="msg-error"><span>⚠️</span><span id="msg-error-text"></span></div>
+      <div class="msg success" id="msg-success"><span>✅</span><span id="msg-success-text"></span></div>
+
+      <!-- ══ VISTA: INICIAR SESIÓN ══ -->
+      <div id="vista-login">
+        <h2>Bienvenida</h2>
+        <p style="margin-bottom:28px;">Ingresa tus credenciales para acceder al sistema</p>
+
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <div class="input-wrap">
+            <span class="input-icon">📧</span>
+            <input type="email" id="email" placeholder="tu@correo.com" autocomplete="email">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+            <button class="show-pass" onclick="togglePass('password')" type="button">👁️</button>
+          </div>
+        </div>
+
+        <a href="#" class="forgot-link" onclick="recuperarContrasena(event)">¿Olvidaste tu contraseña?</a>
+
+        <button class="btn-login" id="btn-login" onclick="iniciarSesion()">
+          Iniciar sesión
+        </button>
+
+        <p class="switch-link">
+          ¿No tienes cuenta?
+          <a onclick="mostrarVista('registro')">Crear cuenta nueva</a>
+        </p>
+      </div>
+
+      <!-- ══ VISTA: CREAR CUENTA ══ -->
+      <div id="vista-registro" style="display:none;">
+        <h2>Crear cuenta</h2>
+        <p style="margin-bottom:28px;">Completa los datos para registrarte en Bludee</p>
+
+        <div class="form-group">
+          <label for="reg-nombre">Nombre completo</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="reg-nombre" placeholder="Tu nombre completo">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email">Correo electrónico</label>
+          <div class="input-wrap">
+            <span class="input-icon">📧</span>
+            <input type="email" id="reg-email" placeholder="tu@correo.com">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password">Contraseña</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres">
+            <button class="show-pass" onclick="togglePass('reg-password')" type="button">👁️</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password2">Confirmar contraseña</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="reg-password2" placeholder="Repite la contraseña">
+          </div>
+        </div>
+
+        <button class="btn-login" id="btn-registro" onclick="crearCuenta()">
+          Crear cuenta
+        </button>
+
+        <p class="switch-link">
+          ¿Ya tienes cuenta?
+          <a onclick="mostrarVista('login')">Iniciar sesión</a>
+        </p>
+      </div>
+
+      <div class="footer-note">
+        Banco de Sangre Humacao · Bludee v1.0
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Cambiar entre login y registro ──
+    function mostrarVista(vista) {
+      ocultarMensajes();
+      document.getElementById('vista-login').style.display    = vista === 'login'    ? 'block' : 'none';
+      document.getElementById('vista-registro').style.display = vista === 'registro' ? 'block' : 'none';
+    }
+
+    // ── Mostrar / ocultar contraseña ──
+    function togglePass(id) {
+      var input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    // ── Mensajes ──
+    function mostrarError(texto) {
+      document.getElementById('msg-error-text').textContent = texto;
+      document.getElementById('msg-error').classList.add('show');
+      document.getElementById('msg-success').classList.remove('show');
+    }
+    function mostrarExito(texto) {
+      document.getElementById('msg-success-text').textContent = texto;
+      document.getElementById('msg-success').classList.add('show');
+      document.getElementById('msg-error').classList.remove('show');
+    }
+    function ocultarMensajes() {
+      document.getElementById('msg-error').classList.remove('show');
+      document.getElementById('msg-success').classList.remove('show');
+    }
+
+    // ── Traducir errores de Firebase ──
+    function traducirError(codigo) {
+      var errores = {
+        'auth/user-not-found':         'No existe una cuenta con ese correo.',
+        'auth/wrong-password':         'Contraseña incorrecta. Inténtalo de nuevo.',
+        'auth/invalid-email':          'El formato del correo no es válido.',
+        'auth/too-many-requests':      'Demasiados intentos. Espera unos minutos.',
+        'auth/user-disabled':          'Esta cuenta está desactivada.',
+        'auth/invalid-credential':     'Correo o contraseña incorrectos.',
+        'auth/email-already-in-use':   'Ya existe una cuenta con ese correo.',
+        'auth/weak-password':          'La contraseña debe tener al menos 6 caracteres.',
+        'auth/network-request-failed': 'Sin conexión a internet. Verifica tu red.'
+      };
+      return errores[codigo] || 'Ocurrió un error. Intenta de nuevo.';
+    }
+
+    // ── INICIAR SESIÓN ──
+    function iniciarSesion() {
+      ocultarMensajes();
+      var email    = document.getElementById('email').value.trim();
+      var password = document.getElementById('password').value;
+      var btn      = document.getElementById('btn-login');
+
+      if (!email || !password) {
+        mostrarError('Por favor completa el correo y la contraseña.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Verificando...';
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(function() {
+          btn.innerHTML = '✅ Acceso concedido';
+          setTimeout(function() { window.location.href = 'index.html'; }, 800);
+        })
+        .catch(function(error) {
+          btn.disabled = false;
+          btn.innerHTML = 'Iniciar sesión';
+          mostrarError(traducirError(error.code));
+        });
+    }
+
+    // ── CREAR CUENTA NUEVA ──
+    function crearCuenta() {
+      ocultarMensajes();
+      var nombre    = document.getElementById('reg-nombre').value.trim();
+      var email     = document.getElementById('reg-email').value.trim();
+      var password  = document.getElementById('reg-password').value;
+      var password2 = document.getElementById('reg-password2').value;
+      var btn       = document.getElementById('btn-registro');
+
+      if (!nombre || !email || !password || !password2) {
+        mostrarError('Por favor completa todos los campos.');
+        return;
+      }
+      if (password !== password2) {
+        mostrarError('Las contraseñas no coinciden.');
+        return;
+      }
+      if (password.length < 6) {
+        mostrarError('La contraseña debe tener al menos 6 caracteres.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Creando cuenta...';
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(function(result) {
+          // Guardar el nombre del usuario en Firebase
+          return result.user.updateProfile({ displayName: nombre });
+        })
+        .then(function() {
+          btn.innerHTML = '✅ Cuenta creada';
+          mostrarExito('¡Cuenta creada exitosamente! Bienvenida, ' + nombre + '.');
+          setTimeout(function() { window.location.href = 'index.html'; }, 1200);
+        })
+        .catch(function(error) {
+          btn.disabled = false;
+          btn.innerHTML = 'Crear cuenta';
+          mostrarError(traducirError(error.code));
+        });
+    }
+
+    // ── RECUPERAR CONTRASEÑA ──
+    function recuperarContrasena(e) {
+      e.preventDefault();
+      ocultarMensajes();
+      var email = document.getElementById('email').value.trim();
+      if (!email) {
+        mostrarError('Escribe tu correo primero para recuperar la contraseña.');
+        return;
+      }
+      auth.sendPasswordResetEmail(email)
+        .then(function() {
+          mostrarExito('Te enviamos un correo a ' + email + ' para restablecer tu contraseña.');
+        })
+        .catch(function(error) {
+          mostrarError(traducirError(error.code));
+        });
+    }
+
+    // ── Enter para login ──
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        var vistaLogin = document.getElementById('vista-login');
+        if (vistaLogin.style.display !== 'none') iniciarSesion();
+        else crearCuenta();
+      }
+    });
+
+    // ── Si ya está logueado, redirigir ──
+    auth.onAuthStateChanged(function(user) {
+      if (user) window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
