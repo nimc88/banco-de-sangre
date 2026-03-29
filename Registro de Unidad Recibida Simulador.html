@@ -621,7 +621,7 @@
         <button type="button" class="btn btn-secondary" onclick="simularEnvio()">
           🔄 Limpiar
         </button>
-        <button type="button" class="btn btn-primary" onclick="simularEnvio(); guardarEnFirebase()">
+        <button type="button" class="btn btn-primary" onclick="simularEnvio()">
           💾 Guardar Registro
         </button>
       </div>
@@ -709,16 +709,17 @@
       }
     }
 
-    function simularEnvio() {
+    async function simularEnvio() {
+      // ✅ Primero guardar en Firebase con todos los datos del formulario
+      await guardarEnFirebase();
+
+      // Luego mostrar mensaje de éxito y limpiar
       const successMessage = document.getElementById('successMessage');
       successMessage.classList.add('show');
-      
+
       setTimeout(() => {
-        // Limpiar formulario
         document.querySelectorAll('input').forEach(el => {
-          if (el.id !== 'tecnologo') {
-            el.value = "";
-          }
+          if (el.id !== 'tecnologo') el.value = "";
         });
         document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
         document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
@@ -738,31 +739,49 @@
 
   <script>
     // 💾 Guardar en Firebase — colección: unidades_recibidas
+    function obtenerValor(id) {
+      var el = document.getElementById(id);
+      return el ? el.value.trim() : '';
+    }
+
     async function guardarEnFirebase() {
       try {
-        var user = auth.currentUser;
-        await db.collection("unidades_recibidas").add({
-              id_componente: (document.getElementById('id_componente') ? document.getElementById('id_componente').value : ''), 
-              tipo_componente: (document.getElementById('tipo_componente') ? document.getElementById('tipo_componente').value : ''), 
-              grupo_sangre: (document.getElementById('grupo_sangre') ? document.getElementById('grupo_sangre').value : ''), 
-              rh_componente: (document.getElementById('rh_componente') ? document.getElementById('rh_componente').value : ''), 
-              volumen: (document.getElementById('volumen') ? document.getElementById('volumen').value : ''), 
-              fecha_recibo: (document.getElementById('fecha_recibo') ? document.getElementById('fecha_recibo').value : ''), 
-              nombre_paciente: (document.getElementById('nombre_paciente') ? document.getElementById('nombre_paciente').value : ''), 
-              numero_record: (document.getElementById('numero_record') ? document.getElementById('numero_record').value : ''), 
-              grupo_sangre_paciente: (document.getElementById('grupo_sangre_paciente') ? document.getElementById('grupo_sangre_paciente').value : ''), 
-              rh_paciente: (document.getElementById('rh_paciente') ? document.getElementById('rh_paciente').value : ''), 
-              doctor: (document.getElementById('doctor') ? document.getElementById('doctor').value : ''), 
-              tecnologo: (document.getElementById('tecnologo') ? document.getElementById('tecnologo').value : ''), 
-              enfermero: (document.getElementById('enfermero') ? document.getElementById('enfermero').value : ''), 
-              fecha_notificacion: (document.getElementById('fecha_notificacion') ? document.getElementById('fecha_notificacion').value : ''), 
-              guardadoPor: user ? user.email : 'desconocido',
-              fechaGuardado: new Date().toISOString()
+        // Esperar confirmación de sesión activa
+        var user = await new Promise(function(resolve) {
+          var unsubscribe = auth.onAuthStateChanged(function(u) {
+            unsubscribe();
+            resolve(u);
+          });
         });
-        mostrarToast('✅ Guardado en Firebase correctamente');
+
+        if (!user) {
+          mostrarToast('⚠️ No hay sesión activa. Por favor inicia sesión.', true);
+          return;
+        }
+
+        await db.collection("unidades_recibidas").add({
+          id_componente:         obtenerValor('id_componente'),
+          tipo_componente:       obtenerValor('tipo_componente'),
+          grupo_sangre:          obtenerValor('grupo_sangre'),
+          rh_componente:         obtenerValor('rh_componente'),
+          volumen:               obtenerValor('volumen'),
+          fecha_recibo:          obtenerValor('fecha_recibo'),
+          nombre_paciente:       obtenerValor('nombre_paciente'),
+          numero_record:         obtenerValor('numero_record'),
+          grupo_sangre_paciente: obtenerValor('grupo_sangre_paciente'),
+          rh_paciente:           obtenerValor('rh_paciente'),
+          doctor:                obtenerValor('doctor'),
+          tecnologo:             obtenerValor('tecnologo'),
+          enfermero:             obtenerValor('enfermero'),
+          fecha_notificacion:    obtenerValor('fecha_notificacion'),
+          guardadoPor:           user.email,
+          fechaGuardado:         new Date().toISOString()
+        });
+
+        mostrarToast('✅ Registro guardado en Firebase correctamente');
       } catch(e) {
-        console.error('Error Firebase:', e);
-        mostrarToast('⚠️ Error al guardar en la nube', true);
+        console.error('❌ Error Firebase:', e.code, e.message);
+        mostrarToast('⚠️ Error al guardar: ' + e.message, true);
       }
     }
 
@@ -777,5 +796,6 @@
 </body>
 </html>
   
+
 
   
