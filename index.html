@@ -1452,77 +1452,91 @@
             editingIndex = -1;
         }
 
+        function mostrarCampo(id) {
+            var el = document.getElementById(id);
+            if (el && el.parentElement) el.parentElement.style.display = 'flex';
+        }
+
         function updateFormMode() {
-            const tipo = document.getElementById('tipoOperacion').value;
-            const statusBadge = document.getElementById('entryStatus');
-            
+            var tipo = document.getElementById('tipoOperacion').value;
+            var statusBadge = document.getElementById('entryStatus');
+
             // Ocultar todos los campos primero
-            const allGroups = document.querySelectorAll('.form-group');
-            allGroups.forEach(group => group.style.display = 'none');
-            
+            document.querySelectorAll('.form-group').forEach(function(g) { g.style.display = 'none'; });
+
             // Siempre mostrar campos básicos
-            (document.getElementById('fecha') && document.getElementById('fecha').parentElement) && (document.getElementById('fecha').parentElement.style.display = 'flex')
-            (document.getElementById('tipoOperacion') && document.getElementById('tipoOperacion').parentElement) && (document.getElementById('tipoOperacion').parentElement.style.display = 'flex')
-            (document.getElementById('numeroUnidad') && document.getElementById('numeroUnidad').parentElement) && (document.getElementById('numeroUnidad').parentElement.style.display = 'flex')
-            (document.getElementById('estadoUnidad') && document.getElementById('estadoUnidad').parentElement) && (document.getElementById('estadoUnidad').parentElement.style.display = 'flex')
-            
+            mostrarCampo('fecha');
+            mostrarCampo('tipoOperacion');
+            mostrarCampo('numeroUnidad');
+            mostrarCampo('estadoUnidad');
+
             if (tipo === 'recibo') {
                 statusBadge.className = 'status-badge status-recibida';
                 statusBadge.textContent = 'RECIBIDA';
                 document.getElementById('estadoUnidad').value = 'recibida';
-                
-                // Mostrar campos específicos para RECIBO
-                (document.getElementById('paciente') && document.getElementById('paciente').parentElement) && (document.getElementById('paciente').parentElement.style.display = 'flex')
-                (document.getElementById('record') && document.getElementById('record').parentElement) && (document.getElementById('record').parentElement.style.display = 'flex')
-                (document.getElementById('localizacion') && document.getElementById('localizacion').parentElement) && (document.getElementById('localizacion').parentElement.style.display = 'flex')
-                (document.getElementById('medico') && document.getElementById('medico').parentElement) && (document.getElementById('medico').parentElement.style.display = 'flex')
-                (document.getElementById('aboRhPaciente') && document.getElementById('aboRhPaciente').parentElement) && (document.getElementById('aboRhPaciente').parentElement.style.display = 'flex')
-                (document.getElementById('aboRhDonante') && document.getElementById('aboRhDonante').parentElement) && (document.getElementById('aboRhDonante').parentElement.style.display = 'flex')
-                (document.getElementById('fechaExpiracion') && document.getElementById('fechaExpiracion').parentElement) && (document.getElementById('fechaExpiracion').parentElement.style.display = 'flex')
-                (document.getElementById('componente') && document.getElementById('componente').parentElement) && (document.getElementById('componente').parentElement.style.display = 'flex')
-                (document.getElementById('volumen') && document.getElementById('volumen').parentElement) && (document.getElementById('volumen').parentElement.style.display = 'flex')
-                (document.getElementById('suplidor') && document.getElementById('suplidor').parentElement) && (document.getElementById('suplidor').parentElement.style.display = 'flex')
-                (document.getElementById('timeReceived') && document.getElementById('timeReceived').parentElement) && (document.getElementById('timeReceived').parentElement.style.display = 'flex')
-                (document.getElementById('transportTemp') && document.getElementById('transportTemp').parentElement) && (document.getElementById('transportTemp').parentElement.style.display = 'flex')
-                (document.getElementById('inspeccion') && document.getElementById('inspeccion').parentElement) && (document.getElementById('inspeccion').parentElement.style.display = 'flex')
-                (document.getElementById('personaNotificada') && document.getElementById('personaNotificada').parentElement) && (document.getElementById('personaNotificada').parentElement.style.display = 'flex')
-                (document.getElementById('horaNotificacion') && document.getElementById('horaNotificacion').parentElement) && (document.getElementById('horaNotificacion').parentElement.style.display = 'flex')
-                (document.getElementById('mt') && document.getElementById('mt').parentElement) && (document.getElementById('mt').parentElement.style.display = 'flex')
-                
-                // Cambiar label de timeReceived a "Time Arrived"
-                document.querySelector('label[for="timeReceived"]').textContent = 'Time Arrived:';
-                
+
+                mostrarCampo('paciente');
+                mostrarCampo('record');
+                mostrarCampo('localizacion');
+                mostrarCampo('medico');
+                mostrarCampo('aboRhPaciente');
+                mostrarCampo('aboRhDonante');
+                mostrarCampo('componente');
+                mostrarCampo('volumen');
+                mostrarCampo('suplidor');
+                mostrarCampo('fechaExpiracion');
+                mostrarCampo('transportTemp');
+                mostrarCampo('timeReceived');
+                mostrarCampo('inspeccion');
+                mostrarCampo('personaNotificada');
+                mostrarCampo('horaNotificacion');
+                mostrarCampo('mt');
+                mostrarCampo('comentarios');
+
+                var lbl = document.querySelector('label[for="timeReceived"]');
+                if (lbl) lbl.textContent = 'Time Arrived:';
+
             } else if (tipo === 'despacho') {
                 statusBadge.className = 'status-badge status-proceso';
                 statusBadge.textContent = 'EN PROCESO';
                 document.getElementById('estadoUnidad').value = 'proceso';
-                
-                // Mostrar campos específicos para DESPACHO
-                (document.getElementById('releasedBy') && document.getElementById('releasedBy').parentElement) && (document.getElementById('releasedBy').parentElement.style.display = 'flex')
-                (document.getElementById('receivedBy') && document.getElementById('receivedBy').parentElement) && (document.getElementById('receivedBy').parentElement.style.display = 'flex')
-                (document.getElementById('inspeccion') && document.getElementById('inspeccion').parentElement) && (document.getElementById('inspeccion').parentElement.style.display = 'flex')
-                (document.getElementById('timeDispatched') && document.getElementById('timeDispatched').parentElement) && (document.getElementById('timeDispatched').parentElement.style.display = 'flex')
-                (document.getElementById('returned') && document.getElementById('returned').parentElement) && (document.getElementById('returned').parentElement.style.display = 'flex')
-                (document.getElementById('comentarios') && document.getElementById('comentarios').parentElement) && (document.getElementById('comentarios').parentElement.style.display = 'flex')
-                
-                // Cambiar label de timeDispatched a "Hora"
-                document.querySelector('label[for="timeDispatched"]').textContent = 'Hora:';
-                
+
+                mostrarCampo('paciente');
+                mostrarCampo('record');
+                mostrarCampo('localizacion');
+                mostrarCampo('medico');
+                mostrarCampo('aboRhPaciente');
+                mostrarCampo('aboRhDonante');
+                mostrarCampo('componente');
+                mostrarCampo('volumen');
+                mostrarCampo('releasedBy');
+                mostrarCampo('receivedBy');
+                mostrarCampo('inspeccion');
+                mostrarCampo('timeDispatched');
+                mostrarCampo('returned');
+                mostrarCampo('mt');
+                mostrarCampo('comentarios');
+
+                var lbl = document.querySelector('label[for="timeDispatched"]');
+                if (lbl) lbl.textContent = 'Hora Despachada:';
+
             } else if (tipo === 'emergencia') {
                 statusBadge.className = 'status-badge status-despachada';
                 statusBadge.textContent = 'EMERGENCIA';
                 document.getElementById('estadoUnidad').value = 'despachada';
-                
-                // Mostrar TODOS los campos para EMERGENCIA
-                allGroups.forEach(group => group.style.display = 'flex');
-                
-                // Restaurar labels originales
-                document.querySelector('label[for="timeReceived"]').textContent = 'Hora Recibida:';
-                document.querySelector('label[for="timeDispatched"]').textContent = 'Hora Despachada:';
+
+                // Mostrar todos los campos
+                document.querySelectorAll('.form-group').forEach(function(g) { g.style.display = 'flex'; });
+
+                var lbl1 = document.querySelector('label[for="timeReceived"]');
+                var lbl2 = document.querySelector('label[for="timeDispatched"]');
+                if (lbl1) lbl1.textContent = 'Hora Recibida:';
+                if (lbl2) lbl2.textContent = 'Hora Despachada:';
             }
-            
-            // Siempre mostrar los botones de acción
-            document.querySelector('.form-actions').style.display = 'flex';
+
+            // Siempre mostrar botones de acción
+            var fa = document.querySelector('.form-actions');
+            if (fa) fa.style.display = 'flex';
         }
 
         async function saveEntry() {
@@ -2006,9 +2020,6 @@
   </script>
 </body>
 </html>
-   
-
-
    
 
    
