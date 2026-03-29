@@ -1452,89 +1452,31 @@
             editingIndex = -1;
         }
 
-        function mostrarCampo(id) {
-            var el = document.getElementById(id);
-            if (el && el.parentElement) el.parentElement.style.display = 'flex';
-        }
-
         function updateFormMode() {
             var tipo = document.getElementById('tipoOperacion').value;
             var statusBadge = document.getElementById('entryStatus');
 
-            // Ocultar todos los campos primero
-            document.querySelectorAll('.form-group').forEach(function(g) { g.style.display = 'none'; });
+            // Mostrar TODOS los campos siempre — más confiable
+            document.querySelectorAll('#entryForm .form-group').forEach(function(g) {
+                g.style.display = 'flex';
+            });
 
-            // Siempre mostrar campos básicos
-            mostrarCampo('fecha');
-            mostrarCampo('tipoOperacion');
-            mostrarCampo('numeroUnidad');
-            mostrarCampo('estadoUnidad');
-
+            // Solo actualizar el badge de estado según el tipo
             if (tipo === 'recibo') {
                 statusBadge.className = 'status-badge status-recibida';
                 statusBadge.textContent = 'RECIBIDA';
                 document.getElementById('estadoUnidad').value = 'recibida';
-
-                mostrarCampo('paciente');
-                mostrarCampo('record');
-                mostrarCampo('localizacion');
-                mostrarCampo('medico');
-                mostrarCampo('aboRhPaciente');
-                mostrarCampo('aboRhDonante');
-                mostrarCampo('componente');
-                mostrarCampo('volumen');
-                mostrarCampo('suplidor');
-                mostrarCampo('fechaExpiracion');
-                mostrarCampo('transportTemp');
-                mostrarCampo('timeReceived');
-                mostrarCampo('inspeccion');
-                mostrarCampo('personaNotificada');
-                mostrarCampo('horaNotificacion');
-                mostrarCampo('mt');
-                mostrarCampo('comentarios');
-
-                var lbl = document.querySelector('label[for="timeReceived"]');
-                if (lbl) lbl.textContent = 'Time Arrived:';
-
             } else if (tipo === 'despacho') {
                 statusBadge.className = 'status-badge status-proceso';
                 statusBadge.textContent = 'EN PROCESO';
                 document.getElementById('estadoUnidad').value = 'proceso';
-
-                mostrarCampo('paciente');
-                mostrarCampo('record');
-                mostrarCampo('localizacion');
-                mostrarCampo('medico');
-                mostrarCampo('aboRhPaciente');
-                mostrarCampo('aboRhDonante');
-                mostrarCampo('componente');
-                mostrarCampo('volumen');
-                mostrarCampo('releasedBy');
-                mostrarCampo('receivedBy');
-                mostrarCampo('inspeccion');
-                mostrarCampo('timeDispatched');
-                mostrarCampo('returned');
-                mostrarCampo('mt');
-                mostrarCampo('comentarios');
-
-                var lbl = document.querySelector('label[for="timeDispatched"]');
-                if (lbl) lbl.textContent = 'Hora Despachada:';
-
             } else if (tipo === 'emergencia') {
                 statusBadge.className = 'status-badge status-despachada';
                 statusBadge.textContent = 'EMERGENCIA';
                 document.getElementById('estadoUnidad').value = 'despachada';
-
-                // Mostrar todos los campos
-                document.querySelectorAll('.form-group').forEach(function(g) { g.style.display = 'flex'; });
-
-                var lbl1 = document.querySelector('label[for="timeReceived"]');
-                var lbl2 = document.querySelector('label[for="timeDispatched"]');
-                if (lbl1) lbl1.textContent = 'Hora Recibida:';
-                if (lbl2) lbl2.textContent = 'Hora Despachada:';
             }
 
-            // Siempre mostrar botones de acción
+            // Mostrar botones de acción
             var fa = document.querySelector('.form-actions');
             if (fa) fa.style.display = 'flex';
         }
@@ -2020,8 +1962,6 @@
   </script>
 </body>
 </html>
-   
-
    
 
 
