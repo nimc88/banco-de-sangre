@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLUDEE - Sistema de Banco de Sangre</title>
 
-    <!-- Firebase Auth - Guardia de Seguridad -->
+    <!-- Firebase Auth + Firestore -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script>
       var firebaseConfig = {
         apiKey: "AIzaSyCl3zl4lMGoh8hGhjVJtB3Te7ioDX5X65U",
@@ -19,6 +20,7 @@
       };
       if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       var auth = firebase.auth();
+      var db   = firebase.firestore();
 
       // 🔐 Si no hay sesión activa → manda al login
       auth.onAuthStateChanged(function(user) {
@@ -1519,7 +1521,7 @@
             document.querySelector('.form-actions').style.display = 'flex';
         }
 
-        function saveEntry() {
+        async function saveEntry() {
             // Validar campos obligatorios
             if (!document.getElementById('fecha').value || !document.getElementById('numeroUnidad').value) {
                 showNotification('⚠️ Por favor complete los campos obligatorios', 'warning');
@@ -1527,22 +1529,45 @@
             }
 
             const entryData = collectFormData();
-            
-            if (editingIndex >= 0) {
-                // Actualizar entrada existente
-                currentEntries[editingIndex] = entryData;
-                showNotification('✅ Entrada actualizada exitosamente', 'success');
-            } else {
-                // Agregar nueva entrada
-                currentEntries.unshift(entryData);
-                showNotification('✅ Nueva entrada guardada exitosamente', 'success');
+
+            // Guardar en Firebase
+            try {
+                var user = await new Promise(function(resolve) {
+                    var unsubscribe = auth.onAuthStateChanged(function(u) {
+                        unsubscribe(); resolve(u);
+                    });
+                });
+                if (user) {
+                    await db.collection("entradas_unidades").add({
+                        ...entryData,
+                        guardadoPor: user.email,
+                        fechaGuardado: new Date().toISOString()
+                    });
+                    showNotification('✅ Guardado en Firebase correctamente', 'success');
+                } else {
+                    showNotification('⚠️ Sin sesión activa — guardado solo localmente', 'warning');
+                }
+            } catch(e) {
+                console.error('❌ Firebase error:', e.message);
+                showNotification('⚠️ Error al guardar en la nube: ' + e.message, 'warning');
             }
-            
+
+            if (editingIndex >= 0) {
+                currentEntries[editingIndex] = entryData;
+            } else {
+                currentEntries.unshift(entryData);
+            }
+
             updateTable();
             updateSystemStats();
             clearForm();
             document.getElementById('entryForm').style.display = 'none';
             document.getElementById('saveBtn').style.display = 'none';
+        }
+
+        // Alias para el botón del header
+        function saveCurrentEntry() {
+            saveEntry();
         }
 
         function saveAndContinue() {
