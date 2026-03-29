@@ -509,11 +509,7 @@
             <div class="form-group">
               <label for="unidad_devolver">Unidad a Devolver <span class="required">*</span></label>
               <select id="unidad_devolver">
-                <option value="">Seleccionar unidad...</option>
-                <option value="A123">ID: A123 - PRBC - O+</option>
-                <option value="B456">ID: B456 - Plaquetas - AB-</option>
-                <option value="C789">ID: C789 - Plasma - A+</option>
-                <option value="D012">ID: D012 - PRBC - B+</option>
+                <option value="">⏳ Cargando unidades desde Firebase...</option>
               </select>
             </div>
 
@@ -710,6 +706,88 @@
       }
     }
 
+
+    // ✅ Carga las unidades recibidas desde Firebase para el menú desplegable
+    async function cargarUnidadesEnSelector() {
+      var select = document.getElementById('unidad_devolver');
+      select.innerHTML = '<option value="">⏳ Cargando unidades...</option>';
+
+      try {
+        var user = await new Promise(function(resolve) {
+          var u = auth.onAuthStateChanged(function(usr) { u(); resolve(usr); });
+        });
+        if (!user) {
+          select.innerHTML = '<option value="">⚠️ Inicia sesión para ver unidades</option>';
+          return;
+        }
+
+        var unidades = [];
+
+        // Cargar desde unidades_recibidas
+        var snap1 = await db.collection("unidades_recibidas")
+          .orderBy("fechaGuardado", "desc")
+          .limit(100)
+          .get();
+        snap1.forEach(function(doc) {
+          var d = doc.data();
+          if (d.id_componente) {
+            unidades.push({
+              id: d.id_componente,
+              tipo: d.tipo_componente || '-',
+              sangre: (d.grupo_sangre || '') + (d.rh_componente || ''),
+              paciente: d.nombre_paciente || '',
+              fuente: 'recibida'
+            });
+          }
+        });
+
+        // Cargar también desde entradas_unidades (módulo integral)
+        var snap2 = await db.collection("entradas_unidades")
+          .orderBy("fechaGuardado", "desc")
+          .limit(100)
+          .get();
+        snap2.forEach(function(doc) {
+          var d = doc.data();
+          if (d.numeroUnidad) {
+            // Evitar duplicados
+            var existe = unidades.some(function(u) { return u.id === d.numeroUnidad; });
+            if (!existe) {
+              unidades.push({
+                id: d.numeroUnidad,
+                tipo: d.componente || d.tipoOperacion || '-',
+                sangre: d.aboRhDonante || '',
+                paciente: d.paciente || '',
+                fuente: 'integral'
+              });
+            }
+          }
+        });
+
+        // Llenar el select
+        select.innerHTML = '<option value="">Seleccionar unidad...</option>';
+
+        if (unidades.length === 0) {
+          select.innerHTML = '<option value="">No hay unidades guardadas aún</option>';
+          return;
+        }
+
+        unidades.forEach(function(u) {
+          var option = document.createElement('option');
+          option.value = u.id;
+          var label = 'ID: ' + u.id + ' · ' + u.tipo;
+          if (u.sangre) label += ' · ' + u.sangre;
+          if (u.paciente) label += ' · ' + u.paciente;
+          option.textContent = label;
+          select.appendChild(option);
+        });
+
+        console.log("✅ " + unidades.length + " unidades cargadas en selector");
+      } catch(e) {
+        console.error("❌ Error cargando unidades:", e.message);
+        select.innerHTML = '<option value="">⚠️ Error al cargar unidades</option>';
+      }
+    }
+
     function guardarRegistro() {
       const unidad = document.getElementById('unidad_devolver').value;
       const fecha = document.getElementById('fecha_devolucion').value;
@@ -797,6 +875,7 @@
 
     // Auto-completar fecha actual
     window.addEventListener('load', function() {
+      cargarUnidadesEnSelector();
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('fecha_devolucion').value = today;
     });
