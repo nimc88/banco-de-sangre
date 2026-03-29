@@ -4,6 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bludee - Despacho de Unidad</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyCl3zl4lMGoh8hGhjVJtB3Te7ioDX5X65U",
+      authDomain: "bludee-pr.firebaseapp.com",
+      projectId: "bludee-pr",
+      storageBucket: "bludee-pr.firebasestorage.app",
+      messagingSenderId: "476330144377",
+      appId: "1:476330144377:web:88d31603514ca265409aa8"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db   = firebase.firestore();
+
+    // 🔐 Guardia — si no hay sesión activa manda al login
+    auth.onAuthStateChanged(function(user) {
+      if (!user) window.location.href = 'login.html';
+    });
+  </script>
     <!-- Cambiar la forma de cargar jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
     <script>
@@ -422,6 +444,16 @@
     </style>
 </head>
 <body>
+  <!-- Botón cerrar sesión -->
+  <div style="position:fixed;top:16px;right:20px;z-index:9999;">
+    <button onclick="auth.signOut().then(function(){window.location.href='login.html'})" style="
+      background:rgba(220,38,38,0.92);color:white;border:none;border-radius:50px;
+      padding:8px 18px;font-size:0.85rem;font-weight:600;cursor:pointer;
+      box-shadow:0 2px 12px rgba(0,0,0,0.2);display:flex;align-items:center;gap:6px;">
+      🚪 Cerrar sesión
+    </button>
+  </div>
+
     <a href="despacho_unidad_pdf_popup.html" class="back-button">
         ← Volver al Menú
     </a>
@@ -557,7 +589,7 @@
                 <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
                     🔄 Limpiar Todo
                 </button>
-                <button type="button" class="btn btn-primary" onclick="generarPDFSimple()">
+                <button type="button" class="btn btn-primary" onclick="generarPDFSimple(); guardarEnFirebase()">
                     📄 Ver PDF
                 </button>
                 <button type="button" class="btn btn-secondary" onclick="generarTexto()" style="background: linear-gradient(135deg, #059669, #10b981);">
@@ -639,6 +671,7 @@
 
         // Configurar fecha y hora actuales al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
+      cargarDesdeFirebase();
             const now = new Date();
             document.getElementById('fecha').value = now.toISOString().split('T')[0];
             document.getElementById('hora').value = now.toTimeString().slice(0,5);
@@ -982,6 +1015,54 @@ Generado el: ${new Date().toLocaleString()}
             }
         }
     </script>
+
+  <script>
+    // 💾 Guardar en Firebase — colección: despachos
+    async function guardarEnFirebase() {
+      try {
+        var user = auth.currentUser;
+        await db.collection("despachos").add({
+              unidad: (document.getElementById('unidad') ? document.getElementById('unidad').value : ''), 
+              paciente: (document.getElementById('paciente') ? document.getElementById('paciente').value : ''), 
+              inspeccion: (document.getElementById('inspeccion') ? document.getElementById('inspeccion').value : ''), 
+              fecha: (document.getElementById('fecha') ? document.getElementById('fecha').value : ''), 
+              hora: (document.getElementById('hora') ? document.getElementById('hora').value : ''), 
+              enfermera: (document.getElementById('enfermera') ? document.getElementById('enfermera').value : ''), 
+              mt: (document.getElementById('mt') ? document.getElementById('mt').value : ''), 
+              notas: (document.getElementById('notas') ? document.getElementById('notas').value : ''), 
+              guardadoPor: user ? user.email : 'desconocido',
+              fechaGuardado: new Date().toISOString()
+        });
+        mostrarToast('✅ Guardado en Firebase correctamente');
+      } catch(e) {
+        console.error('Error Firebase:', e);
+        mostrarToast('⚠️ Error al guardar en la nube', true);
+      }
+    }
+
+
+    async function cargarDesdeFirebase() {
+      try {
+        var user = await new Promise(function(resolve) {
+          var u = auth.onAuthStateChanged(function(usr) { u(); resolve(usr); });
+        });
+        if (!user) return;
+        var snapshot = await db.collection("despachos")
+          .orderBy("fechaGuardado", "desc").limit(10).get();
+        console.log("✅ " + snapshot.size + " despachos cargados desde Firebase");
+      } catch(e) {
+        console.error("❌ Error cargando despachos:", e.message);
+      }
+    }
+
+    function mostrarToast(msg, esError) {
+      var t = document.createElement('div');
+      t.textContent = msg;
+      t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;padding:12px 20px;border-radius:10px;font-weight:600;font-size:0.9rem;color:white;box-shadow:0 4px 16px rgba(0,0,0,0.25);animation:fadeIn .3s ease;background:' + (esError ? '#dc2626' : '#16a34a');
+      document.body.appendChild(t);
+      setTimeout(function(){ t.remove(); }, 3500);
+    }
+  </script>
 </body>
 </html>
 
