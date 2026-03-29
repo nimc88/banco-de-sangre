@@ -21,7 +21,7 @@
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
 
-    // Guarda el donante en Firestore (llamada desde GestorDonantes)
+    // GUARDAR nuevo donante
     async function guardarDananteEnFirebase(donante) {
         try {
             await db.collection("donantes").add({
@@ -33,11 +33,67 @@
                 fechaNacimiento: donante.fechaNacimiento,
                 direccion: donante.direccion || "",
                 fechaRegistro: new Date().toISOString(),
-                estatus: "Activo"
+                estatus: "Activo",
+                localId: String(donante.id)   // guardamos el id local para poder editarlo después
             });
-            console.log("✅ Donante guardado en Firebase correctamente");
+            console.log("✅ Donante guardado en Firebase");
         } catch (error) {
             console.error("❌ Error al guardar en Firebase:", error);
+        }
+    }
+
+    // ACTUALIZAR donante existente
+    async function actualizarDananteEnFirebase(donante) {
+        try {
+            // Buscamos el documento en Firebase usando el localId que guardamos al crear
+            const snapshot = await db.collection("donantes")
+                .where("localId", "==", String(donante.id))
+                .get();
+
+            if (snapshot.empty) {
+                console.warn("⚠️ Donante no encontrado en Firebase, guardando como nuevo...");
+                guardarDananteEnFirebase(donante);
+                return;
+            }
+
+            // Actualizamos el primer resultado encontrado
+            const docRef = snapshot.docs[0].ref;
+            await docRef.update({
+                nombre: donante.nombre,
+                apellido: donante.apellido,
+                email: donante.email || "",
+                telefono: donante.telefono,
+                tipoSangre: donante.tipoSangre,
+                fechaNacimiento: donante.fechaNacimiento,
+                direccion: donante.direccion || "",
+                ultimaActualizacion: new Date().toISOString()
+            });
+            console.log("✅ Donante actualizado en Firebase");
+        } catch (error) {
+            console.error("❌ Error al actualizar en Firebase:", error);
+        }
+    }
+
+    // ELIMINAR donante
+    async function eliminarDananteEnFirebase(donante) {
+        try {
+            const snapshot = await db.collection("donantes")
+                .where("localId", "==", String(donante.id))
+                .get();
+
+            if (snapshot.empty) {
+                console.warn("⚠️ Donante no encontrado en Firebase para eliminar");
+                return;
+            }
+
+            // Marcamos como inactivo en Firebase (no borramos el registro, igual que localmente)
+            await snapshot.docs[0].ref.update({
+                estatus: "Inactivo",
+                fechaEliminacion: new Date().toISOString()
+            });
+            console.log("✅ Donante marcado como inactivo en Firebase");
+        } catch (error) {
+            console.error("❌ Error al eliminar en Firebase:", error);
         }
     }
   </script>
@@ -864,12 +920,18 @@
               </div>
             </div>
 
-            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+            <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 15px; flex-wrap: wrap;">
               <button class="btn btn-secondary" onclick="gestor.verDetallesDonante('${donante.id}')">
                 👁️ Ver
               </button>
               <button class="btn btn-secondary" onclick="gestor.contactarDonante('${donante.id}')">
                 📞 Contactar
+              </button>
+              <button class="btn" style="background:#fef9c3;color:#854d0e;border:1px solid #fde047;" onclick="gestor.abrirModalEditar('${donante.id}')">
+                ✏️ Editar
+              </button>
+              <button class="btn" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;" onclick="gestor.eliminarDonante('${donante.id}')">
+                🗑️ Eliminar
               </button>
               ${this.esElegible(donante) ? 
                 `<button class="btn btn-primary" onclick="gestor.programarCitaDonante('${donante.id}')">📅 Cita</button>` :
@@ -1203,6 +1265,84 @@
         alert(`Contactar a ${donante.nombre} ${donante.apellido}\n\nTeléfono: ${donante.telefono}\nEmail: ${donante.email || 'No disponible'}\n\n(Esta función abrirá tu aplicación de teléfono o email)`);
       }
 
+      abrirModalEditar(donanteId) {
+        const donante = this.donantes.find(d => d.id == donanteId);
+        if (!donante) return;
+
+        // Guardar el id que estamos editando
+        document.getElementById('editar-donante-id').value = donanteId;
+
+        // Pre-llenar todos los campos con los datos actuales
+        document.getElementById('editar-nombre').value = donante.nombre || '';
+        document.getElementById('editar-apellido').value = donante.apellido || '';
+        document.getElementById('editar-email').value = donante.email || '';
+        document.getElementById('editar-telefono').value = donante.telefono || '';
+        document.getElementById('editar-tipoSangre').value = donante.tipoSangre || '';
+        document.getElementById('editar-fechaNacimiento').value = donante.fechaNacimiento || '';
+        document.getElementById('editar-direccion').value = donante.direccion || '';
+
+        document.getElementById('modal-editar-donante').classList.add('show');
+      }
+
+      guardarEdicion() {
+        const donanteId = document.getElementById('editar-donante-id').value;
+        const donante = this.donantes.find(d => d.id == donanteId);
+        if (!donante) return;
+
+        const nombre = document.getElementById('editar-nombre').value.trim();
+        const apellido = document.getElementById('editar-apellido').value.trim();
+        const email = document.getElementById('editar-email').value.trim();
+        const telefono = document.getElementById('editar-telefono').value.trim();
+        const tipoSangre = document.getElementById('editar-tipoSangre').value;
+        const fechaNacimiento = document.getElementById('editar-fechaNacimiento').value;
+        const direccion = document.getElementById('editar-direccion').value.trim();
+
+        if (!nombre || !apellido || !telefono || !tipoSangre || !fechaNacimiento) {
+          Utilidades.mostrarNotificacion('Por favor completa todos los campos obligatorios', 'error');
+          return;
+        }
+
+        // Actualizar en memoria local
+        donante.nombre = nombre;
+        donante.apellido = apellido;
+        donante.email = email;
+        donante.telefono = telefono;
+        donante.tipoSangre = tipoSangre;
+        donante.fechaNacimiento = fechaNacimiento;
+        donante.direccion = direccion;
+
+        this.guardarDatos();
+
+        // Actualizar en Firebase
+        actualizarDananteEnFirebase(donante);
+
+        document.getElementById('modal-editar-donante').classList.remove('show');
+        this.cargarListaDonantes();
+        this.actualizarDashboard();
+        Utilidades.mostrarNotificacion(`Donante ${nombre} ${apellido} actualizado correctamente`, 'success');
+      }
+
+      eliminarDonante(donanteId) {
+        const donante = this.donantes.find(d => d.id == donanteId);
+        if (!donante) return;
+
+        const confirmar = confirm(`⚠️ ¿Estás segura que deseas eliminar a ${donante.nombre} ${donante.apellido}?
+
+Esta acción no se puede deshacer.`);
+        if (!confirmar) return;
+
+        // Marcar como inactivo (borrado suave) en lugar de borrar completamente
+        donante.activo = false;
+        this.guardarDatos();
+
+        // Eliminar de Firebase
+        eliminarDananteEnFirebase(donante);
+
+        this.cargarListaDonantes();
+        this.actualizarDashboard();
+        Utilidades.mostrarNotificacion(`Donante ${donante.nombre} ${donante.apellido} eliminado`, 'success');
+      }
+
       cerrarModal(modalId) {
         document.getElementById(modalId).classList.remove('show');
         if (modalId === 'modal-nuevo-donante') {
@@ -1216,6 +1356,8 @@
           if (fechaInput) {
             fechaInput.value = new Date().toISOString().split('T')[0];
           }
+        } else if (modalId === 'modal-editar-donante') {
+          document.getElementById('form-editar-donante').reset();
         }
       }
 
@@ -1327,6 +1469,68 @@
     });
   </script>
 
+  <!-- Modal para Editar Donante -->
+  <div class="modal" id="modal-editar-donante">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 20px;">✏️ Editar Donante</h3>
+      
+      <form id="form-editar-donante">
+        <!-- Campo oculto para guardar el ID -->
+        <input type="hidden" id="editar-donante-id">
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label>👤 Nombre <span class="required">*</span></label>
+            <input type="text" id="editar-nombre" required>
+          </div>
+          <div class="form-group">
+            <label>👤 Apellido <span class="required">*</span></label>
+            <input type="text" id="editar-apellido" required>
+          </div>
+          <div class="form-group">
+            <label>📧 Email</label>
+            <input type="email" id="editar-email">
+          </div>
+          <div class="form-group">
+            <label>📞 Teléfono <span class="required">*</span></label>
+            <input type="tel" id="editar-telefono" required>
+          </div>
+          <div class="form-group">
+            <label>🩸 Tipo de Sangre <span class="required">*</span></label>
+            <select id="editar-tipoSangre" required>
+              <option value="">Seleccionar...</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>📅 Fecha de Nacimiento <span class="required">*</span></label>
+            <input type="date" id="editar-fechaNacimiento" required>
+          </div>
+          <div class="form-group full-width">
+            <label>📍 Dirección</label>
+            <textarea id="editar-direccion" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 25px;">
+          <button type="button" class="btn btn-secondary" onclick="cerrarModal('modal-editar-donante')">
+            ❌ Cancelar
+          </button>
+          <button type="button" class="btn btn-primary" onclick="gestor.guardarEdicion()">
+            💾 Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
 </body>
 </html>
-
