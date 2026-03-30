@@ -1133,84 +1133,83 @@
 
   <script>
     let currentView = 'grid';
-    let allUnits = []; // Base de datos simulada
+    let allUnits = [];
 
-    // Datos simulados del inventario
-    const inventoryData = [
-      {
-        id: 'A001', type: 'PRBC', bloodType: 'O+', volume: '250 mL',
-        expiry: '2025-08-28', status: 'fresh', location: 'R-01-A3',
-        temperature: '4°C', donor: 'DON-001', received: '2025-07-14'
-      },
-      {
-        id: 'B456', type: 'Plaquetas', bloodType: 'A-', volume: '300 mL',
-        expiry: '2025-07-18', status: 'expiring', location: 'RT-01-B2',
-        temperature: '22°C', donor: 'DON-002', received: '2025-07-15'
-      },
-      {
-        id: 'C789', type: 'Plasma', bloodType: 'AB+', volume: '200 mL',
-        expiry: '2025-07-16', status: 'critical', location: 'F-01-C1',
-        temperature: '-22°C', donor: 'DON-003', received: '2025-06-15'
-      },
-      {
-        id: 'D012', type: 'PRBC', bloodType: 'B+', volume: '250 mL',
-        expiry: '2025-08-25', status: 'reserved', location: 'R-02-A1',
-        temperature: '4°C', donor: 'DON-004', received: '2025-07-16',
-        reservedFor: 'Paciente M.García'
-      },
-      {
-        id: 'E345', type: 'Crioprecipitado', bloodType: 'O-', volume: '15 mL',
-        expiry: '2026-01-15', status: 'fresh', location: 'F-01-D2',
-        temperature: '-25°C', donor: 'DON-005', received: '2025-07-10'
-      }
-    ];
+    // ✅ Calcula el estado de la unidad según fecha de expiración y estado guardado
+    function calcularEstado(fechaExpiracion, estadoGuardado) {
+      if (estadoGuardado === 'devuelta') return 'devuelta';
+      if (estadoGuardado === 'despachada') return 'despachada';
+      if (!fechaExpiracion) return 'fresh';
+      var hoy = new Date();
+      var expiry = new Date(fechaExpiracion);
+      var diasRestantes = Math.floor((expiry - hoy) / (1000 * 60 * 60 * 24));
+      if (diasRestantes < 0)  return 'critical';
+      if (diasRestantes <= 3) return 'expiring';
+      return 'fresh';
+    }
 
-    // Inicializar
-    
+    // ✅ Carga el inventario real desde Firebase (entradas_unidades)
     async function cargarDesdeFirebase() {
       try {
         var user = await new Promise(function(resolve) {
           var u = auth.onAuthStateChanged(function(usr) { u(); resolve(usr); });
         });
         if (!user) return;
-        var snap = await db.collection("inventario").orderBy("fechaGuardado","desc").limit(200).get();
-        if (snap.empty) return;
+
+        // Leer todas las unidades recibidas
+        var snap = await db.collection("entradas_unidades")
+          .orderBy("fechaGuardado", "desc")
+          .limit(500)
+          .get();
+
+        allUnits = [];
+
         snap.forEach(function(doc) {
           var d = doc.data();
-          // Solo agregar si no existe ya en allUnits
-          var exists = allUnits.some(function(u) { return u.id === d.id; });
-          if (!exists && d.component_type) {
-            allUnits.push({
-              id: d.id || doc.id,
-              type: d.component_type || '-',
-              bloodType: d.blood_type || '-',
-              volume: d.total_units ? d.total_units + ' ml' : '-',
-              expiry: d.fechaGuardado ? d.fechaGuardado.slice(0,10) : '-',
-              status: 'disponible',
-              location: 'Banco de Sangre',
-              temperature: '4°C'
-            });
-          }
+          // Solo incluir unidades recibidas (no despachos puros)
+          if (!d.numeroUnidad) return;
+
+          var estado = calcularEstado(d.fechaExpiracion, d.estadoUnidad);
+
+          allUnits.push({
+            id:          d.numeroUnidad || doc.id,
+            firebaseId:  doc.id,
+            type:        d.componente   || d.tipo_componente || '-',
+            bloodType:   d.aboRhDonante || d.grupo_sangre    || '-',
+            volume:      d.volumen      ? d.volumen + ' mL'  : '-',
+            expiry:      d.fechaExpiracion || '-',
+            status:      estado,
+            location:    d.localizacion || d.area_destino    || 'Banco de Sangre',
+            temperature: d.transportTemp ? d.transportTemp + '°C' : '4°C',
+            paciente:    d.paciente      || d.nombre_paciente || '-',
+            medico:      d.medico        || d.doctor          || '-',
+            tecnologo:   d.mt            || d.tecnologo        || '-',
+            received:    d.fecha         || d.fecha_recibo    || '-',
+            guardadoPor: d.guardadoPor   || '-'
+          });
         });
+
+        updateDashboard();
         loadTableData();
-        console.log("✅ inventario cargado");
-      } catch(e) { console.error("❌ inventario:", e.message); }
+        console.log("✅ " + allUnits.length + " unidades cargadas desde Firebase");
+      } catch(e) {
+        console.error("❌ Error cargando inventario:", e.message);
+      }
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      allUnits = [...inventoryData];
-      updateDashboard();
-      loadTableData();
-      applyFilters();
+      cargarDesdeFirebase();
     });
 
     function updateDashboard() {
-      const total = allUnits.length;
-      const prbc = allUnits.filter(u => u.type === 'PRBC').length;
-      const platelets = allUnits.filter(u => u.type === 'Plaquetas').length;
-      const plasma = allUnits.filter(u => u.type === 'Plasma').length;
-      const cryo = allUnits.filter(u => u.type === 'Crioprecipitado').length;
-      const alerts = allUnits.filter(u => u.status === 'critical' || u.status === 'expiring').length;
+      // Solo contar unidades activas (no devueltas ni despachadas)
+      const activas = allUnits.filter(u => u.status !== 'devuelta' && u.status !== 'despachada');
+      const total = activas.length;
+      const prbc = activas.filter(u => u.type === 'PRBC' || u.type === 'PRBC Completa' || u.type === 'PRBC Fraccionada').length;
+      const platelets = activas.filter(u => u.type === 'Plaquetas').length;
+      const plasma = activas.filter(u => u.type === 'Plasma').length;
+      const cryo = activas.filter(u => u.type === 'Crioprecipitado').length;
+      const alerts = activas.filter(u => u.status === 'critical' || u.status === 'expiring').length;
 
       document.getElementById('total-units').textContent = total;
       document.getElementById('prbc-units').textContent = prbc;
@@ -1344,29 +1343,35 @@
     }
 
     function refreshInventory() {
-      alert('Actualizando inventario...\n\nSincronizando con la base de datos en tiempo real.');
-      // Aquí se recargarían los datos desde el servidor
-      updateDashboard();
-      loadTableData();
-      applyFilters();
+      cargarDesdeFirebase();
     }
 
     function getStatusLabel(status) {
       const labels = {
-        'fresh': 'Fresco',
-        'expiring': 'Próximo a Vencer',
-        'critical': 'Crítico',
-        'reserved': 'Reservado'
+        'fresh':     'Disponible',
+        'expiring':  'Próximo a Vencer',
+        'critical':  'Vencido',
+        'reserved':  'Reservado',
+        'devuelta':  'Devuelta',
+        'despachada':'Despachada',
+        'disponible':'Disponible',
+        'proceso':   'En Proceso',
+        'recibida':  'Recibida'
       };
       return labels[status] || status;
     }
 
     function getExpiryColor(status) {
       const colors = {
-        'fresh': '#059669',
-        'expiring': '#f59e0b',
-        'critical': '#dc2626',
-        'reserved': '#3b82f6'
+        'fresh':     '#059669',
+        'expiring':  '#f59e0b',
+        'critical':  '#dc2626',
+        'reserved':  '#3b82f6',
+        'devuelta':  '#6b7280',
+        'despachada':'#7c3aed',
+        'disponible':'#059669',
+        'proceso':   '#0369a1',
+        'recibida':  '#059669'
       };
       return colors[status] || '#6b7280';
     }
