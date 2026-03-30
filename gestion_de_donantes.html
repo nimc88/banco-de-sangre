@@ -1262,7 +1262,36 @@
         const donante = this.donantes.find(d => d.id == donanteId);
         if (!donante) return;
 
-        alert(`Contactar a ${donante.nombre} ${donante.apellido}\n\nTeléfono: ${donante.telefono}\nEmail: ${donante.email || 'No disponible'}\n\n(Esta función abrirá tu aplicación de teléfono o email)`);
+        // Limpiar número de teléfono (solo dígitos para SMS y WhatsApp)
+        const telLimpio = donante.telefono.replace(/\D/g, '');
+        const telPR = '1' + telLimpio; // código de país Puerto Rico
+
+        const nombre = `${donante.nombre} ${donante.apellido}`;
+        const mensaje = `Hola ${donante.nombre}, le contactamos del Banco de Sangre Humacao. Usted es elegible para donar sangre. Por favor comuníquese con nosotros. ¡Gracias por su generosidad!`;
+
+        // Llenar el modal de contacto
+        document.getElementById('contacto-nombre').textContent = nombre;
+        document.getElementById('contacto-tipo').textContent   = donante.tipoSangre;
+        document.getElementById('contacto-tel').textContent    = donante.telefono;
+        document.getElementById('contacto-email').textContent  = donante.email || 'No disponible';
+
+        // Construir URLs
+        document.getElementById('btn-llamar').href    = `tel:${telLimpio}`;
+        document.getElementById('btn-sms').href       = `sms:${telLimpio}?body=${encodeURIComponent(mensaje)}`;
+        document.getElementById('btn-whatsapp').href  = `https://wa.me/${telPR}?text=${encodeURIComponent(mensaje)}`;
+        document.getElementById('btn-email').href     = donante.email
+          ? `mailto:${donante.email}?subject=Banco de Sangre Humacao - Donación&body=${encodeURIComponent(mensaje)}`
+          : '#';
+
+        if (!donante.email) {
+          document.getElementById('btn-email').style.opacity = '0.4';
+          document.getElementById('btn-email').style.pointerEvents = 'none';
+        } else {
+          document.getElementById('btn-email').style.opacity = '1';
+          document.getElementById('btn-email').style.pointerEvents = 'auto';
+        }
+
+        document.getElementById('modal-contactar').classList.add('show');
       }
 
       abrirModalEditar(donanteId) {
@@ -1345,7 +1374,9 @@ Esta acción no se puede deshacer.`);
 
       cerrarModal(modalId) {
         document.getElementById(modalId).classList.remove('show');
-        if (modalId === 'modal-nuevo-donante') {
+        if (modalId === 'modal-contactar') {
+          return; // nada extra que limpiar
+        } else if (modalId === 'modal-nuevo-donante') {
           document.getElementById('form-nuevo-donante').reset();
           document.getElementById('mensaje-exito').classList.remove('show');
         } else if (modalId === 'modal-nueva-cita') {
@@ -1531,6 +1562,70 @@ Esta acción no se puede deshacer.`);
     </div>
   </div>
 
+
+
+  <!-- Modal Contactar Donante -->
+  <div class="modal" id="modal-contactar">
+    <div class="modal-content" style="max-width:420px;">
+      <h3 style="margin-bottom:6px;">📞 Contactar Donante</h3>
+
+      <div style="background:#fef2f2;border-radius:10px;padding:16px;margin:16px 0;display:flex;align-items:center;gap:14px;">
+        <div style="width:48px;height:48px;background:#dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🩸</div>
+        <div>
+          <div style="font-weight:700;font-size:1.05rem;" id="contacto-nombre">—</div>
+          <div style="font-size:0.85rem;color:#6b7280;">Tipo <strong id="contacto-tipo">—</strong></div>
+          <div style="font-size:0.85rem;color:#374151;margin-top:2px;">📞 <span id="contacto-tel">—</span></div>
+          <div style="font-size:0.85rem;color:#374151;">📧 <span id="contacto-email">—</span></div>
+        </div>
+      </div>
+
+      <p style="font-size:0.85rem;color:#6b7280;margin-bottom:16px;">Selecciona cómo deseas contactar al donante. Se abrirá tu aplicación automáticamente.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+
+        <a id="btn-llamar" href="#" style="
+          display:flex;flex-direction:column;align-items:center;justify-content:center;
+          gap:6px;padding:16px 10px;background:#d1fae5;border-radius:12px;
+          text-decoration:none;color:#065f46;font-weight:600;font-size:0.9rem;
+          border:2px solid #6ee7b7;transition:all 0.2s;">
+          <span style="font-size:24px;">📞</span>
+          Llamar
+        </a>
+
+        <a id="btn-sms" href="#" style="
+          display:flex;flex-direction:column;align-items:center;justify-content:center;
+          gap:6px;padding:16px 10px;background:#dbeafe;border-radius:12px;
+          text-decoration:none;color:#1e40af;font-weight:600;font-size:0.9rem;
+          border:2px solid #93c5fd;transition:all 0.2s;">
+          <span style="font-size:24px;">💬</span>
+          Mensaje SMS
+        </a>
+
+        <a id="btn-whatsapp" href="#" target="_blank" style="
+          display:flex;flex-direction:column;align-items:center;justify-content:center;
+          gap:6px;padding:16px 10px;background:#dcfce7;border-radius:12px;
+          text-decoration:none;color:#14532d;font-weight:600;font-size:0.9rem;
+          border:2px solid #86efac;transition:all 0.2s;">
+          <span style="font-size:24px;">📱</span>
+          WhatsApp
+        </a>
+
+        <a id="btn-email" href="#" style="
+          display:flex;flex-direction:column;align-items:center;justify-content:center;
+          gap:6px;padding:16px 10px;background:#fef3c7;border-radius:12px;
+          text-decoration:none;color:#78350f;font-weight:600;font-size:0.9rem;
+          border:2px solid #fcd34d;transition:all 0.2s;">
+          <span style="font-size:24px;">📧</span>
+          Email
+        </a>
+
+      </div>
+
+      <button onclick="cerrarModal('modal-contactar')" class="btn btn-secondary" style="width:100%;">
+        ✕ Cerrar
+      </button>
+    </div>
+  </div>
 
 </body>
 </html>
