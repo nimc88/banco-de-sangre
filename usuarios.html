@@ -4,6 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios - Bludee</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyCl3zl4lMGoh8hGhjVJtB3Te7ioDX5X65U",
+      authDomain: "bludee-pr.firebaseapp.com",
+      projectId: "bludee-pr",
+      storageBucket: "bludee-pr.firebasestorage.app",
+      messagingSenderId: "476330144377",
+      appId: "1:476330144377:web:88d31603514ca265409aa8"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db   = firebase.firestore();
+    auth.onAuthStateChanged(function(user) {
+      if (!user) window.location.href = 'login.html';
+    });
+  </script>
     <style>
         * {
             margin: 0;
@@ -451,6 +471,11 @@
     </style>
 </head>
 <body>
+  <a href="index.html" class="back-button">← Volver al Menú</a>
+
+  <div style="position:fixed;top:16px;right:20px;z-index:9999;">
+    <button onclick="auth.signOut().then(function(){window.location.href='login.html'})" style="background:rgba(220,38,38,0.92);color:white;border:none;border-radius:50px;padding:8px 18px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.2);">🚪 Cerrar sesión</button>
+  </div>
     <div class="container">
         <div class="header">
             <div>
@@ -623,7 +648,7 @@
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">
                         ❌ Cancelar
                     </button>
-                    <button type="submit" class="btn" id="submitBtn">
+                    <button type="submit" class="btn" id="submitBtn" onclick="guardarEnFirebase()">
                         ✅ Crear Usuario
                     </button>
                 </div>
@@ -693,7 +718,35 @@
         let editingUserId = null;
 
         // Inicializar
-        document.addEventListener('DOMContentLoaded', function() {
+        
+    async function cargarDesdeFirebase() {
+      try {
+        var user = await new Promise(function(resolve) {
+          var u = auth.onAuthStateChanged(function(usr) { u(); resolve(usr); });
+        });
+        if (!user) return;
+        var snap = await db.collection("usuarios").orderBy("fechaGuardado","desc").limit(200).get();
+        if (snap.empty) return;
+        snap.forEach(function(doc) {
+          var d = doc.data();
+          var exists = users.some(function(u) { return u.username === d.username; });
+          if (!exists && d.username) {
+            users.push({
+              id: users.length + 1,
+              fullName: d.fullName || d.username,
+              username: d.username,
+              role: d.userRole || 'viewer',
+              created: d.fechaGuardado || new Date().toISOString(),
+              status: 'active'
+            });
+          }
+        });
+        loadUsers();
+        console.log("✅ usuarios cargados");
+      } catch(e) { console.error("❌ usuarios:", e.message); }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
             loadUsers();
             setupEventListeners();
         });
@@ -980,5 +1033,31 @@
             }
         });
     </script>
+
+  <script>
+    async function guardarEnFirebase() {
+      try {
+        var user = auth.currentUser;
+        await db.collection("usuarios").add({
+              fullName: (document.getElementById('fullName') ? document.getElementById('fullName').value : ''),
+              username: (document.getElementById('username') ? document.getElementById('username').value : ''),
+              userRole: (document.getElementById('userRole') ? document.getElementById('userRole').value : ''),
+              guardadoPor: user ? user.email : 'desconocido',
+              fechaGuardado: new Date().toISOString()
+        });
+        mostrarToast('✅ Guardado en Firebase correctamente');
+      } catch(e) {
+        console.error('Firebase error:', e);
+        mostrarToast('⚠️ Error al guardar en la nube', true);
+      }
+    }
+    function mostrarToast(msg, esError) {
+      var t = document.createElement('div');
+      t.textContent = msg;
+      t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;padding:12px 20px;border-radius:10px;font-weight:600;font-size:0.9rem;color:white;box-shadow:0 4px 16px rgba(0,0,0,0.25);background:' + (esError ? '#dc2626' : '#16a34a');
+      document.body.appendChild(t);
+      setTimeout(function(){ t.remove(); }, 3500);
+    }
+  </script>
 </body>
 </html>
