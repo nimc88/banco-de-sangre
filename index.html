@@ -1108,7 +1108,7 @@
                     </div>
                     <div class="form-group">
                         <label for="numeroUnidad">Número de Unidad:</label>
-                        <input type="text" id="numeroUnidad" placeholder="Ej: BLD-001 o escribe el ID">
+                        <input type="text" id="numeroUnidad" placeholder="Auto-generado" readonly>
                     </div>
                     <div class="form-group">
                         <label for="estadoUnidad">Estado de la Unidad:</label>
@@ -1432,16 +1432,17 @@
                 currentEntries = [];
                 snapshot.forEach(function(doc) {
                     var data = doc.data();
-                    data.firebaseId = doc.id; // guardamos el id de Firebase
+                    // ✅ Ignorar entradas marcadas como eliminadas
+                    if (data.eliminado === true) return;
+                    data.firebaseId = doc.id;
                     currentEntries.push(data);
                 });
 
                 updateTable();
                 updateEntryCounter();
-                console.log("✅ " + currentEntries.length + " entradas cargadas desde Firebase");
+                console.log("✅ " + currentEntries.length + " entradas activas cargadas desde Firebase");
             } catch(e) {
                 console.error("❌ Error al cargar desde Firebase:", e.message);
-                // Si falla Firebase, la tabla queda con lo que había en memoria
             }
         }
 
@@ -1524,33 +1525,12 @@
                     });
                 });
                 if (user) {
-                    var isEditing = editingIndex >= 0 && currentEntries[editingIndex] && currentEntries[editingIndex].firebaseId;
-
-                    if (isEditing) {
-                        // ✅ Actualizar registro existente en Firebase
-                        await db.collection("entradas_unidades")
-                            .doc(currentEntries[editingIndex].firebaseId)
-                            .update({
-                                ...entryData,
-                                actualizadoPor: user.email,
-                                fechaActualizacion: new Date().toISOString()
-                            });
-                        showNotification('✅ Registro actualizado en Firebase', 'success');
-                    } else {
-                        // ✅ Crear registro nuevo
-                        var docRef = await db.collection("entradas_unidades").add({
-                            ...entryData,
-                            guardadoPor: user.email,
-                            fechaGuardado: new Date().toISOString()
-                        });
-                        entryData.firebaseId = docRef.id;
-                        showNotification('✅ Guardado en Firebase correctamente', 'success');
-                    }
-
-                    // ✅ Si se marcó como DEVUELTA, actualizar también en módulo componentes_devueltos
-                    if (entryData.estadoUnidad === 'devuelta') {
-                        await marcarUnidadComoDevuelta(entryData.numeroUnidad, user.email);
-                    }
+                    await db.collection("entradas_unidades").add({
+                        ...entryData,
+                        guardadoPor: user.email,
+                        fechaGuardado: new Date().toISOString()
+                    });
+                    showNotification('✅ Guardado en Firebase correctamente', 'success');
                 } else {
                     showNotification('⚠️ Sin sesión activa — guardado solo localmente', 'warning');
                 }
@@ -1570,28 +1550,6 @@
             clearForm();
             document.getElementById('entryForm').style.display = 'none';
             document.getElementById('saveBtn').style.display = 'none';
-        }
-
-        // ✅ Marca una unidad como devuelta en Firebase
-        async function marcarUnidadComoDevuelta(numeroUnidad, userEmail) {
-            try {
-                // Buscar en entradas_unidades por numeroUnidad
-                var snap = await db.collection("entradas_unidades")
-                    .where("numeroUnidad", "==", numeroUnidad)
-                    .get();
-
-                snap.forEach(async function(doc) {
-                    await doc.ref.update({
-                        estadoUnidad: "devuelta",
-                        fechaDevolucion: new Date().toISOString(),
-                        devueltaPor: userEmail
-                    });
-                });
-
-                console.log("✅ Unidad " + numeroUnidad + " marcada como devuelta en Firebase");
-            } catch(e) {
-                console.error("❌ Error marcando como devuelta:", e.message);
-            }
         }
 
         // Alias para el botón del header
@@ -1691,12 +1649,30 @@
             showNotification('📋 Entrada duplicada exitosamente', 'success');
         }
 
-        function deleteEntry(index) {
+        async function deleteEntry(index) {
             const entry = currentEntries[index];
-            if (confirm(`¿Está seguro que desea eliminar la entrada ${entry.numeroUnidad}?\n\nEsta acción no se puede deshacer.`)) {
+            if (!confirm(`¿Está seguro que desea eliminar la entrada ${entry.numeroUnidad}?\n\nEl registro quedará guardado en el historial pero no aparecerá en la tabla.`)) return;
+
+            try {
+                if (entry.firebaseId) {
+                    // Marcar como eliminado en Firebase (no se borra, queda en historial)
+                    var user = await new Promise(function(resolve) {
+                        var u = auth.onAuthStateChanged(function(usr) { u(); resolve(usr); });
+                    });
+                    await db.collection("entradas_unidades").doc(entry.firebaseId).update({
+                        eliminado: true,
+                        eliminadoPor: user ? user.email : 'desconocido',
+                        fechaEliminacion: new Date().toISOString()
+                    });
+                }
+                // Quitar de la tabla local
                 currentEntries.splice(index, 1);
                 updateTable();
-                showNotification('🗑️ Entrada eliminada', 'success');
+                updateEntryCounter();
+                showNotification('🗑️ Entrada eliminada correctamente', 'success');
+            } catch(e) {
+                console.error('❌ Error al eliminar:', e.message);
+                showNotification('⚠️ Error al eliminar: ' + e.message, 'warning');
             }
         }
 
