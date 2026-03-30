@@ -901,196 +901,8 @@
         </h2>
 
         <!-- Vista de Tarjetas -->
-        <div class="inventory-grid" id="inventory-grid">
-          <!-- Tarjeta PRBC -->
-          <div class="inventory-card card-status-fresh" data-type="PRBC" data-blood="O+" data-status="fresh" data-location="R-01">
-            <div class="card-header">
-              <div class="card-id">A001</div>
-              <div class="card-status status-fresh">Fresco</div>
-            </div>
-            <div class="card-body">
-              <div class="card-info">
-                <div class="info-item">
-                  <div class="info-label">Tipo</div>
-                  <div class="info-value">
-                    <span class="component-badge component-prbc">PRBC</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Grupo</div>
-                  <div class="info-value">
-                    <span class="blood-type-badge">O+</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Volumen</div>
-                  <div class="info-value">250 mL</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Vence</div>
-                  <div class="info-value">28/08/2025</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Temperatura</div>
-                  <div class="info-value">
-                    <span class="temperature-indicator temp-normal">🌡️ 4°C</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Ubicación</div>
-                  <div class="info-value">
-                    <span class="location-badge">📍 R-01-A3</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-actions">
-              <button class="btn btn-secondary" onclick="viewDetails('A001')">👁️ Detalles</button>
-              <button class="btn btn-primary" onclick="dispatchUnit('A001')">📤 Despachar</button>
-            </div>
-          </div>
-
-          <!-- Tarjeta Plaquetas -->
-          <div class="inventory-card card-status-expiring" data-type="Plaquetas" data-blood="A-" data-status="expiring" data-location="RT-01">
-            <div class="card-header">
-              <div class="card-id">B456</div>
-              <div class="card-status status-expiring">Próximo a Vencer</div>
-            </div>
-            <div class="card-body">
-              <div class="card-info">
-                <div class="info-item">
-                  <div class="info-label">Tipo</div>
-                  <div class="info-value">
-                    <span class="component-badge component-platelets">Plaquetas</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Grupo</div>
-                  <div class="info-value">
-                    <span class="blood-type-badge">A-</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Volumen</div>
-                  <div class="info-value">300 mL</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Vence</div>
-                  <div class="info-value" style="color: #f59e0b; font-weight: bold;">18/07/2025</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Temperatura</div>
-                  <div class="info-value">
-                    <span class="temperature-indicator temp-normal">🌡️ 22°C</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Ubicación</div>
-                  <div class="info-value">
-                    <span class="location-badge">📍 RT-01-B2</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-actions">
-              <button class="btn btn-secondary" onclick="viewDetails('B456')">👁️ Detalles</button>
-              <button class="btn btn-primary" onclick="dispatchUnit('B456')">⚡ Despachar Urgente</button>
-            </div>
-          </div>
-
-          <!-- Tarjeta Plasma -->
-          <div class="inventory-card card-status-critical" data-type="Plasma" data-blood="AB+" data-status="critical" data-location="F-01">
-            <div class="card-header">
-              <div class="card-id">C789</div>
-              <div class="card-status status-critical">Crítico</div>
-            </div>
-            <div class="card-body">
-              <div class="card-info">
-                <div class="info-item">
-                  <div class="info-label">Tipo</div>
-                  <div class="info-value">
-                    <span class="component-badge component-plasma">Plasma</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Grupo</div>
-                  <div class="info-value">
-                    <span class="blood-type-badge">AB+</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Volumen</div>
-                  <div class="info-value">200 mL</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Vence</div>
-                  <div class="info-value" style="color: #dc2626; font-weight: bold;">16/07/2025</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Temperatura</div>
-                  <div class="info-value">
-                    <span class="temperature-indicator temp-normal">🌡️ -22°C</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Ubicación</div>
-                  <div class="info-value">
-                    <span class="location-badge">📍 F-01-C1</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-actions">
-              <button class="btn btn-secondary" onclick="viewDetails('C789')">👁️ Detalles</button>
-              <button class="btn btn-primary" onclick="discardUnit('C789')" style="background: #dc2626;">🗑️ Descartar</button>
-            </div>
-          </div>
-
-          <!-- Tarjeta Reservada -->
-          <div class="inventory-card card-status-reserved" data-type="PRBC" data-blood="B+" data-status="reserved" data-location="R-02">
-            <div class="card-header">
-              <div class="card-id">D012</div>
-              <div class="card-status status-reserved">Reservado</div>
-            </div>
-            <div class="card-body">
-              <div class="card-info">
-                <div class="info-item">
-                  <div class="info-label">Tipo</div>
-                  <div class="info-value">
-                    <span class="component-badge component-prbc">PRBC</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Grupo</div>
-                  <div class="info-value">
-                    <span class="blood-type-badge">B+</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Volumen</div>
-                  <div class="info-value">250 mL</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Vence</div>
-                  <div class="info-value">25/08/2025</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Reservado para</div>
-                  <div class="info-value" style="color: #3b82f6; font-weight: bold;">Paciente M.García</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Ubicación</div>
-                  <div class="info-value">
-                    <span class="location-badge">📍 R-02-A1</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-actions">
-              <button class="btn btn-secondary" onclick="viewDetails('D012')">👁️ Detalles</button>
-              <button class="btn btn-secondary" onclick="unreserveUnit('D012')">🔓 Liberar</button>
-            </div>
-          </div>
+                <div class="inventory-grid" id="inventory-grid">
+          <!-- Las tarjetas se generan dinámicamente desde Firebase -->
         </div>
 
         <!-- Vista de Tabla -->
@@ -1239,14 +1051,15 @@
     }
 
     function loadTableData() {
+      // ── Tabla ──────────────────────────────────────────────────────
       const tbody = document.getElementById('inventory-table-body');
       tbody.innerHTML = '';
-      
+
       allUnits.forEach(unit => {
         const row = document.createElement('tr');
         row.innerHTML = `
           <td><strong>${unit.id}</strong></td>
-          <td><span class="component-badge component-${unit.type.toLowerCase()}">${unit.type}</span></td>
+          <td><span class="component-badge component-${unit.type.toLowerCase().replace(' ','')}">${unit.type}</span></td>
           <td><span class="blood-type-badge">${unit.bloodType}</span></td>
           <td>${unit.volume}</td>
           <td style="color: ${getExpiryColor(unit.status)}">${formatDate(unit.expiry)}</td>
@@ -1262,6 +1075,87 @@
         `;
         tbody.appendChild(row);
       });
+
+      // ── Tarjetas ───────────────────────────────────────────────────
+      const grid = document.getElementById('inventory-grid');
+      grid.innerHTML = '';
+
+      if (allUnits.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#6b7280;">
+          <p style="font-size:1.2rem;">📦 No hay unidades en el inventario</p>
+          <p>Los registros guardados en Firebase aparecerán aquí</p>
+        </div>`;
+        return;
+      }
+
+      allUnits.forEach(unit => {
+        const statusLabel = getStatusLabel(unit.status);
+        const expiryColor = getExpiryColor(unit.status);
+        const card = document.createElement('div');
+        card.className = `inventory-card card-status-${unit.status}`;
+        card.setAttribute('data-type', unit.type);
+        card.setAttribute('data-blood', unit.bloodType);
+        card.setAttribute('data-status', unit.status);
+        card.setAttribute('data-location', unit.location);
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="card-id">${unit.id}</div>
+            <div class="card-status status-${unit.status}">${statusLabel}</div>
+          </div>
+          <div class="card-body">
+            <div class="card-info">
+              <div class="info-item">
+                <div class="info-label">Tipo</div>
+                <div class="info-value">
+                  <span class="component-badge component-${unit.type.toLowerCase().replace(' ','')}">
+                    ${unit.type}
+                  </span>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Grupo</div>
+                <div class="info-value">
+                  <span class="blood-type-badge">${unit.bloodType}</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Volumen</div>
+                <div class="info-value">${unit.volume}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Vence</div>
+                <div class="info-value" style="color:${expiryColor};font-weight:bold;">
+                  ${formatDate(unit.expiry)}
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Temperatura</div>
+                <div class="info-value">
+                  <span class="temperature-indicator temp-normal">🌡️ ${unit.temperature}</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Ubicación</div>
+                <div class="info-value">
+                  <span class="location-badge">📍 ${unit.location}</span>
+                </div>
+              </div>
+              ${unit.paciente && unit.paciente !== '-' ? `
+              <div class="info-item">
+                <div class="info-label">Paciente</div>
+                <div class="info-value" style="color:#3b82f6;font-weight:bold;">${unit.paciente}</div>
+              </div>` : ''}
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-secondary" onclick="viewDetails('${unit.id}')">👁️ Detalles</button>
+            <button class="btn btn-primary" onclick="dispatchUnit('${unit.id}')">📤 Despachar</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      document.getElementById('results-count').textContent = `${allUnits.length} unidades`;
     }
 
     function applyFilters() {
