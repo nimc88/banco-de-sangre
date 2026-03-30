@@ -4,6 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLUDEE - TAT Indicadores de Calidad</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyCl3zl4lMGoh8hGhjVJtB3Te7ioDX5X65U",
+      authDomain: "bludee-pr.firebaseapp.com",
+      projectId: "bludee-pr",
+      storageBucket: "bludee-pr.firebasestorage.app",
+      messagingSenderId: "476330144377",
+      appId: "1:476330144377:web:88d31603514ca265409aa8"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db   = firebase.firestore();
+    auth.onAuthStateChanged(function(user) {
+      if (!user) window.location.href = 'login.html';
+    });
+  </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -89,6 +109,11 @@
     </style>
 </head>
 <body>
+  <a href="index.html" class="back-button">← Volver al Menú</a>
+
+  <div style="position:fixed;top:16px;right:20px;z-index:9999;">
+    <button onclick="auth.signOut().then(function(){window.location.href='login.html'})" style="background:rgba(220,38,38,0.92);color:white;border:none;border-radius:50px;padding:8px 18px;font-size:0.85rem;font-weight:600;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.2);">🚪 Cerrar sesión</button>
+  </div>
     <div class="container">
         <div class="header">
             <h1>🩸 MÓDULO TAT</h1>
@@ -348,7 +373,7 @@
                     <button class="btn btn-primary" onclick="calcularTAT()" style="font-size: 1rem; padding: 15px 30px;">
                         ⏱️ Calcular TAT Automáticamente
                     </button>
-                    <button class="btn btn-success" onclick="guardarTAT()" style="font-size: 1rem; padding: 15px 30px;">
+                    <button class="btn btn-success" onclick="guardarTAT(); guardarEnFirebase()" style="font-size: 1rem; padding: 15px 30px;">
                         💾 Guardar Registro TAT
                     </button>
                     <button class="btn" onclick="limpiarFormulario()" style="background: #6b7280; color: white; font-size: 1rem; padding: 15px 30px;">
@@ -769,7 +794,21 @@ RECOMENDACIONES
         console.log('📄 Sistema de reportes completo');
         
         // Establecer fecha actual por defecto en los campos de fecha
-        document.addEventListener('DOMContentLoaded', function() {
+        
+    async function cargarDesdeFirebase() {
+      try {
+        var user = await new Promise(function(resolve) {
+          var u = auth.onAuthStateChanged(function(usr) { u(); resolve(usr); });
+        });
+        if (!user) return;
+        var snap = await db.collection("indicadores_calidad").orderBy("fechaGuardado","desc").limit(100).get();
+        if (snap.empty) return;
+        // Mostrar últimos registros TAT en consola por ahora
+        console.log("✅ " + snap.size + " indicadores de calidad en Firebase");
+      } catch(e) { console.error("❌ indicadores:", e.message); }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
             const hoy = new Date().toISOString().split('T')[0];
             const campos = ['fechaSolicitud', 'fechaCarreo', 'fechaLlegada', 'fechaDespacho'];
             campos.forEach(campo => {
@@ -778,5 +817,43 @@ RECOMENDACIONES
             });
         });
     </script>
+
+  <script>
+    async function guardarEnFirebase() {
+      try {
+        var user = auth.currentUser;
+        await db.collection("indicadores_calidad").add({
+              idSolicitud: (document.getElementById('idSolicitud') ? document.getElementById('idSolicitud').value : ''),
+              numeroMuestra: (document.getElementById('numeroMuestra') ? document.getElementById('numeroMuestra').value : ''),
+              tipoComponente: (document.getElementById('tipoComponente') ? document.getElementById('tipoComponente').value : ''),
+              grupoSanguineo: (document.getElementById('grupoSanguineo') ? document.getElementById('grupoSanguineo').value : ''),
+              fechaSolicitud: (document.getElementById('fechaSolicitud') ? document.getElementById('fechaSolicitud').value : ''),
+              horaSolicitud: (document.getElementById('horaSolicitud') ? document.getElementById('horaSolicitud').value : ''),
+              fechaCarreo: (document.getElementById('fechaCarreo') ? document.getElementById('fechaCarreo').value : ''),
+              horaCarreo: (document.getElementById('horaCarreo') ? document.getElementById('horaCarreo').value : ''),
+              fechaLlegada: (document.getElementById('fechaLlegada') ? document.getElementById('fechaLlegada').value : ''),
+              horaLlegada: (document.getElementById('horaLlegada') ? document.getElementById('horaLlegada').value : ''),
+              fechaDespacho: (document.getElementById('fechaDespacho') ? document.getElementById('fechaDespacho').value : ''),
+              horaDespacho: (document.getElementById('horaDespacho') ? document.getElementById('horaDespacho').value : ''),
+              tecnicoResponsable: (document.getElementById('tecnicoResponsable') ? document.getElementById('tecnicoResponsable').value : ''),
+              hospitalDestino: (document.getElementById('hospitalDestino') ? document.getElementById('hospitalDestino').value : ''),
+              observaciones: (document.getElementById('observaciones') ? document.getElementById('observaciones').value : ''),
+              guardadoPor: user ? user.email : 'desconocido',
+              fechaGuardado: new Date().toISOString()
+        });
+        mostrarToast('✅ Guardado en Firebase correctamente');
+      } catch(e) {
+        console.error('Firebase error:', e);
+        mostrarToast('⚠️ Error al guardar en la nube', true);
+      }
+    }
+    function mostrarToast(msg, esError) {
+      var t = document.createElement('div');
+      t.textContent = msg;
+      t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;padding:12px 20px;border-radius:10px;font-weight:600;font-size:0.9rem;color:white;box-shadow:0 4px 16px rgba(0,0,0,0.25);background:' + (esError ? '#dc2626' : '#16a34a');
+      document.body.appendChild(t);
+      setTimeout(function(){ t.remove(); }, 3500);
+    }
+  </script>
 </body>
 </html>
