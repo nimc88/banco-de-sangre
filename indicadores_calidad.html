@@ -218,173 +218,221 @@
         <!-- Registrar TAT -->
         <div id="registrar" class="tab-content">
             <div class="chart-container">
-                <div class="chart-title">📝 Documentar Nuevo TAT con Fecha y Hora</div>
-                
-                <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
-                    <strong>📋 Instrucciones:</strong> Complete todos los campos con fechas y horas exactas de cada etapa del proceso TAT.
+                <div class="chart-title">📝 Documentar Nuevo Registro TAT de Carreo</div>
+
+                <div style="background:#f0f9ff;padding:14px 18px;border-radius:8px;margin-bottom:20px;border-left:4px solid #3b82f6;font-size:0.92rem;">
+                    <strong>📋 Instrucciones:</strong> Complete cada etapa con la fecha, hora y firmas correspondientes. El TAT se calcula automáticamente al guardar.
                 </div>
 
-                <form style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
-                    <!-- Información básica -->
-                    <div style="grid-column: 1 / -1; background: #f8fafc; padding: 20px; border-radius: 8px;">
-                        <h3 style="margin-bottom: 15px; color: #374151;">📋 Información de la Solicitud</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">ID Solicitud:</label>
-                                <input type="text" id="idSolicitud" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;" placeholder="SOL-001" required>
+                <!-- ══ ETAPA 1: SOLICITUD INICIAL ══ -->
+                <div style="background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:20px;">
+                    <h3 style="color:#1e3a8a;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                        <span style="background:#1e3a8a;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;">1</span>
+                        Solicitud Inicial
+                    </h3>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">ID Solicitud:</label>
+                            <input type="text" id="idSolicitud" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="SOL-001" required>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Número de Muestra:</label>
+                            <input type="text" id="numeroMuestra" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="PRB001" required>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Tipo Componente:</label>
+                            <select id="tipoComponente" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="PRBC">🩸 PRBC</option>
+                                <option value="Plaquetas">🧬 Plaquetas</option>
+                                <option value="Plasma">🟡 Plasma</option>
+                                <option value="Crioprecipitados">❄️ Crioprecipitados</option>
+                                <option value="Tubos Piloto">🧪 Tubos Piloto</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Grupo Sanguíneo:</label>
+                            <select id="grupoSanguineo" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="O+">O+</option><option value="O-">O-</option>
+                                <option value="A+">A+</option><option value="A-">A-</option>
+                                <option value="B+">B+</option><option value="B-">B-</option>
+                                <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                                <option value="N/A">N/A (Tubos)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Fecha Solicitud:</label>
+                            <input type="date" id="fechaSolicitud" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;" required>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Hora Solicitud:</label>
+                            <input type="time" id="horaSolicitud" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;" step="60" required>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Técnico MT Responsable:</label>
+                            <input type="text" id="tecnicoResponsable" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="Nombre del MT">
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Hospital Destino:</label>
+                            <select id="hospitalDestino" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;">
+                                <option value="">Seleccionar...</option>
+                                <option>Hospital San Juan</option>
+                                <option>Hospital Metropolitano</option>
+                                <option>Hospital UPR</option>
+                                <option>Centro Médico</option>
+                                <option>Hospital Auxilio Mutuo</option>
+                                <option>Hospital Pavia</option>
+                                <option>Caribbean Medical Center - Fajardo</option>
+                                <option>Centro Medico del Noreste - Fajardo</option>
+                            </select>
+                        </div>
+
+                        <!-- RAZÓN DEL CARREO — campo nuevo -->
+                        <div style="grid-column:1/-1;">
+                            <label style="display:block;margin-bottom:10px;font-weight:700;font-size:0.92rem;color:#374151;">
+                                🚗 Razón del Carreo <span style="color:#dc2626;">*</span>
+                            </label>
+                            <div style="display:flex;flex-wrap:wrap;gap:10px;" id="razon-carreo-opts">
+                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;transition:all .15s;background:white;" id="rc-opt1">
+                                    <input type="radio" name="razonCarreo" value="Recogido de componentes" onchange="selRazonCarreo()" style="accent-color:#1e3a8a;width:16px;height:16px;">
+                                    <span style="font-size:0.9rem;font-weight:500;">🩸 Recogido de componentes</span>
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;transition:all .15s;background:white;" id="rc-opt2">
+                                    <input type="radio" name="razonCarreo" value="Envío de tubos piloto" onchange="selRazonCarreo()" style="accent-color:#1e3a8a;width:16px;height:16px;">
+                                    <span style="font-size:0.9rem;font-weight:500;">🧪 Envío de tubos piloto</span>
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;transition:all .15s;background:white;" id="rc-opt3">
+                                    <input type="radio" name="razonCarreo" value="Devolver unidades" onchange="selRazonCarreo()" style="accent-color:#1e3a8a;width:16px;height:16px;">
+                                    <span style="font-size:0.9rem;font-weight:500;">↩️ Devolver unidades</span>
+                                </label>
                             </div>
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Número Muestra:</label>
-                                <input type="text" id="numeroMuestra" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;" placeholder="PRB001" required>
-                            </div>
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Tipo Componente:</label>
-                                <select id="tipoComponente" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;" required>
-                                    <option value="">Seleccionar...</option>
-                                    <option value="PRBC">🩸 PRBC (Concentrado Eritrocitos)</option>
-                                    <option value="Plaquetas">🧬 Plaquetas</option>
-                                    <option value="Plasma">🟡 Plasma Fresco Congelado</option>
-                                    <option value="Crioprecipitados">❄️ Crioprecipitados</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Grupo Sanguíneo:</label>
-                                <select id="grupoSanguineo" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;" required>
-                                    <option value="">Seleccionar...</option>
-                                    <option value="O+">O+ (O Positivo)</option>
-                                    <option value="O-">O- (O Negativo)</option>
-                                    <option value="A+">A+ (A Positivo)</option>
-                                    <option value="A-">A- (A Negativo)</option>
-                                    <option value="B+">B+ (B Positivo)</option>
-                                    <option value="B-">B- (B Negativo)</option>
-                                    <option value="AB+">AB+ (AB Positivo)</option>
-                                    <option value="AB-">AB- (AB Negativo)</option>
-                                </select>
-                            </div>
+                            <input type="hidden" id="razonCarreo">
+                        </div>
+
+                        <div style="grid-column:1/-1;">
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Observaciones:</label>
+                            <textarea id="observaciones" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;min-height:56px;" placeholder="Notas adicionales..."></textarea>
                         </div>
                     </div>
-
-                    <!-- Timestamps del proceso TAT -->
-                    <div style="grid-column: 1 / -1; background: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-                        <h3 style="margin-bottom: 15px; color: #92400e;">⏱️ DOCUMENTACIÓN DE FECHA Y HORA POR ETAPA</h3>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
-                            <!-- Etapa 1: Solicitud -->
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e5e7eb;">
-                                <h4 style="margin-bottom: 10px; color: #1f2937; display: flex; align-items: center; gap: 8px;">
-                                    📋 ETAPA 1: Solicitud Inicial
-                                </h4>
-                                <div style="margin-bottom: 10px;">
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Fecha Solicitud:</label>
-                                    <input type="date" id="fechaSolicitud" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" required>
-                                </div>
-                                <div>
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Hora Solicitud:</label>
-                                    <input type="time" id="horaSolicitud" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" step="60" required>
-                                </div>
-                            </div>
-
-                            <!-- Etapa 2: Carreo -->
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e5e7eb;">
-                                <h4 style="margin-bottom: 10px; color: #1f2937; display: flex; align-items: center; gap: 8px;">
-                                    🚗 ETAPA 2: Salida Carreo
-                                </h4>
-                                <div style="margin-bottom: 10px;">
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Fecha Salida:</label>
-                                    <input type="date" id="fechaCarreo" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" required>
-                                </div>
-                                <div>
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Hora Salida:</label>
-                                    <input type="time" id="horaCarreo" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" step="60" required>
-                                </div>
-                            </div>
-
-                            <!-- Etapa 3: Llegada Hospital -->
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e5e7eb;">
-                                <h4 style="margin-bottom: 10px; color: #1f2937; display: flex; align-items: center; gap: 8px;">
-                                    🏥 ETAPA 3: Llegada Hospital
-                                </h4>
-                                <div style="margin-bottom: 10px;">
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Fecha Llegada:</label>
-                                    <input type="date" id="fechaLlegada" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" required>
-                                </div>
-                                <div>
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Hora Llegada:</label>
-                                    <input type="time" id="horaLlegada" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" step="60" required>
-                                </div>
-                            </div>
-
-                            <!-- Etapa 4: Despacho -->
-                            <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e5e7eb;">
-                                <h4 style="margin-bottom: 10px; color: #1f2937; display: flex; align-items: center; gap: 8px;">
-                                    📤 ETAPA 4: Despacho Final
-                                </h4>
-                                <div style="margin-bottom: 10px;">
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Fecha Despacho:</label>
-                                    <input type="date" id="fechaDespacho" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" required>
-                                </div>
-                                <div>
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Hora Despacho:</label>
-                                    <input type="time" id="horaDespacho" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" step="60" required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Información adicional -->
-                    <div style="grid-column: 1 / -1; background: #f0fdf4; padding: 20px; border-radius: 8px;">
-                        <h3 style="margin-bottom: 15px; color: #166534;">👥 Información Adicional</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Técnico Responsable:</label>
-                                <select id="tecnicoResponsable" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;">
-                                    <option value="">Seleccionar técnico...</option>
-                                    <option value="María García">👩‍⚕️ María García</option>
-                                    <option value="José Martínez">👨‍⚕️ José Martínez</option>
-                                    <option value="Ana López">👩‍⚕️ Ana López</option>
-                                    <option value="Carlos Rivera">👨‍⚕️ Carlos Rivera</option>
-                                    <option value="Carmen Rodríguez">👩‍⚕️ Carmen Rodríguez</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Hospital Destino:</label>
-                                <select id="hospitalDestino" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;">
-                                    <option value="">Seleccionar hospital...</option>
-                                    <option value="Hospital San Juan">🏥 Hospital San Juan</option>
-                                    <option value="Hospital Metropolitano">🏥 Hospital Metropolitano</option>
-                                    <option value="Hospital UPR">🏥 Hospital UPR</option>
-                                    <option value="Centro Médico">🏥 Centro Médico</option>
-                                    <option value="Hospital Auxilio Mutuo">🏥 Hospital Auxilio Mutuo</option>
-                                    <option value="Hospital Pavia">🏥 Hospital Pavia</option>
-                                    <option value="Caribbean Medical Center-Fajardo">🏥 Caribbean Medical Center-Fajardo</option>
-                                    <option value="Centro Medico del Noreste-Fajardo">🏥 Centro Medico del Noreste-Fajardo</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Observaciones:</label>
-                                <textarea id="observaciones" style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; min-height: 60px;" placeholder="Notas adicionales sobre el proceso TAT..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-
-                <!-- Botones de acción -->
-                <div style="display: flex; gap: 15px; margin-top: 30px; justify-content: center; flex-wrap: wrap;">
-                    <button class="btn btn-primary" onclick="calcularTAT()" style="font-size: 1rem; padding: 15px 30px;">
-                        ⏱️ Calcular TAT Automáticamente
-                    </button>
-                    <button class="btn btn-success" onclick="guardarTAT(); guardarEnFirebase()" style="font-size: 1rem; padding: 15px 30px;">
-                        💾 Guardar Registro TAT
-                    </button>
-                    <button class="btn" onclick="limpiarFormulario()" style="background: #6b7280; color: white; font-size: 1rem; padding: 15px 30px;">
-                        🔄 Limpiar Formulario
-                    </button>
                 </div>
 
-                <!-- Resultado del cálculo TAT -->
-                <div id="resultadoTAT" style="margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 8px; border: 2px solid #e2e8f0; display: none;">
-                    <h3 style="margin-bottom: 15px; color: #374151;">📊 Resultado del Cálculo TAT</h3>
-                    <div id="resultadoContent" style="font-family: monospace; font-size: 0.95rem; line-height: 1.6;"></div>
+                <!-- ══ ETAPA 2: SALIDA CARREO ══ -->
+                <div style="background:#fffbeb;border:2px solid #fcd34d;border-radius:10px;padding:20px;margin-bottom:20px;">
+                    <h3 style="color:#92400e;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                        <span style="background:#f59e0b;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;">2</span>
+                        Salida Carreo
+                    </h3>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;">Fecha Salida:</label>
+                            <input type="date" id="fechaCarreo" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;" required>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;">Hora Salida:</label>
+                            <input type="time" id="horaCarreo" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;" step="60" required>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;">Nombre del Mensajero:</label>
+                            <input type="text" id="mensajeroSalida" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="Nombre del mensajero">
+                        </div>
+                        <!-- Firma Mensajero Salida -->
+                        <div style="grid-column:1/-1;">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                                <div>
+                                    <label style="display:block;margin-bottom:6px;font-weight:600;font-size:0.88rem;">✍️ Firma del Mensajero (Salida):</label>
+                                    <div style="border:1.5px solid #d1d5db;border-radius:6px;background:#fafafa;overflow:hidden;">
+                                        <canvas id="sig-mensajero-salida" width="600" height="100" style="display:block;width:100%;cursor:crosshair;touch-action:none;"></canvas>
+                                        <div style="display:flex;justify-content:flex-end;gap:6px;padding:6px 10px;border-top:1px solid #e5e7eb;background:white;">
+                                            <button type="button" onclick="clearSigCanvas('sig-mensajero-salida','st-ms')" style="padding:4px 10px;border-radius:4px;border:1px solid #d1d5db;background:white;font-size:0.75rem;cursor:pointer;">🗑️ Limpiar</button>
+                                            <button type="button" onclick="confirmSigCanvas('sig-mensajero-salida','st-ms','firmaMensajeroSalida')" style="padding:4px 10px;border-radius:4px;border:none;background:#1e3a8a;color:white;font-size:0.75rem;cursor:pointer;">✓ Confirmar</button>
+                                        </div>
+                                    </div>
+                                    <div id="st-ms" style="font-size:0.72rem;color:#9ca3af;margin-top:3px;">Firme en el área de arriba</div>
+                                    <input type="hidden" id="firmaMensajeroSalida">
+                                </div>
+                                <div>
+                                    <label style="display:block;margin-bottom:6px;font-weight:600;font-size:0.88rem;">✍️ Firma del MT (Salida):</label>
+                                    <div style="border:1.5px solid #d1d5db;border-radius:6px;background:#fafafa;overflow:hidden;">
+                                        <canvas id="sig-mt-salida" width="600" height="100" style="display:block;width:100%;cursor:crosshair;touch-action:none;"></canvas>
+                                        <div style="display:flex;justify-content:flex-end;gap:6px;padding:6px 10px;border-top:1px solid #e5e7eb;background:white;">
+                                            <button type="button" onclick="clearSigCanvas('sig-mt-salida','st-mts')" style="padding:4px 10px;border-radius:4px;border:1px solid #d1d5db;background:white;font-size:0.75rem;cursor:pointer;">🗑️ Limpiar</button>
+                                            <button type="button" onclick="confirmSigCanvas('sig-mt-salida','st-mts','firmaMTSalida')" style="padding:4px 10px;border-radius:4px;border:none;background:#1e3a8a;color:white;font-size:0.75rem;cursor:pointer;">✓ Confirmar</button>
+                                        </div>
+                                    </div>
+                                    <div id="st-mts" style="font-size:0.72rem;color:#9ca3af;margin-top:3px;">Firme en el área de arriba</div>
+                                    <input type="hidden" id="firmaMTSalida">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══ ETAPA 3: LLEGADA AL HOSPITAL ══ -->
+                <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:10px;padding:20px;margin-bottom:20px;">
+                    <h3 style="color:#166534;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                        <span style="background:#16a34a;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;">3</span>
+                        Llegada al Hospital
+                    </h3>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;">Fecha Llegada:</label>
+                            <input type="date" id="fechaLlegada" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;" required>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;">Hora Llegada:</label>
+                            <input type="time" id="horaLlegada" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;" step="60" required>
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;">Nombre del Mensajero:</label>
+                            <input type="text" id="mensajeroLlegada" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="Nombre del mensajero">
+                        </div>
+                        <!-- Firmas Llegada -->
+                        <div style="grid-column:1/-1;">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                                <div>
+                                    <label style="display:block;margin-bottom:6px;font-weight:600;font-size:0.88rem;">✍️ Firma del Mensajero (Llegada):</label>
+                                    <div style="border:1.5px solid #d1d5db;border-radius:6px;background:#fafafa;overflow:hidden;">
+                                        <canvas id="sig-mensajero-llegada" width="600" height="100" style="display:block;width:100%;cursor:crosshair;touch-action:none;"></canvas>
+                                        <div style="display:flex;justify-content:flex-end;gap:6px;padding:6px 10px;border-top:1px solid #e5e7eb;background:white;">
+                                            <button type="button" onclick="clearSigCanvas('sig-mensajero-llegada','st-ml')" style="padding:4px 10px;border-radius:4px;border:1px solid #d1d5db;background:white;font-size:0.75rem;cursor:pointer;">🗑️ Limpiar</button>
+                                            <button type="button" onclick="confirmSigCanvas('sig-mensajero-llegada','st-ml','firmaMensajeroLlegada')" style="padding:4px 10px;border-radius:4px;border:none;background:#16a34a;color:white;font-size:0.75rem;cursor:pointer;">✓ Confirmar</button>
+                                        </div>
+                                    </div>
+                                    <div id="st-ml" style="font-size:0.72rem;color:#9ca3af;margin-top:3px;">Firme en el área de arriba</div>
+                                    <input type="hidden" id="firmaMensajeroLlegada">
+                                </div>
+                                <div>
+                                    <label style="display:block;margin-bottom:6px;font-weight:600;font-size:0.88rem;">✍️ Firma del Receptor en Hospital:</label>
+                                    <div style="border:1.5px solid #d1d5db;border-radius:6px;background:#fafafa;overflow:hidden;">
+                                        <canvas id="sig-receptor" width="600" height="100" style="display:block;width:100%;cursor:crosshair;touch-action:none;"></canvas>
+                                        <div style="display:flex;justify-content:flex-end;gap:6px;padding:6px 10px;border-top:1px solid #e5e7eb;background:white;">
+                                            <button type="button" onclick="clearSigCanvas('sig-receptor','st-rec')" style="padding:4px 10px;border-radius:4px;border:1px solid #d1d5db;background:white;font-size:0.75rem;cursor:pointer;">🗑️ Limpiar</button>
+                                            <button type="button" onclick="confirmSigCanvas('sig-receptor','st-rec','firmaReceptor')" style="padding:4px 10px;border-radius:4px;border:none;background:#16a34a;color:white;font-size:0.75rem;cursor:pointer;">✓ Confirmar</button>
+                                        </div>
+                                    </div>
+                                    <div id="st-rec" style="font-size:0.72rem;color:#9ca3af;margin-top:3px;">Firme en el área de arriba</div>
+                                    <input type="hidden" id="firmaReceptor">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campos ocultos para compatibilidad con calcularTAT -->
+                <input type="hidden" id="fechaDespacho"><input type="hidden" id="horaDespacho">
+
+                <!-- Botones -->
+                <div style="display:flex;gap:14px;margin-top:24px;justify-content:center;flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="calcularTAT()" style="font-size:1rem;padding:13px 28px;">⏱️ Calcular TAT</button>
+                    <button class="btn btn-success" onclick="guardarTAT(); guardarEnFirebase()" style="font-size:1rem;padding:13px 28px;">💾 Guardar Registro</button>
+                    <button class="btn" onclick="limpiarFormulario()" style="background:#6b7280;color:white;font-size:1rem;padding:13px 28px;">🔄 Limpiar</button>
+                </div>
+
+                <!-- Resultado TAT -->
+                <div id="resultadoTAT" style="margin-top:20px;padding:20px;background:#f8fafc;border-radius:8px;border:2px solid #e2e8f0;display:none;">
+                    <h3 style="margin-bottom:15px;color:#374151;">📊 Resultado del Cálculo TAT</h3>
+                    <div id="resultadoContent" style="font-family:monospace;font-size:0.95rem;line-height:1.6;"></div>
                 </div>
             </div>
         </div>
@@ -658,9 +706,14 @@ RECOMENDACIONES
 
             // Validar que todos los campos estén llenos
             if (!fechaSolicitud || !horaSolicitud || !fechaCarreo || !horaCarreo || 
-                !fechaLlegada || !horaLlegada || !fechaDespacho || !horaDespacho) {
-                alert('⚠️ Por favor, complete todas las fechas y horas antes de calcular el TAT');
+                !fechaLlegada || !horaLlegada) {
+                alert('⚠️ Por favor, complete las fechas y horas de Solicitud, Salida y Llegada');
                 return;
+            }
+            // Si no hay despacho, usar llegada como referencia final
+            if (!fechaDespacho || !horaDespacho) {
+                fechaDespacho = fechaLlegada;
+                horaDespacho  = horaLlegada;
             }
 
             // Crear objetos Date para cálculos
@@ -769,11 +822,21 @@ RECOMENDACIONES
             document.getElementById('horaCarreo').value = '';
             document.getElementById('fechaLlegada').value = '';
             document.getElementById('horaLlegada').value = '';
-            document.getElementById('fechaDespacho').value = '';
-            document.getElementById('horaDespacho').value = '';
-            document.getElementById('tecnicoResponsable').selectedIndex = 0;
-            document.getElementById('hospitalDestino').selectedIndex = 0;
+            if(document.getElementById('tecnicoResponsable')) document.getElementById('tecnicoResponsable').value = '';
+            if(document.getElementById('hospitalDestino')) document.getElementById('hospitalDestino').selectedIndex = 0;
             document.getElementById('observaciones').value = '';
+            // Clear new fields
+            var newFields = ['mensajeroSalida','mensajeroLlegada','firmaMensajeroSalida','firmaMTSalida','firmaMensajeroLlegada','firmaReceptor','razonCarreo'];
+            newFields.forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+            document.querySelectorAll('input[name="razonCarreo"]').forEach(function(r){ r.checked=false; });
+            ['rc-opt1','rc-opt2','rc-opt3'].forEach(function(id){ var el=document.getElementById(id); if(el){el.style.borderColor='#d1d5db';el.style.background='white';} });
+            // Clear signatures
+            ['sig-mensajero-salida','sig-mt-salida','sig-mensajero-llegada','sig-receptor'].forEach(function(id){
+                var cv=document.getElementById(id); if(cv){var cx=cv.getContext('2d');cx.clearRect(0,0,cv.width,cv.height);}
+            });
+            ['st-ms','st-mts','st-ml','st-rec'].forEach(function(id){
+                var el=document.getElementById(id); if(el){el.textContent='Firme en el área de arriba';el.style.color='#9ca3af';}
+            });
             
             // Ocultar resultado
             document.getElementById('resultadoTAT').style.display = 'none';
@@ -785,6 +848,62 @@ RECOMENDACIONES
             document.getElementById('fechaLlegada').value = hoy;
             document.getElementById('fechaDespacho').value = hoy;
         }
+
+
+        // ── Razón de carreo visual ──────────────────────────────────────
+        function selRazonCarreo() {
+            var val = document.querySelector('input[name="razonCarreo"]:checked');
+            document.getElementById('razonCarreo').value = val ? val.value : '';
+            ['rc-opt1','rc-opt2','rc-opt3'].forEach(function(id){
+                var el=document.getElementById(id);
+                if(el){el.style.borderColor='#d1d5db';el.style.background='white';}
+            });
+            if(val){
+                var lbl=val.closest('label');
+                if(lbl){lbl.style.borderColor='#1e3a8a';lbl.style.background='#eff6ff';}
+            }
+        }
+
+        // ── Signature canvas helpers ─────────────────────────────────────
+        var sigStates = {};
+        function initSigCanvas(canvasId) {
+            var cv = document.getElementById(canvasId);
+            if (!cv || sigStates[canvasId]) return;
+            var cx = cv.getContext('2d');
+            cx.strokeStyle='#0d1f35'; cx.lineWidth=2; cx.lineCap='round'; cx.lineJoin='round';
+            var drawing = false;
+            function gp(e){
+                var r=cv.getBoundingClientRect(),sx=cv.width/r.width,sy=cv.height/r.height,src=e.touches?e.touches[0]:e;
+                return{x:(src.clientX-r.left)*sx,y:(src.clientY-r.top)*sy};
+            }
+            cv.addEventListener('mousedown', function(e){drawing=true;cx.beginPath();var p=gp(e);cx.moveTo(p.x,p.y);});
+            cv.addEventListener('mousemove', function(e){if(!drawing)return;var p=gp(e);cx.lineTo(p.x,p.y);cx.stroke();sigStates[canvasId+'_has']=true;});
+            cv.addEventListener('mouseup',   function(){drawing=false;});
+            cv.addEventListener('mouseleave',function(){drawing=false;});
+            cv.addEventListener('touchstart',function(e){e.preventDefault();drawing=true;cx.beginPath();var p=gp(e);cx.moveTo(p.x,p.y);},{passive:false});
+            cv.addEventListener('touchmove', function(e){e.preventDefault();if(!drawing)return;var p=gp(e);cx.lineTo(p.x,p.y);cx.stroke();sigStates[canvasId+'_has']=true;},{passive:false});
+            cv.addEventListener('touchend',  function(){drawing=false;});
+            sigStates[canvasId]=true;
+        }
+        function clearSigCanvas(canvasId, statusId) {
+            var cv=document.getElementById(canvasId);
+            if(cv){cv.getContext('2d').clearRect(0,0,cv.width,cv.height);sigStates[canvasId+'_has']=false;}
+            var hidden=document.getElementById(statusId.replace('st-','firma').replace('ms','MensajeroSalida').replace('mts','MTSalida').replace('ml','MensajeroLlegada').replace('rec','Receptor'));
+            var st=document.getElementById(statusId);
+            if(st){st.textContent='Firme en el área de arriba';st.style.color='#9ca3af';}
+        }
+        function confirmSigCanvas(canvasId, statusId, hiddenId) {
+            var cv=document.getElementById(canvasId);
+            if(!cv||!sigStates[canvasId+'_has']){alert('Dibuje la firma primero');return;}
+            var hidden=document.getElementById(hiddenId);
+            if(hidden) hidden.value=cv.toDataURL('image/png');
+            var st=document.getElementById(statusId);
+            if(st){st.textContent='✅ Firma confirmada';st.style.color='#16a34a';}
+        }
+        // Init all canvases on load
+        window.addEventListener('load', function(){
+            ['sig-mensajero-salida','sig-mt-salida','sig-mensajero-llegada','sig-receptor'].forEach(initSigCanvas);
+        });
 
         // Inicialización
         console.log('🩸 Módulo TAT cargado - Sistema BLUDEE');
