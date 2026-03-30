@@ -978,7 +978,8 @@
 
         snap.forEach(function(doc) {
           var d = doc.data();
-          // Solo incluir unidades recibidas (no despachos puros)
+          // Ignorar eliminados y entradas sin número de unidad
+          if (d.eliminado === true) return;
           if (!d.numeroUnidad) return;
 
           var estado = calcularEstado(d.fechaExpiracion, d.estadoUnidad);
