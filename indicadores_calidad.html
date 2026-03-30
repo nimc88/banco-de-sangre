@@ -1007,10 +1007,7 @@ RECOMENDACIONES
                 };
                 var docRef = await db.collection('indicadores_calidad').add(data);
                 document.getElementById('firebaseIdCarreo').value = docRef.id;
-                alert('✅ Salida guardada — ID: ' + idSolicitud + '
-
-Estado: En tránsito
-Cuando llegue el carreo, usa "Completar carreo existente" en la sección de Llegada.');
+                alert('✅ Salida guardada\n\nID: ' + idSolicitud + '\nEstado: En tránsito\n\nCuando llegue el carreo, usa Completar carreo existente en la sección de Llegada.');
                 await cargarListaCarreos();
             } catch(e) {
                 alert('Error al guardar: ' + e.message);
@@ -1179,3 +1176,4 @@ ID: ' + idSolicitud);
   </script>
 </body>
 </html>
+
