@@ -232,35 +232,25 @@
                     </h3>
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
                         <div>
-                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">ID Solicitud:</label>
-                            <input type="text" id="idSolicitud" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="SOL-001" required>
-                        </div>
-                        <div>
-                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Número de Muestra:</label>
-                            <input type="text" id="numeroMuestra" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="PRB001" required>
-                        </div>
-                        <div>
-                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Tipo Componente:</label>
-                            <select id="tipoComponente" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" required>
-                                <option value="">Seleccionar...</option>
-                                <option value="PRBC">🩸 PRBC</option>
-                                <option value="Plaquetas">🧬 Plaquetas</option>
-                                <option value="Plasma">🟡 Plasma</option>
-                                <option value="Crioprecipitados">❄️ Crioprecipitados</option>
-                                <option value="Tubos Piloto">🧪 Tubos Piloto</option>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Banco Destino <span style="color:#dc2626;">*</span></label>
+                            <select id="bancoDes" onchange="generarID()" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" required>
+                                <option value="">Seleccionar banco...</option>
+                                <option value="BSH">Banco de Sangre Humacao</option>
+                                <option value="SM-HR">Servicios Mutuos - Hato Rey</option>
+                                <option value="SM-GB">Servicios Mutuos - Guaynabo</option>
                             </select>
                         </div>
                         <div>
-                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Grupo Sanguíneo:</label>
-                            <select id="grupoSanguineo" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" required>
-                                <option value="">Seleccionar...</option>
-                                <option value="O+">O+</option><option value="O-">O-</option>
-                                <option value="A+">A+</option><option value="A-">A-</option>
-                                <option value="B+">B+</option><option value="B-">B-</option>
-                                <option value="AB+">AB+</option><option value="AB-">AB-</option>
-                                <option value="N/A">N/A (Tubos)</option>
-                            </select>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">ID Solicitud <span style="font-weight:400;color:#9ca3af;font-size:0.78rem;">(auto-generado)</span></label>
+                            <input type="text" id="idSolicitud" readonly style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;background:#f1f5f9;color:#374151;font-weight:600;letter-spacing:.03em;" placeholder="Seleccione el banco destino...">
+                            <input type="hidden" id="numeroMuestra" value="">
                         </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Supervisor General:</label>
+                            <input type="text" id="supervisorGeneral" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="Nombre del supervisor">
+                        </div>
+                        <input type="hidden" id="tipoComponente" value="">
+                        <input type="hidden" id="grupoSanguineo" value="">
                         <div>
                             <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Fecha Solicitud:</label>
                             <input type="date" id="fechaSolicitud" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;" required>
@@ -274,18 +264,8 @@
                             <input type="text" id="tecnicoResponsable" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="Nombre del MT">
                         </div>
                         <div>
-                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Hospital Destino:</label>
-                            <select id="hospitalDestino" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;">
-                                <option value="">Seleccionar...</option>
-                                <option>Hospital San Juan</option>
-                                <option>Hospital Metropolitano</option>
-                                <option>Hospital UPR</option>
-                                <option>Centro Médico</option>
-                                <option>Hospital Auxilio Mutuo</option>
-                                <option>Hospital Pavia</option>
-                                <option>Caribbean Medical Center - Fajardo</option>
-                                <option>Centro Medico del Noreste - Fajardo</option>
-                            </select>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;color:#374151;">Número de Muestra <span style="font-weight:400;color:#9ca3af;font-size:0.78rem;">(opcional)</span></label>
+                            <input type="text" id="hospitalDestino" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="Ej: PRB001">
                         </div>
 
                         <!-- RAZÓN DEL CARREO — campo nuevo -->
@@ -374,6 +354,18 @@
                         <span style="background:#16a34a;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;">3</span>
                         Llegada al Hospital
                     </h3>
+                    <!-- Buscar registro pendiente -->
+                    <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:8px;padding:14px;margin-bottom:16px;display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;">
+                        <div style="flex:1;min-width:200px;">
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.85rem;color:#1e40af;">🔍 Completar carreo existente (opcional)</label>
+                            <select id="buscarCarreo" style="width:100%;padding:9px 11px;border:1.5px solid #bfdbfe;border-radius:6px;font-size:0.88rem;" onchange="cargarCarreoPendiente(this.value)">
+                                <option value="">— Nuevo registro / Buscar carreo en tránsito —</option>
+                            </select>
+                        </div>
+                        <button type="button" onclick="cargarListaCarreos()" style="padding:9px 16px;background:#1d4ed8;color:white;border:none;border-radius:6px;font-size:0.85rem;cursor:pointer;white-space:nowrap;">🔄 Actualizar lista</button>
+                    </div>
+                    <input type="hidden" id="firebaseIdCarreo">
+
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
                         <div>
                             <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;">Fecha Llegada:</label>
@@ -386,6 +378,37 @@
                         <div>
                             <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;">Nombre del Mensajero:</label>
                             <input type="text" id="mensajeroLlegada" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="Nombre del mensajero">
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:5px;font-weight:600;font-size:0.88rem;">Nombre del Paciente:</label>
+                            <input type="text" id="nombrePacienteLlegada" style="width:100%;padding:9px 11px;border:1.5px solid #d1d5db;border-radius:6px;font-size:0.92rem;" placeholder="Nombre completo del paciente">
+                        </div>
+                        <!-- Componentes que llegaron -->
+                        <div style="grid-column:1/-1;">
+                            <label style="display:block;margin-bottom:10px;font-weight:700;font-size:0.92rem;color:#166534;">🩸 Componentes que Llegaron <span style="font-weight:400;color:#6b7280;font-size:0.8rem;">(seleccione todos los que apliquen)</span></label>
+                            <div style="display:flex;flex-wrap:wrap;gap:10px;" id="comp-llegada-opts">
+                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;background:white;" id="cl-opt1">
+                                    <input type="checkbox" name="componentesLlegada" value="PRBC" onchange="selCompLlegada(this,'cl-opt1')" style="accent-color:#16a34a;width:16px;height:16px;">
+                                    <span style="font-size:0.9rem;font-weight:500;">🩸 PRBC</span>
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;background:white;" id="cl-opt2">
+                                    <input type="checkbox" name="componentesLlegada" value="Plaquetas" onchange="selCompLlegada(this,'cl-opt2')" style="accent-color:#16a34a;width:16px;height:16px;">
+                                    <span style="font-size:0.9rem;font-weight:500;">🧬 Plaquetas</span>
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;background:white;" id="cl-opt3">
+                                    <input type="checkbox" name="componentesLlegada" value="Plasma" onchange="selCompLlegada(this,'cl-opt3')" style="accent-color:#16a34a;width:16px;height:16px;">
+                                    <span style="font-size:0.9rem;font-weight:500;">🟡 Plasma</span>
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;background:white;" id="cl-opt4">
+                                    <input type="checkbox" name="componentesLlegada" value="Crioprecipitados" onchange="selCompLlegada(this,'cl-opt4')" style="accent-color:#16a34a;width:16px;height:16px;">
+                                    <span style="font-size:0.9rem;font-weight:500;">❄️ Crioprecipitados</span>
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;background:white;" id="cl-opt5">
+                                    <input type="checkbox" name="componentesLlegada" value="Tubos Piloto" onchange="selCompLlegada(this,'cl-opt5')" style="accent-color:#16a34a;width:16px;height:16px;">
+                                    <span style="font-size:0.9rem;font-weight:500;">🧪 Tubos Piloto</span>
+                                </label>
+                            </div>
+                            <input type="hidden" id="componentesLlegada">
                         </div>
                         <!-- Firmas Llegada -->
                         <div style="grid-column:1/-1;">
@@ -403,7 +426,7 @@
                                     <input type="hidden" id="firmaMensajeroLlegada">
                                 </div>
                                 <div>
-                                    <label style="display:block;margin-bottom:6px;font-weight:600;font-size:0.88rem;">✍️ Firma del Receptor en Hospital:</label>
+                                    <label style="display:block;margin-bottom:6px;font-weight:600;font-size:0.88rem;">✍️ Firma del MT Receptor en Hospital:</label>
                                     <div style="border:1.5px solid #d1d5db;border-radius:6px;background:#fafafa;overflow:hidden;">
                                         <canvas id="sig-receptor" width="600" height="100" style="display:block;width:100%;cursor:crosshair;touch-action:none;"></canvas>
                                         <div style="display:flex;justify-content:flex-end;gap:6px;padding:6px 10px;border-top:1px solid #e5e7eb;background:white;">
@@ -424,9 +447,10 @@
 
                 <!-- Botones -->
                 <div style="display:flex;gap:14px;margin-top:24px;justify-content:center;flex-wrap:wrap;">
+                    <button class="btn" onclick="guardarSalida()" style="background:#f59e0b;color:white;font-size:1rem;padding:13px 28px;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🚗 Guardar Salida (En Tránsito)</button>
                     <button class="btn btn-primary" onclick="calcularTAT()" style="font-size:1rem;padding:13px 28px;">⏱️ Calcular TAT</button>
-                    <button class="btn btn-success" onclick="guardarTAT(); guardarEnFirebase()" style="font-size:1rem;padding:13px 28px;">💾 Guardar Registro</button>
-                    <button class="btn" onclick="limpiarFormulario()" style="background:#6b7280;color:white;font-size:1rem;padding:13px 28px;">🔄 Limpiar</button>
+                    <button class="btn btn-success" onclick="guardarCompleto()" style="font-size:1rem;padding:13px 28px;">✅ Guardar Registro Completo</button>
+                    <button class="btn" onclick="limpiarFormulario()" style="background:#6b7280;color:white;font-size:1rem;padding:13px 28px;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🔄 Limpiar</button>
                 </div>
 
                 <!-- Resultado TAT -->
@@ -796,10 +820,10 @@ RECOMENDACIONES
         function guardarTAT() {
             // Validar formulario
             const idSolicitud = document.getElementById('idSolicitud').value;
-            const numeroMuestra = document.getElementById('numeroMuestra').value;
-            
-            if (!idSolicitud || !numeroMuestra) {
-                alert('⚠️ Por favor, complete al menos el ID de solicitud y número de muestra');
+            const bancoDes = document.getElementById('bancoDes') ? document.getElementById('bancoDes').value : '';
+
+            if (!idSolicitud || !bancoDes) {
+                alert('⚠️ Por favor, seleccione el Banco Destino primero para generar el ID');
                 return;
             }
 
@@ -814,8 +838,8 @@ RECOMENDACIONES
             // Limpiar todos los campos
             document.getElementById('idSolicitud').value = '';
             document.getElementById('numeroMuestra').value = '';
-            document.getElementById('tipoComponente').selectedIndex = 0;
-            document.getElementById('grupoSanguineo').selectedIndex = 0;
+            if(document.getElementById('bancoDes')) document.getElementById('bancoDes').selectedIndex = 0;
+            // tipoComponente and grupoSanguineo are now hidden
             document.getElementById('fechaSolicitud').value = '';
             document.getElementById('horaSolicitud').value = '';
             document.getElementById('fechaCarreo').value = '';
@@ -826,7 +850,7 @@ RECOMENDACIONES
             if(document.getElementById('hospitalDestino')) document.getElementById('hospitalDestino').selectedIndex = 0;
             document.getElementById('observaciones').value = '';
             // Clear new fields
-            var newFields = ['mensajeroSalida','mensajeroLlegada','firmaMensajeroSalida','firmaMTSalida','firmaMensajeroLlegada','firmaReceptor','razonCarreo'];
+            var newFields = ['mensajeroSalida','mensajeroLlegada','firmaMensajeroSalida','firmaMTSalida','firmaMensajeroLlegada','firmaReceptor','razonCarreo','supervisorGeneral','nombrePacienteLlegada','componentesLlegada','firebaseIdCarreo'];
             newFields.forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
             document.querySelectorAll('input[name="razonCarreo"]').forEach(function(r){ r.checked=false; });
             ['rc-opt1','rc-opt2','rc-opt3'].forEach(function(id){ var el=document.getElementById(id); if(el){el.style.borderColor='#d1d5db';el.style.background='white';} });
@@ -858,6 +882,12 @@ RECOMENDACIONES
                 var el=document.getElementById(id);
                 if(el){el.style.borderColor='#d1d5db';el.style.background='white';}
             });
+            document.querySelectorAll('input[name="componentesLlegada"]').forEach(function(r){ r.checked=false; });
+            ['cl-opt1','cl-opt2','cl-opt3','cl-opt4','cl-opt5'].forEach(function(id){
+                var el=document.getElementById(id);
+                if(el){el.style.borderColor='#d1d5db';el.style.background='white';}
+            });
+            if(document.getElementById('buscarCarreo')) document.getElementById('buscarCarreo').selectedIndex=0;
             if(val){
                 var lbl=val.closest('label');
                 if(lbl){lbl.style.borderColor='#1e3a8a';lbl.style.background='#eff6ff';}
@@ -903,7 +933,179 @@ RECOMENDACIONES
         // Init all canvases on load
         window.addEventListener('load', function(){
             ['sig-mensajero-salida','sig-mt-salida','sig-mensajero-llegada','sig-receptor'].forEach(initSigCanvas);
+            cargarListaCarreos();
         });
+
+        // ── Auto-generate ID from banco + date ──────────────────────────
+        var contadorCarreo = {};
+        async function generarID() {
+            var banco = document.getElementById('bancoDes').value;
+            if (!banco) { document.getElementById('idSolicitud').value = ''; return; }
+
+            // Get today's date
+            var hoy = new Date();
+            var fecha = hoy.toISOString().slice(0,10); // YYYY-MM-DD
+
+            // Count existing records for today + banco from Firebase
+            try {
+                var snap = await db.collection('indicadores_calidad')
+                    .where('bancoDes', '==', banco)
+                    .where('fechaSolicitud', '==', fecha)
+                    .get();
+                var num = snap.size + 1;
+                var id = fecha + '-' + banco + '-' + String(num).padStart(3,'0');
+                document.getElementById('idSolicitud').value = id;
+            } catch(e) {
+                // If Firebase unavailable, use timestamp-based counter
+                var key = fecha + '-' + banco;
+                contadorCarreo[key] = (contadorCarreo[key] || 0) + 1;
+                var id = fecha + '-' + banco + '-' + String(contadorCarreo[key]).padStart(3,'0');
+                document.getElementById('idSolicitud').value = id;
+            }
+        }
+
+        // ── Supervisor + componentes limpiar ───────────────────────────
+        function selCompLlegada(cb, optId) {
+            var lbl = document.getElementById(optId);
+            if (lbl) { lbl.style.borderColor = cb.checked ? '#16a34a' : '#d1d5db'; lbl.style.background = cb.checked ? '#f0fdf4' : 'white'; }
+            var vals = Array.from(document.querySelectorAll('input[name="componentesLlegada"]:checked')).map(function(c){ return c.value; });
+            document.getElementById('componentesLlegada').value = vals.join(', ');
+        }
+
+        // ── Guardar solo Solicitud + Salida (En Tránsito) ───────────────
+        async function guardarSalida() {
+            var bancoDes = document.getElementById('bancoDes') ? document.getElementById('bancoDes').value : '';
+            var idSolicitud = document.getElementById('idSolicitud').value;
+            if (!bancoDes || !idSolicitud) {
+                alert('⚠️ Seleccione el Banco Destino primero.');
+                return;
+            }
+            if (!document.getElementById('fechaSolicitud').value || !document.getElementById('horaSolicitud').value) {
+                alert('⚠️ Complete la fecha y hora de solicitud.');
+                return;
+            }
+            try {
+                var user = await new Promise(function(r){ var u=auth.onAuthStateChanged(function(usr){u();r(usr);}); });
+                if (!user) { alert('Sin sesión activa'); return; }
+                var data = {
+                    idSolicitud: idSolicitud,
+                    bancoDes: bancoDes,
+                    supervisorGeneral: document.getElementById('supervisorGeneral') ? document.getElementById('supervisorGeneral').value : '',
+                    tecnicoResponsable: document.getElementById('tecnicoResponsable') ? document.getElementById('tecnicoResponsable').value : '',
+                    hospitalDestino: document.getElementById('hospitalDestino') ? document.getElementById('hospitalDestino').value : '',
+                    razonCarreo: document.getElementById('razonCarreo').value,
+                    fechaSolicitud: document.getElementById('fechaSolicitud').value,
+                    horaSolicitud: document.getElementById('horaSolicitud').value,
+                    fechaCarreo: document.getElementById('fechaCarreo').value,
+                    horaCarreo: document.getElementById('horaCarreo').value,
+                    mensajeroSalida: document.getElementById('mensajeroSalida') ? document.getElementById('mensajeroSalida').value : '',
+                    firmaMensajeroSalida: document.getElementById('firmaMensajeroSalida') ? document.getElementById('firmaMensajeroSalida').value : '',
+                    firmaMTSalida: document.getElementById('firmaMTSalida') ? document.getElementById('firmaMTSalida').value : '',
+                    estado: 'En tránsito',
+                    guardadoPor: user.email,
+                    fechaGuardado: new Date().toISOString()
+                };
+                var docRef = await db.collection('indicadores_calidad').add(data);
+                document.getElementById('firebaseIdCarreo').value = docRef.id;
+                alert('✅ Salida guardada — ID: ' + idSolicitud + '
+
+Estado: En tránsito
+Cuando llegue el carreo, usa "Completar carreo existente" en la sección de Llegada.');
+                await cargarListaCarreos();
+            } catch(e) {
+                alert('Error al guardar: ' + e.message);
+            }
+        }
+
+        // ── Cargar lista de carreos en tránsito ─────────────────────────
+        async function cargarListaCarreos() {
+            try {
+                var snap = await db.collection('indicadores_calidad')
+                    .where('estado', '==', 'En tránsito')
+                    .orderBy('fechaGuardado', 'desc')
+                    .limit(20)
+                    .get();
+                var sel = document.getElementById('buscarCarreo');
+                sel.innerHTML = '<option value="">— Nuevo registro / Buscar carreo en tránsito —</option>';
+                snap.forEach(function(doc) {
+                    var d = doc.data();
+                    var opt = document.createElement('option');
+                    opt.value = doc.id;
+                    opt.textContent = d.idSolicitud + ' · ' + d.bancoDes + ' · ' + (d.fechaSolicitud||'') + ' — ' + (d.mensajeroSalida||'Sin mensajero');
+                    sel.appendChild(opt);
+                });
+                if (snap.empty) {
+                    var opt = document.createElement('option');
+                    opt.disabled = true;
+                    opt.textContent = 'No hay carreos en tránsito';
+                    sel.appendChild(opt);
+                }
+            } catch(e) { console.error('Error cargando carreos:', e.message); }
+        }
+
+        // ── Cargar datos del carreo seleccionado en el formulario ────────
+        async function cargarCarreoPendiente(docId) {
+            if (!docId) { document.getElementById('firebaseIdCarreo').value = ''; return; }
+            try {
+                var doc = await db.collection('indicadores_calidad').doc(docId).get();
+                if (!doc.exists) return;
+                var d = doc.data();
+                document.getElementById('firebaseIdCarreo').value = docId;
+                // Pre-fill solicitud fields (read-only display)
+                if (document.getElementById('idSolicitud'))       document.getElementById('idSolicitud').value = d.idSolicitud || '';
+                if (document.getElementById('bancoDes'))          document.getElementById('bancoDes').value = d.bancoDes || '';
+                if (document.getElementById('supervisorGeneral')) document.getElementById('supervisorGeneral').value = d.supervisorGeneral || '';
+                if (document.getElementById('tecnicoResponsable'))document.getElementById('tecnicoResponsable').value = d.tecnicoResponsable || '';
+                if (document.getElementById('fechaSolicitud'))    document.getElementById('fechaSolicitud').value = d.fechaSolicitud || '';
+                if (document.getElementById('horaSolicitud'))     document.getElementById('horaSolicitud').value = d.horaSolicitud || '';
+                if (document.getElementById('fechaCarreo'))       document.getElementById('fechaCarreo').value = d.fechaCarreo || '';
+                if (document.getElementById('horaCarreo'))        document.getElementById('horaCarreo').value = d.horaCarreo || '';
+                if (document.getElementById('mensajeroSalida'))   document.getElementById('mensajeroSalida').value = d.mensajeroSalida || '';
+                if (document.getElementById('razonCarreo'))       document.getElementById('razonCarreo').value = d.razonCarreo || '';
+                alert('✅ Datos del carreo cargados — ' + d.idSolicitud + '
+Ahora completa la sección de Llegada al Hospital.');
+            } catch(e) { alert('Error cargando carreo: ' + e.message); }
+        }
+
+        // ── Guardar registro completo (o actualizar si ya existe) ────────
+        async function guardarCompleto() {
+            var idSolicitud = document.getElementById('idSolicitud').value;
+            var bancoDes = document.getElementById('bancoDes') ? document.getElementById('bancoDes').value : '';
+            if (!idSolicitud || !bancoDes) { alert('⚠️ Seleccione el Banco Destino primero.'); return; }
+
+            try {
+                var user = await new Promise(function(r){ var u=auth.onAuthStateChanged(function(usr){u();r(usr);}); });
+                if (!user) { alert('Sin sesión activa'); return; }
+
+                var llegadaData = {
+                    fechaLlegada: document.getElementById('fechaLlegada').value,
+                    horaLlegada: document.getElementById('horaLlegada').value,
+                    mensajeroLlegada: document.getElementById('mensajeroLlegada') ? document.getElementById('mensajeroLlegada').value : '',
+                    nombrePacienteLlegada: document.getElementById('nombrePacienteLlegada') ? document.getElementById('nombrePacienteLlegada').value : '',
+                    componentesLlegada: document.getElementById('componentesLlegada') ? document.getElementById('componentesLlegada').value : '',
+                    firmaMensajeroLlegada: document.getElementById('firmaMensajeroLlegada') ? document.getElementById('firmaMensajeroLlegada').value : '',
+                    firmaReceptor: document.getElementById('firmaReceptor') ? document.getElementById('firmaReceptor').value : '',
+                    observaciones: document.getElementById('observaciones') ? document.getElementById('observaciones').value : '',
+                    estado: 'Completado',
+                    completadoPor: user.email,
+                    fechaCompletado: new Date().toISOString()
+                };
+
+                var existingId = document.getElementById('firebaseIdCarreo').value;
+                if (existingId) {
+                    // Update existing record
+                    await db.collection('indicadores_calidad').doc(existingId).update(llegadaData);
+                    alert('✅ Registro completado exitosamente
+ID: ' + idSolicitud);
+                } else {
+                    // Save complete new record
+                    guardarTAT();
+                    guardarEnFirebase();
+                    return;
+                }
+                limpiarFormulario();
+            } catch(e) { alert('Error al guardar: ' + e.message); }
+        }
 
         // Inicialización
         console.log('🩸 Módulo TAT cargado - Sistema BLUDEE');
@@ -943,6 +1145,7 @@ RECOMENDACIONES
         var user = auth.currentUser;
         await db.collection("indicadores_calidad").add({
               idSolicitud: (document.getElementById('idSolicitud') ? document.getElementById('idSolicitud').value : ''),
+              bancoDes: (document.getElementById('bancoDes') ? document.getElementById('bancoDes').value : ''),
               numeroMuestra: (document.getElementById('numeroMuestra') ? document.getElementById('numeroMuestra').value : ''),
               tipoComponente: (document.getElementById('tipoComponente') ? document.getElementById('tipoComponente').value : ''),
               grupoSanguineo: (document.getElementById('grupoSanguineo') ? document.getElementById('grupoSanguineo').value : ''),
