@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLUDEE - TAT Indicadores de Calidad</title>
   <!-- Firebase SDK -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -130,27 +132,74 @@
 
         <!-- Dashboard -->
         <div id="dashboard" class="tab-content active">
-            <div class="kpi-grid">
-                <div class="kpi-card success">
+
+            <!-- Loading state -->
+            <div id="dash-loading" style="text-align:center;padding:30px;color:#6b7280;font-size:0.9rem;">
+                🔄 Cargando datos desde Firebase...
+            </div>
+
+            <!-- KPI cards - populated from Firebase -->
+            <div class="kpi-grid" id="dash-kpis" style="display:none;">
+                <div class="kpi-card" id="kpi-cumplimiento">
                     <div class="kpi-title">CUMPLIMIENTO GENERAL</div>
-                    <div class="kpi-value">87.2%</div>
-                    <div class="kpi-subtitle">Meta: ≥85% ✅</div>
+                    <div class="kpi-value" id="kv-cumplimiento">—</div>
+                    <div class="kpi-subtitle" id="ks-cumplimiento">Meta: ≥85%</div>
                 </div>
-                <div class="kpi-card success">
+                <div class="kpi-card" id="kpi-tat">
                     <div class="kpi-title">TAT PROMEDIO TOTAL</div>
-                    <div class="kpi-value">59.9 min</div>
-                    <div class="kpi-subtitle">Meta: ≤65 min ✅</div>
+                    <div class="kpi-value" id="kv-tat">—</div>
+                    <div class="kpi-subtitle" id="ks-tat">Meta: ≤65 min</div>
                 </div>
-                <div class="kpi-card warning">
+                <div class="kpi-card" id="kpi-alerta">
                     <div class="kpi-title">SOLICITUDES ALERTA</div>
-                    <div class="kpi-value">4</div>
-                    <div class="kpi-subtitle">8.9% del total ⚠️</div>
+                    <div class="kpi-value" id="kv-alerta">—</div>
+                    <div class="kpi-subtitle" id="ks-alerta">Entre 65–75 min</div>
                 </div>
-                <div class="kpi-card danger">
-                    <div class="kpi-title">FUERA DE META</div>
-                    <div class="kpi-value">2</div>
-                    <div class="kpi-subtitle">4.4% del total ❌</div>
+                <div class="kpi-card" id="kpi-total">
+                    <div class="kpi-title">TOTAL REGISTROS</div>
+                    <div class="kpi-value" id="kv-total">—</div>
+                    <div class="kpi-subtitle" id="ks-total">Completados</div>
                 </div>
+            </div>
+
+            <!-- TAT breakdown - populated from Firebase -->
+            <div id="dash-breakdown" style="display:none;" class="chart-container">
+                <div class="chart-title">📊 TAT por Etapa — Datos en Tiempo Real</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px;">
+                    <div>
+                        <h4 style="margin-bottom:14px;color:#374151;">Promedios por Etapa:</h4>
+                        <div style="margin-bottom:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>🚗 Carreo (Solicitud→Salida):</span>
+                                <strong id="avg-carreo">— min</strong>
+                                <span id="ico-carreo">—</span>
+                            </div>
+                            <div style="font-size:0.8rem;color:#64748b;">Meta: ≤15 min</div>
+                        </div>
+                        <div style="margin-bottom:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>🏥 Llegada Hospital:</span>
+                                <strong id="avg-llegada">— min</strong>
+                                <span id="ico-llegada">—</span>
+                            </div>
+                            <div style="font-size:0.8rem;color:#64748b;">Meta: ≤30 min</div>
+                        </div>
+                        <div id="dash-total-box" style="margin-top:16px;padding:14px;background:#f0fdf4;border-radius:8px;border-left:4px solid #10b981;">
+                            <strong id="dash-total-label">TOTAL: — min</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom:14px;color:#374151;">Por Banco Destino:</h4>
+                        <div id="dash-by-banco" style="display:flex;flex-direction:column;gap:8px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div id="dash-empty" style="display:none;text-align:center;padding:40px;color:#6b7280;">
+                <div style="font-size:2rem;margin-bottom:12px;">📋</div>
+                <p style="font-size:1rem;font-weight:600;">No hay registros completados aún</p>
+                <p style="font-size:0.88rem;margin-top:6px;">Los datos aparecerán aquí cuando guardes registros de carreo</p>
             </div>
 
             <div class="chart-container">
@@ -275,15 +324,15 @@
                             </label>
                             <div style="display:flex;flex-wrap:wrap;gap:10px;" id="razon-carreo-opts">
                                 <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;transition:all .15s;background:white;" id="rc-opt1">
-                                    <input type="radio" name="razonCarreo" value="Recogido de componentes" onchange="selRazonCarreo()" style="accent-color:#1e3a8a;width:16px;height:16px;">
+                                    <input type="checkbox" name="razonCarreo" value="Recogido de componentes" onchange="selRazonCarreo(this,'rc-opt1')" style="accent-color:#1e3a8a;width:16px;height:16px;">
                                     <span style="font-size:0.9rem;font-weight:500;">🩸 Recogido de componentes</span>
                                 </label>
                                 <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;transition:all .15s;background:white;" id="rc-opt2">
-                                    <input type="radio" name="razonCarreo" value="Envío de tubos piloto" onchange="selRazonCarreo()" style="accent-color:#1e3a8a;width:16px;height:16px;">
+                                    <input type="checkbox" name="razonCarreo" value="Envío de tubos piloto" onchange="selRazonCarreo(this,'rc-opt2')" style="accent-color:#1e3a8a;width:16px;height:16px;">
                                     <span style="font-size:0.9rem;font-weight:500;">🧪 Envío de tubos piloto</span>
                                 </label>
                                 <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;transition:all .15s;background:white;" id="rc-opt3">
-                                    <input type="radio" name="razonCarreo" value="Devolver unidades" onchange="selRazonCarreo()" style="accent-color:#1e3a8a;width:16px;height:16px;">
+                                    <input type="checkbox" name="razonCarreo" value="Devolver unidades" onchange="selRazonCarreo(this,'rc-opt3')" style="accent-color:#1e3a8a;width:16px;height:16px;">
                                     <span style="font-size:0.9rem;font-weight:500;">↩️ Devolver unidades</span>
                                 </label>
                             </div>
@@ -385,31 +434,34 @@
                         </div>
                         <!-- Componentes que llegaron -->
                         <div style="grid-column:1/-1;">
-                            <label style="display:block;margin-bottom:10px;font-weight:700;font-size:0.92rem;color:#166534;">🩸 Componentes que Llegaron <span style="font-weight:400;color:#6b7280;font-size:0.8rem;">(seleccione todos los que apliquen)</span></label>
-                            <div style="display:flex;flex-wrap:wrap;gap:10px;" id="comp-llegada-opts">
-                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;background:white;" id="cl-opt1">
-                                    <input type="checkbox" name="componentesLlegada" value="PRBC" onchange="selCompLlegada(this,'cl-opt1')" style="accent-color:#16a34a;width:16px;height:16px;">
-                                    <span style="font-size:0.9rem;font-weight:500;">🩸 PRBC</span>
-                                </label>
-                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;background:white;" id="cl-opt2">
-                                    <input type="checkbox" name="componentesLlegada" value="Plaquetas" onchange="selCompLlegada(this,'cl-opt2')" style="accent-color:#16a34a;width:16px;height:16px;">
-                                    <span style="font-size:0.9rem;font-weight:500;">🧬 Plaquetas</span>
-                                </label>
-                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;background:white;" id="cl-opt3">
-                                    <input type="checkbox" name="componentesLlegada" value="Plasma" onchange="selCompLlegada(this,'cl-opt3')" style="accent-color:#16a34a;width:16px;height:16px;">
-                                    <span style="font-size:0.9rem;font-weight:500;">🟡 Plasma</span>
-                                </label>
-                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;background:white;" id="cl-opt4">
-                                    <input type="checkbox" name="componentesLlegada" value="Crioprecipitados" onchange="selCompLlegada(this,'cl-opt4')" style="accent-color:#16a34a;width:16px;height:16px;">
-                                    <span style="font-size:0.9rem;font-weight:500;">❄️ Crioprecipitados</span>
-                                </label>
-                                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;background:white;" id="cl-opt5">
-                                    <input type="checkbox" name="componentesLlegada" value="Tubos Piloto" onchange="selCompLlegada(this,'cl-opt5')" style="accent-color:#16a34a;width:16px;height:16px;">
-                                    <span style="font-size:0.9rem;font-weight:500;">🧪 Tubos Piloto</span>
-                                </label>
+                            <label style="display:block;margin-bottom:10px;font-weight:700;font-size:0.92rem;color:#166534;">
+                                🩸 Componentes que Llegaron
+                                <span style="font-weight:400;color:#6b7280;font-size:0.8rem;"> — especifique tipo, cantidad y paciente</span>
+                            </label>
+
+                            <!-- Tabla dinámica de componentes -->
+                            <div style="border:1.5px solid #86efac;border-radius:8px;overflow:hidden;margin-bottom:10px;">
+                                <table id="tabla-componentes" style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+                                    <thead>
+                                        <tr style="background:#dcfce7;">
+                                            <th style="padding:9px 12px;text-align:left;font-weight:600;color:#166534;border-bottom:1px solid #86efac;">Tipo de Componente</th>
+                                            <th style="padding:9px 12px;text-align:center;font-weight:600;color:#166534;border-bottom:1px solid #86efac;width:80px;">Cantidad</th>
+                                            <th style="padding:9px 12px;text-align:left;font-weight:600;color:#166534;border-bottom:1px solid #86efac;">Nombre del Paciente</th>
+                                            <th style="padding:9px 12px;text-align:center;width:50px;border-bottom:1px solid #86efac;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="comp-tbody">
+                                        <!-- rows added dynamically -->
+                                    </tbody>
+                                </table>
                             </div>
+
+                            <button type="button" onclick="agregarComponente()" style="padding:8px 16px;background:#16a34a;color:white;border:none;border-radius:6px;font-size:0.85rem;font-weight:600;cursor:pointer;">
+                                ➕ Agregar Componente
+                            </button>
                             <input type="hidden" id="componentesLlegada">
                         </div>
+
                         <!-- Firmas Llegada -->
                         <div style="grid-column:1/-1;">
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -462,236 +514,76 @@
         </div>
 
         <!-- Tabla TAT -->
+        <!-- TABLA TAT -->
         <div id="tabla" class="tab-content">
-            <div style="margin-bottom: 20px;">
-                <button class="btn btn-primary" onclick="alert('🖨️ Imprimiendo tabla TAT...')">🖨️ Imprimir</button>
-                <button class="btn btn-success" onclick="alert('📤 Exportando CSV...')">📤 Exportar CSV</button>
+            <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <button class="btn btn-primary" onclick="imprimirTabla()">🖨️ Imprimir Tabla</button>
+                <button class="btn btn-success" onclick="exportarCSV()">📤 Exportar CSV</button>
+                <button class="btn" onclick="cargarTabla()" style="background:#6b7280;color:white;">🔄 Actualizar</button>
+                <span id="tabla-count" style="font-size:0.85rem;color:#6b7280;margin-left:auto;"></span>
             </div>
-
             <div class="chart-container">
-                <div class="chart-title">📋 Registro Detallado TAT - Septiembre 2024</div>
-                
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Solicitud</th>
-                            <th>Muestra</th>
-                            <th>Componente</th>
-                            <th>Grupo</th>
-                            <th>Hora Solicitud</th>
-                            <th>TAT Carreo</th>
-                            <th>TAT Llegada</th>
-                            <th>TAT Despacho</th>
-                            <th>TAT Total</th>
-                            <th>Estado</th>
-                            <th>Técnico</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>SOL-001</td>
-                            <td>PRB001</td>
-                            <td>PRBC</td>
-                            <td>O+</td>
-                            <td>08:00:00</td>
-                            <td>10.0 min</td>
-                            <td>25.0 min</td>
-                            <td>15.0 min</td>
-                            <td><strong>50.0 min</strong></td>
-                            <td><span class="status-badge status-cumple">Cumple</span></td>
-                            <td>María García</td>
-                        </tr>
-                        <tr>
-                            <td>SOL-002</td>
-                            <td>PLT001</td>
-                            <td>Plaquetas</td>
-                            <td>A+</td>
-                            <td>09:30:00</td>
-                            <td>15.0 min</td>
-                            <td>40.0 min</td>
-                            <td>20.0 min</td>
-                            <td><strong>75.0 min</strong></td>
-                            <td><span class="status-badge status-alerta">Alerta</span></td>
-                            <td>José Martínez</td>
-                        </tr>
-                        <tr>
-                            <td>SOL-003</td>
-                            <td>FFP001</td>
-                            <td>Plasma</td>
-                            <td>B-</td>
-                            <td>08:15:00</td>
-                            <td>8.0 min</td>
-                            <td>22.0 min</td>
-                            <td>12.0 min</td>
-                            <td><strong>42.0 min</strong></td>
-                            <td><span class="status-badge status-cumple">Cumple</span></td>
-                            <td>Ana López</td>
-                        </tr>
-                        <tr>
-                            <td>SOL-004</td>
-                            <td>PRB002</td>
-                            <td>PRBC</td>
-                            <td>AB+</td>
-                            <td>11:00:00</td>
-                            <td>20.0 min</td>
-                            <td>55.0 min</td>
-                            <td>25.0 min</td>
-                            <td><strong>100.0 min</strong></td>
-                            <td><span class="status-badge status-no-cumple">No Cumple</span></td>
-                            <td>Carlos Rivera</td>
-                        </tr>
-                        <tr>
-                            <td>SOL-005</td>
-                            <td>PLT002</td>
-                            <td>Plaquetas</td>
-                            <td>O-</td>
-                            <td>07:30:00</td>
-                            <td>12.0 min</td>
-                            <td>28.0 min</td>
-                            <td>18.0 min</td>
-                            <td><strong>58.0 min</strong></td>
-                            <td><span class="status-badge status-cumple">Cumple</span></td>
-                            <td>María García</td>
-                        </tr>
-                        <tr>
-                            <td>SOL-006</td>
-                            <td>CRY001</td>
-                            <td>Crioprecipitados</td>
-                            <td>A-</td>
-                            <td>14:20:00</td>
-                            <td>9.0 min</td>
-                            <td>18.0 min</td>
-                            <td>14.0 min</td>
-                            <td><strong>41.0 min</strong></td>
-                            <td><span class="status-badge status-cumple">Cumple</span></td>
-                            <td>Ana López</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="chart-title">📋 Registro Detallado TAT — Datos de Firebase</div>
+                <div id="tabla-loading" style="text-align:center;padding:24px;color:#6b7280;">🔄 Cargando registros...</div>
+                <div id="tabla-empty"   style="display:none;text-align:center;padding:24px;color:#6b7280;">No hay registros completados aún.</div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" id="tabla-data" style="display:none;">
+                        <thead>
+                            <tr>
+                                <th>ID Solicitud</th>
+                                <th>Banco</th>
+                                <th>Razón Carreo</th>
+                                <th>Fecha</th>
+                                <th>TAT Carreo</th>
+                                <th>TAT Llegada</th>
+                                <th>TAT Total</th>
+                                <th>Estado TAT</th>
+                                <th>Técnico MT</th>
+                                <th>Mensajero</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-tbody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- Gráficas -->
+        <!-- GRÁFICAS -->
         <div id="graficas" class="tab-content">
             <div class="chart-container">
-                <div class="chart-title">📈 Análisis Comparativo por Componente</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                    <div>
-                        <h4 style="margin-bottom: 15px;">TAT Promedio por Tipo:</h4>
-                        <div style="margin: 10px 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>🩸 PRBC</span>
-                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
-                                    <div style="height: 100%; width: 80%; background: #10b981; border-radius: 10px;"></div>
-                                </div>
-                                <span><strong>52.3 min</strong></span>
-                            </div>
+                <div class="chart-title">📈 Análisis por Banco Destino — Datos de Firebase</div>
+                <div id="graf-loading" style="text-align:center;padding:24px;color:#6b7280;">🔄 Cargando datos...</div>
+                <div id="graf-empty"   style="display:none;text-align:center;padding:24px;color:#6b7280;">No hay registros completados aún.</div>
+                <div id="graf-content" style="display:none;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:16px;">
+                        <div>
+                            <h4 style="margin-bottom:14px;color:#374151;">TAT Promedio por Banco:</h4>
+                            <div id="graf-by-banco"></div>
                         </div>
-                        <div style="margin: 10px 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>🧬 Plaquetas</span>
-                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
-                                    <div style="height: 100%; width: 100%; background: #f59e0b; border-radius: 10px;"></div>
-                                </div>
-                                <span><strong>66.5 min</strong></span>
-                            </div>
-                        </div>
-                        <div style="margin: 10px 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>🟡 Plasma</span>
-                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
-                                    <div style="height: 100%; width: 65%; background: #10b981; border-radius: 10px;"></div>
-                                </div>
-                                <span><strong>42.0 min</strong></span>
-                            </div>
+                        <div>
+                            <h4 style="margin-bottom:14px;color:#374151;">TAT Promedio por Técnico MT:</h4>
+                            <div id="graf-by-tecnico"></div>
                         </div>
                     </div>
-                    <div>
-                        <h4 style="margin-bottom: 15px;">TAT por Técnico:</h4>
-                        <div style="margin: 10px 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>👩‍⚕️ María García</span>
-                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
-                                    <div style="height: 100%; width: 83%; background: #10b981; border-radius: 10px;"></div>
-                                </div>
-                                <span><strong>54.0 min</strong></span>
-                            </div>
-                        </div>
-                        <div style="margin: 10px 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>👨‍⚕️ José Martínez</span>
-                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
-                                    <div style="height: 100%; width: 100%; background: #f59e0b; border-radius: 10px;"></div>
-                                </div>
-                                <span><strong>75.0 min</strong></span>
-                            </div>
-                        </div>
-                        <div style="margin: 10px 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>👩‍⚕️ Ana López</span>
-                                <div style="flex: 1; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 0 10px; overflow: hidden;">
-                                    <div style="height: 100%; width: 65%; background: #10b981; border-radius: 10px;"></div>
-                                </div>
-                                <span><strong>42.0 min</strong></span>
-                            </div>
-                        </div>
+                    <div style="margin-top:24px;">
+                        <h4 style="margin-bottom:14px;color:#374151;">Distribución por Estado:</h4>
+                        <div id="graf-by-estado" style="display:flex;gap:14px;flex-wrap:wrap;"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Reportes -->
+        <!-- REPORTES -->
         <div id="reportes" class="tab-content">
-            <div style="margin-bottom: 20px;">
-                <button class="btn btn-primary" onclick="generarReporte()">📊 Generar Reporte</button>
-                <button class="btn btn-success" onclick="alert('📈 Exportando Excel...')">📈 Export Excel</button>
+            <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="generarReporteFirebase()">📊 Generar Reporte</button>
+                <button class="btn btn-success" onclick="exportarCSV()">📤 Exportar CSV</button>
             </div>
-
             <div class="chart-container">
-                <div class="chart-title">📄 Vista Previa - Reporte TAT</div>
-                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; font-family: monospace; font-size: 0.9rem;">
-<pre>================================================================================
-                    REPORTE TAT - INDICADORES DE CALIDAD
-                     SISTEMA BLUDEE - BANCO DE SANGRE PUERTO RICO
-================================================================================
-
-Periodo: Septiembre 2024
-Generado: 2024-09-17 14:30:00
-
-RESUMEN EJECUTIVO
---------------------------------------------------
-✅ Total de solicitudes: 45
-📊 Cumplimiento estándar: 87.2%
-⏱️  TAT promedio: 59.9 minutos
-📈 Mejora vs mes anterior: -8.3 min (-12.2%)
-
-ANÁLISIS POR ETAPA
---------------------------------------------------
-🚗 Carreo:         Promedio: 12.3 min (Meta: ≤15 min) ✅ 92%
-🏥 Llegada:        Promedio: 28.7 min (Meta: ≤30 min) ✅ 89%
-📤 Despacho:       Promedio: 18.9 min (Meta: ≤20 min) ✅ 94%
-⏱️  TAT TOTAL:      Promedio: 59.9 min (Meta: ≤65 min) ✅ 87.2%
-
-DISTRIBUCIÓN POR ESTADO
---------------------------------------------------
-✅ Cumple:         39 solicitudes (86.7%)
-⚠️ Alerta:          4 solicitudes (8.9%)
-❌ No cumple:       2 solicitudes (4.4%)
-
-ANÁLISIS POR COMPONENTE
---------------------------------------------------
-🩸 PRBC:           18 solicitudes | 52.3 min | 94.4% cumple
-🧬 Plaquetas:      15 solicitudes | 66.5 min | 73.3% cumple ⚠️
-🟡 Plasma:         12 solicitudes | 42.0 min | 100% cumple ✅
-
-RECOMENDACIONES
---------------------------------------------------
-🎯 Mantener excelente desempeño general
-⚠️ Atención especial: TAT de plaquetas
-👨‍⚕️ Capacitación: José Martínez (75.0 min promedio)
-📊 Continuar monitoreo mensual
-</pre>
-                </div>
+                <div class="chart-title">📄 Reporte TAT — Datos en Tiempo Real</div>
+                <div id="reporte-loading" style="text-align:center;padding:24px;color:#6b7280;">🔄 Cargando reporte...</div>
+                <div id="reporte-empty"   style="display:none;text-align:center;padding:24px;color:#6b7280;">No hay registros completados aún.</div>
+                <div id="reporte-content" style="display:none;background:#f8fafc;padding:20px;border-radius:8px;font-family:monospace;font-size:0.88rem;white-space:pre-wrap;line-height:1.7;"></div>
             </div>
         </div>
     </div>
@@ -700,17 +592,15 @@ RECOMENDACIONES
         function showTab(evt, tabName) {
             const tabContents = document.getElementsByClassName('tab-content');
             const tabButtons = document.getElementsByClassName('nav-tab');
-            
-            for (let i = 0; i < tabContents.length; i++) {
-                tabContents[i].classList.remove('active');
-            }
-            
-            for (let i = 0; i < tabButtons.length; i++) {
-                tabButtons[i].classList.remove('active');
-            }
-            
+            for (let i = 0; i < tabContents.length; i++) tabContents[i].classList.remove('active');
+            for (let i = 0; i < tabButtons.length; i++) tabButtons[i].classList.remove('active');
             document.getElementById(tabName).classList.add('active');
             evt.currentTarget.classList.add('active');
+            // Reload dashboard from Firebase when switching to it
+            if (tabName === 'dashboard') cargarDashboard();
+            if (tabName === 'tabla')     cargarTabla();
+            if (tabName === 'graficas')  cargarGraficas();
+            if (tabName === 'reportes')  generarReporteFirebase();
         }
 
         function generarReporte() {
@@ -875,23 +765,15 @@ RECOMENDACIONES
 
 
         // ── Razón de carreo visual ──────────────────────────────────────
-        function selRazonCarreo() {
-            var val = document.querySelector('input[name="razonCarreo"]:checked');
-            document.getElementById('razonCarreo').value = val ? val.value : '';
-            ['rc-opt1','rc-opt2','rc-opt3'].forEach(function(id){
-                var el=document.getElementById(id);
-                if(el){el.style.borderColor='#d1d5db';el.style.background='white';}
-            });
-            document.querySelectorAll('input[name="componentesLlegada"]').forEach(function(r){ r.checked=false; });
-            ['cl-opt1','cl-opt2','cl-opt3','cl-opt4','cl-opt5'].forEach(function(id){
-                var el=document.getElementById(id);
-                if(el){el.style.borderColor='#d1d5db';el.style.background='white';}
-            });
-            if(document.getElementById('buscarCarreo')) document.getElementById('buscarCarreo').selectedIndex=0;
-            if(val){
-                var lbl=val.closest('label');
-                if(lbl){lbl.style.borderColor='#1e3a8a';lbl.style.background='#eff6ff';}
+        function selRazonCarreo(cb, optId) {
+            var lbl = document.getElementById(optId);
+            if (lbl) {
+                lbl.style.borderColor = cb.checked ? '#1e3a8a' : '#d1d5db';
+                lbl.style.background  = cb.checked ? '#eff6ff' : 'white';
             }
+            var vals = Array.from(document.querySelectorAll('input[name="razonCarreo"]:checked'))
+                           .map(function(c){ return c.value; });
+            document.getElementById('razonCarreo').value = vals.join(', ');
         }
 
         // ── Signature canvas helpers ─────────────────────────────────────
@@ -934,6 +816,11 @@ RECOMENDACIONES
         window.addEventListener('load', function(){
             ['sig-mensajero-salida','sig-mt-salida','sig-mensajero-llegada','sig-receptor'].forEach(initSigCanvas);
             cargarListaCarreos();
+            agregarComponente();
+            // Wait for auth before loading dashboard
+            auth.onAuthStateChanged(function(user) {
+                if (user) cargarDashboard();
+            }); // start with one empty row
         });
 
         // ── Auto-generate ID from banco + date ──────────────────────────
@@ -1017,6 +904,7 @@ RECOMENDACIONES
         // ── Cargar lista de carreos en tránsito ─────────────────────────
         async function cargarListaCarreos() {
             try {
+                if (typeof db === 'undefined') return;
                 var snap = await db.collection('indicadores_calidad')
                     .where('estado', '==', 'En tránsito')
                     .orderBy('fechaGuardado', 'desc')
@@ -1059,8 +947,7 @@ RECOMENDACIONES
                 if (document.getElementById('horaCarreo'))        document.getElementById('horaCarreo').value = d.horaCarreo || '';
                 if (document.getElementById('mensajeroSalida'))   document.getElementById('mensajeroSalida').value = d.mensajeroSalida || '';
                 if (document.getElementById('razonCarreo'))       document.getElementById('razonCarreo').value = d.razonCarreo || '';
-                alert('✅ Datos del carreo cargados — ' + d.idSolicitud + '
-Ahora completa la sección de Llegada al Hospital.');
+                alert('✅ Datos del carreo cargados — ' + d.idSolicitud + '\nAhora completa la sección de Llegada al Hospital.');
             } catch(e) { alert('Error cargando carreo: ' + e.message); }
         }
 
@@ -1079,6 +966,7 @@ Ahora completa la sección de Llegada al Hospital.');
                     horaLlegada: document.getElementById('horaLlegada').value,
                     mensajeroLlegada: document.getElementById('mensajeroLlegada') ? document.getElementById('mensajeroLlegada').value : '',
                     nombrePacienteLlegada: document.getElementById('nombrePacienteLlegada') ? document.getElementById('nombrePacienteLlegada').value : '',
+                    componentes: getComponentesData(),
                     componentesLlegada: document.getElementById('componentesLlegada') ? document.getElementById('componentesLlegada').value : '',
                     firmaMensajeroLlegada: document.getElementById('firmaMensajeroLlegada') ? document.getElementById('firmaMensajeroLlegada').value : '',
                     firmaReceptor: document.getElementById('firmaReceptor') ? document.getElementById('firmaReceptor').value : '',
@@ -1092,8 +980,9 @@ Ahora completa la sección de Llegada al Hospital.');
                 if (existingId) {
                     // Update existing record
                     await db.collection('indicadores_calidad').doc(existingId).update(llegadaData);
-                    alert('✅ Registro completado exitosamente
-ID: ' + idSolicitud);
+                    if (confirm('✅ Registro completado exitosamente\nID: ' + idSolicitud + '\n\n¿Desea generar el PDF del registro?')) {
+                        generarPDFCarreo(Object.assign({}, data, llegadaData, { idSolicitud: idSolicitud }));
+                    }
                 } else {
                     // Save complete new record
                     guardarTAT();
@@ -1103,6 +992,514 @@ ID: ' + idSolicitud);
                 limpiarFormulario();
             } catch(e) { alert('Error al guardar: ' + e.message); }
         }
+
+        // ── Tabla dinámica de componentes ────────────────────────────────
+        var compRowCount = 0;
+        function agregarComponente() {
+            var tbody = document.getElementById('comp-tbody');
+            var id = 'cr-' + (++compRowCount);
+            var tr = document.createElement('tr');
+            tr.id = id;
+            tr.style.borderBottom = '1px solid #e5e7eb';
+            tr.innerHTML = `
+                <td style="padding:8px 10px;">
+                    <select onchange="actualizarComponentes()" style="width:100%;padding:7px 9px;border:1px solid #d1d5db;border-radius:5px;font-size:0.85rem;">
+                        <option value="">Seleccionar...</option>
+                        <option value="PRBC">🩸 PRBC</option>
+                        <option value="PRBC Fraccionada">🩸 PRBC Fraccionada</option>
+                        <option value="Plaquetas">🧬 Plaquetas</option>
+                        <option value="Plasma">🟡 Plasma</option>
+                        <option value="Crioprecipitados">❄️ Crioprecipitados</option>
+                    </select>
+                </td>
+                <td style="padding:8px 6px;text-align:center;">
+                    <input type="number" min="1" max="99" value="1" onchange="actualizarComponentes()" style="width:60px;padding:7px 6px;border:1px solid #d1d5db;border-radius:5px;font-size:0.85rem;text-align:center;">
+                </td>
+                <td style="padding:8px 10px;">
+                    <input type="text" placeholder="Nombre del paciente" onchange="actualizarComponentes()" style="width:100%;padding:7px 9px;border:1px solid #d1d5db;border-radius:5px;font-size:0.85rem;">
+                </td>
+                <td style="padding:8px 6px;text-align:center;">
+                    <button type="button" onclick="eliminarComponente('${id}')" style="background:#fee2e2;color:#991b1b;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:0.8rem;">✕</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function eliminarComponente(id) {
+            var tr = document.getElementById(id);
+            if (tr) { tr.remove(); actualizarComponentes(); }
+        }
+
+        function actualizarComponentes() {
+            var rows = document.querySelectorAll('#comp-tbody tr');
+            var items = [];
+            rows.forEach(function(tr) {
+                var sel = tr.querySelector('select');
+                var qty = tr.querySelector('input[type="number"]');
+                var pac = tr.querySelector('input[type="text"]');
+                if (sel && sel.value) {
+                    items.push((qty ? qty.value : '1') + 'x ' + sel.value + (pac && pac.value ? ' (' + pac.value + ')' : ''));
+                }
+            });
+            document.getElementById('componentesLlegada').value = items.join(' | ');
+        }
+
+        function getComponentesData() {
+            var rows = document.querySelectorAll('#comp-tbody tr');
+            var items = [];
+            rows.forEach(function(tr) {
+                var sel = tr.querySelector('select');
+                var qty = tr.querySelector('input[type="number"]');
+                var pac = tr.querySelector('input[type="text"]');
+                if (sel && sel.value) {
+                    items.push({ tipo: sel.value, cantidad: qty ? qty.value : '1', paciente: pac ? pac.value : '' });
+                }
+            });
+            return items;
+        }
+
+        // ── Generar PDF del registro completo ────────────────────────────
+        function generarPDFCarreo(data) {
+            var { jsPDF } = window.jspdf;
+            if (!jsPDF) { alert('jsPDF no disponible'); return; }
+            var doc = new jsPDF();
+
+            // Header
+            doc.setFillColor(13, 31, 53);
+            doc.rect(0, 0, 210, 28, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(14); doc.setFont(undefined, 'bold');
+            doc.text('BLUDEE - BANCO DE SANGRE', 105, 12, { align: 'center' });
+            doc.setFontSize(10); doc.setFont(undefined, 'normal');
+            doc.text('Registro de Carreo - Indicadores de Calidad (TAT)', 105, 21, { align: 'center' });
+
+            doc.setTextColor(0, 0, 0);
+
+            // Solicitud info
+            doc.autoTable({
+                startY: 34,
+                head: [['SOLICITUD INICIAL', '']],
+                body: [
+                    ['ID Solicitud', data.idSolicitud || '-'],
+                    ['Banco Destino', data.bancoDes || '-'],
+                    ['Supervisor General', data.supervisorGeneral || '-'],
+                    ['Técnico MT', data.tecnicoResponsable || '-'],
+                    ['Razón del Carreo', data.razonCarreo || '-'],
+                    ['Fecha Solicitud', (data.fechaSolicitud || '-') + ' ' + (data.horaSolicitud || '')],
+                    ['Observaciones', data.observaciones || '-'],
+                ],
+                styles: { fontSize: 9 },
+                headStyles: { fillColor: [13, 31, 53] },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 55 } }
+            });
+
+            // Salida
+            doc.autoTable({
+                startY: doc.lastAutoTable.finalY + 5,
+                head: [['SALIDA CARREO', '']],
+                body: [
+                    ['Fecha y Hora Salida', (data.fechaCarreo || '-') + ' ' + (data.horaCarreo || '')],
+                    ['Mensajero', data.mensajeroSalida || '-'],
+                ],
+                styles: { fontSize: 9 },
+                headStyles: { fillColor: [180, 100, 0] },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 55 } }
+            });
+
+            // Llegada
+            doc.autoTable({
+                startY: doc.lastAutoTable.finalY + 5,
+                head: [['LLEGADA AL HOSPITAL', '']],
+                body: [
+                    ['Fecha y Hora Llegada', (data.fechaLlegada || '-') + ' ' + (data.horaLlegada || '')],
+                    ['Mensajero', data.mensajeroLlegada || '-'],
+                ],
+                styles: { fontSize: 9 },
+                headStyles: { fillColor: [22, 101, 52] },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 55 } }
+            });
+
+            // Componentes table
+            if (data.componentes && data.componentes.length > 0) {
+                doc.autoTable({
+                    startY: doc.lastAutoTable.finalY + 5,
+                    head: [['COMPONENTES ENTREGADOS', '', '']],
+                    body: data.componentes.map(function(c) {
+                        return [c.tipo || '-', c.cantidad || '1', c.paciente || '-'];
+                    }),
+                    styles: { fontSize: 9 },
+                    headStyles: { fillColor: [13, 31, 53], colspan: 3 },
+                    columnStyles: {
+                        0: { fontStyle: 'bold', cellWidth: 70 },
+                        1: { cellWidth: 30, halign: 'center' },
+                        2: { cellWidth: 80 }
+                    }
+                });
+            }
+
+            // TAT results
+            var tatY = doc.lastAutoTable.finalY + 8;
+            if (data.tatCarreo !== undefined) {
+                doc.setFontSize(10); doc.setFont(undefined, 'bold');
+                doc.text('TIEMPOS TAT', 14, tatY);
+                doc.autoTable({
+                    startY: tatY + 3,
+                    body: [
+                        ['TAT Carreo (Solicitud → Salida)', (data.tatCarreo || '-') + ' min', data.tatCarreo <= 15 ? '✅ Cumple' : '⚠️ Alerta'],
+                        ['TAT Llegada (Salida → Llegada)', (data.tatLlegada || '-') + ' min', data.tatLlegada <= 30 ? '✅ Cumple' : '⚠️ Alerta'],
+                        ['TAT TOTAL', (data.tatTotal || '-') + ' min', data.tatTotal <= 65 ? '✅ Cumple' : '❌ No Cumple'],
+                    ],
+                    styles: { fontSize: 9 },
+                    columnStyles: { 0: { cellWidth: 90 }, 1: { cellWidth: 40, halign: 'center' }, 2: { cellWidth: 50, halign: 'center' } }
+                });
+            }
+
+            // Signatures
+            var sigY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : tatY + 10;
+            doc.setFontSize(9); doc.setFont(undefined, 'bold');
+            doc.text('FIRMAS', 14, sigY);
+
+            var sigs = [
+                { label: 'Mensajero (Salida)', data: data.firmaMensajeroSalida, x: 14, y: sigY + 4 },
+                { label: 'MT Responsable (Salida)', data: data.firmaMTSalida, x: 110, y: sigY + 4 },
+                { label: 'Mensajero (Llegada)', data: data.firmaMensajeroLlegada, x: 14, y: sigY + 38 },
+                { label: 'MT Receptor', data: data.firmaReceptor, x: 110, y: sigY + 38 },
+            ];
+
+            sigs.forEach(function(s) {
+                doc.setFontSize(8); doc.setFont(undefined, 'normal');
+                doc.text(s.label, s.x, s.y);
+                if (s.data) {
+                    doc.addImage(s.data, 'PNG', s.x, s.y + 2, 85, 22);
+                } else {
+                    doc.setFillColor(250, 250, 250);
+                    doc.rect(s.x, s.y + 2, 85, 22, 'F');
+                }
+                doc.line(s.x, s.y + 26, s.x + 85, s.y + 26);
+            });
+
+            // Footer
+            var ph = doc.internal.pageSize.height;
+            doc.setFontSize(7); doc.setTextColor(150, 150, 150);
+            doc.text('Sistema Bludee · Banco de Sangre Humacao · ' + new Date().toLocaleString('es-PR'), 105, ph - 5, { align: 'center' });
+
+            doc.save('Carreo_' + (data.idSolicitud || 'REG') + '.pdf');
+        }
+
+        // ── Override guardarCompleto to include componentes + PDF ─────────
+        var _originalGuardarCompleto = window.guardarCompleto;
+
+        // ── Dashboard en tiempo real desde Firebase ─────────────────────
+        async function cargarDashboard() {
+            try {
+                // Wait for auth + db to be ready
+                if (typeof db === 'undefined') {
+                    document.getElementById('dash-loading').textContent = '⚠️ Firebase no disponible';
+                    return;
+                }
+                var user = await new Promise(function(resolve) {
+                    var u = auth.onAuthStateChanged(function(usr) { u(); resolve(usr); });
+                });
+                if (!user) return;
+
+                var snap = await db.collection('indicadores_calidad')
+                    .where('estado', '==', 'Completado')
+                    .orderBy('fechaGuardado', 'desc')
+                    .limit(200)
+                    .get();
+
+                document.getElementById('dash-loading').style.display = 'none';
+
+                if (snap.empty) {
+                    document.getElementById('dash-empty').style.display = 'block';
+                    return;
+                }
+
+                var records = [];
+                snap.forEach(function(doc) { records.push(doc.data()); });
+
+                // Calculate metrics
+                var total = records.length;
+                var tatTotals = [], tatCarreos = [], tatLlegadas = [];
+                var cumple = 0, alerta = 0, noCumple = 0;
+
+                records.forEach(function(r) {
+                    // Calculate TAT from timestamps
+                    if (r.fechaSolicitud && r.horaSolicitud && r.fechaCarreo && r.horaCarreo && r.fechaLlegada && r.horaLlegada) {
+                        var dtSol  = new Date(r.fechaSolicitud + 'T' + r.horaSolicitud + ':00');
+                        var dtCar  = new Date(r.fechaCarreo    + 'T' + r.horaCarreo    + ':00');
+                        var dtLleg = new Date(r.fechaLlegada   + 'T' + r.horaLlegada   + ':00');
+                        var tCarreo  = Math.round((dtCar  - dtSol)  / 60000);
+                        var tLlegada = Math.round((dtLleg - dtCar)  / 60000);
+                        var tTotal   = Math.round((dtLleg - dtSol)  / 60000);
+                        if (tCarreo >= 0 && tLlegada >= 0) {
+                            tatCarreos.push(tCarreo);
+                            tatLlegadas.push(tLlegada);
+                            tatTotals.push(tTotal);
+                            if (tTotal <= 65)      cumple++;
+                            else if (tTotal <= 75) alerta++;
+                            else                   noCumple++;
+                        }
+                    }
+                });
+
+                var avg = function(arr) { return arr.length ? Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length) : null; };
+                var avgTotal   = avg(tatTotals);
+                var avgCarreo  = avg(tatCarreos);
+                var avgLlegada = avg(tatLlegadas);
+                var pctCumple  = tatTotals.length ? Math.round(cumple / tatTotals.length * 100) : null;
+
+                // Update KPI cards
+                document.getElementById('dash-kpis').style.display = '';
+                document.getElementById('dash-breakdown').style.display = 'block';
+
+                // Cumplimiento
+                var kpiC = document.getElementById('kpi-cumplimiento');
+                document.getElementById('kv-cumplimiento').textContent = pctCumple !== null ? pctCumple + '%' : 'N/A';
+                document.getElementById('ks-cumplimiento').textContent = 'Meta: ≥85% ' + (pctCumple >= 85 ? '✅' : pctCumple >= 75 ? '⚠️' : '❌');
+                kpiC.className = 'kpi-card ' + (pctCumple >= 85 ? 'success' : pctCumple >= 75 ? 'warning' : 'danger');
+
+                // TAT promedio
+                document.getElementById('kv-tat').textContent = avgTotal !== null ? avgTotal + ' min' : 'N/A';
+                document.getElementById('ks-tat').textContent = 'Meta: ≤65 min ' + (avgTotal <= 65 ? '✅' : avgTotal <= 75 ? '⚠️' : '❌');
+                document.getElementById('kpi-tat').className = 'kpi-card ' + (avgTotal <= 65 ? 'success' : avgTotal <= 75 ? 'warning' : 'danger');
+
+                // Alertas
+                document.getElementById('kv-alerta').textContent = alerta;
+                document.getElementById('ks-alerta').textContent = alerta + ' entre 65-75 min ⚠️';
+                document.getElementById('kpi-alerta').className = 'kpi-card ' + (alerta === 0 ? 'success' : 'warning');
+
+                // Total
+                document.getElementById('kv-total').textContent = total;
+                document.getElementById('ks-total').textContent = total + ' registros completados';
+                document.getElementById('kpi-total').className = 'kpi-card success';
+
+                // TAT by stage
+                document.getElementById('avg-carreo').textContent  = avgCarreo  !== null ? avgCarreo  + ' min' : 'N/A';
+                document.getElementById('avg-llegada').textContent = avgLlegada !== null ? avgLlegada + ' min' : 'N/A';
+                document.getElementById('ico-carreo').textContent  = avgCarreo  <= 15 ? '✅' : '⚠️';
+                document.getElementById('ico-llegada').textContent = avgLlegada <= 30 ? '✅' : '⚠️';
+
+                var totalBox = document.getElementById('dash-total-box');
+                totalBox.innerHTML = '<strong id="dash-total-label">TOTAL: ' + (avgTotal || '—') + ' min ' + (avgTotal <= 65 ? '✅ Cumple meta' : '⚠️ Por encima de meta') + '</strong>';
+                totalBox.style.borderLeftColor = avgTotal <= 65 ? '#10b981' : '#f59e0b';
+
+                // By banco
+                var bancoCounts = {};
+                var bancoTATs   = {};
+                records.forEach(function(r) {
+                    if (!r.bancoDes) return;
+                    bancoCounts[r.bancoDes] = (bancoCounts[r.bancoDes] || 0) + 1;
+                    if (!bancoTATs[r.bancoDes]) bancoTATs[r.bancoDes] = [];
+                    if (r.tatTotal) bancoTATs[r.bancoDes].push(r.tatTotal);
+                });
+                var bancoNames = { 'BSH':'Banco de Sangre Humacao', 'SM-HR':'Servicios Mutuos - Hato Rey', 'SM-GB':'Servicios Mutuos - Guaynabo' };
+                var bancoHtml = '';
+                Object.keys(bancoCounts).forEach(function(b) {
+                    var at = avg(bancoTATs[b] || []);
+                    bancoHtml += '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;">' +
+                        '<div style="font-weight:600;font-size:0.88rem;">' + (bancoNames[b]||b) + '</div>' +
+                        '<div style="font-size:0.82rem;color:#6b7280;margin-top:3px;">' + bancoCounts[b] + ' carreos' + (at ? ' · TAT prom: ' + at + ' min' : '') + '</div>' +
+                        '</div>';
+                });
+                document.getElementById('dash-by-banco').innerHTML = bancoHtml || '<div style="color:#9ca3af;font-size:0.85rem;">Sin datos por banco</div>';
+
+            } catch(e) {
+                document.getElementById('dash-loading').textContent = '⚠️ Error al cargar dashboard: ' + e.message;
+                console.error('Dashboard error:', e);
+            }
+        }
+
+        // ── Helpers ──────────────────────────────────────────────────────
+        async function getCompletados() {
+            if (typeof auth === 'undefined' || typeof db === 'undefined') return [];
+            var user = await new Promise(function(r){
+                var u = auth.onAuthStateChanged(function(usr){ u(); r(usr); });
+            });
+            if (!user) return [];
+            var snap = await db.collection('indicadores_calidad')
+                .where('estado','==','Completado')
+                .orderBy('fechaGuardado','desc').limit(500).get();
+            var rows = [];
+            snap.forEach(function(doc){ rows.push(Object.assign({id:doc.id}, doc.data())); });
+            return rows;
+        }
+
+        function calcTAT(r) {
+            if (!r.fechaSolicitud||!r.horaSolicitud||!r.fechaCarreo||!r.horaCarreo||!r.fechaLlegada||!r.horaLlegada) return null;
+            var dtS=new Date(r.fechaSolicitud+'T'+r.horaSolicitud+':00');
+            var dtC=new Date(r.fechaCarreo+'T'+r.horaCarreo+':00');
+            var dtL=new Date(r.fechaLlegada+'T'+r.horaLlegada+':00');
+            return { carreo: Math.round((dtC-dtS)/60000), llegada: Math.round((dtL-dtC)/60000), total: Math.round((dtL-dtS)/60000) };
+        }
+
+        function barHtml(label, min, meta, maxMin) {
+            var pct = Math.min(100, Math.round(min / maxMin * 100));
+            var color = min <= meta ? '#10b981' : min <= meta*1.15 ? '#f59e0b' : '#ef4444';
+            return '<div style="margin-bottom:10px;">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+                '<span style="font-size:0.85rem;">' + label + '</span>' +
+                '<strong style="font-size:0.85rem;">' + min + ' min</strong></div>' +
+                '<div style="height:16px;background:#e5e7eb;border-radius:8px;overflow:hidden;">' +
+                '<div style="height:100%;width:'+pct+'%;background:'+color+';border-radius:8px;transition:width .5s;"></div></div></div>';
+        }
+
+        // ── Tabla TAT ─────────────────────────────────────────────────────
+        async function cargarTabla() {
+            document.getElementById('tabla-loading').style.display='block';
+            document.getElementById('tabla-data').style.display='none';
+            document.getElementById('tabla-empty').style.display='none';
+            try {
+                var rows = await getCompletados();
+                document.getElementById('tabla-loading').style.display='none';
+                if (!rows.length) { document.getElementById('tabla-empty').style.display='block'; return; }
+                var tbody = document.getElementById('tabla-tbody');
+                tbody.innerHTML = '';
+                rows.forEach(function(r) {
+                    var t = calcTAT(r);
+                    var estado = !t ? '-' : t.total<=65 ? '<span class="status-badge status-cumple">Cumple</span>' : t.total<=75 ? '<span class="status-badge status-alerta">Alerta</span>' : '<span class="status-badge status-no-cumple">No Cumple</span>';
+                    var bancoNames = {'BSH':'Humacao','SM-HR':'SM Hato Rey','SM-GB':'SM Guaynabo'};
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td>'+(r.idSolicitud||'-')+'</td>'+
+                        '<td>'+(bancoNames[r.bancoDes]||r.bancoDes||'-')+'</td>'+
+                        '<td style="font-size:0.8rem;">'+(r.razonCarreo||'-')+'</td>'+
+                        '<td>'+(r.fechaSolicitud||'-')+'</td>'+
+                        '<td>'+(t?t.carreo+' min':'-')+'</td>'+
+                        '<td>'+(t?t.llegada+' min':'-')+'</td>'+
+                        '<td><strong>'+(t?t.total+' min':'-')+'</strong></td>'+
+                        '<td>'+estado+'</td>'+
+                        '<td>'+(r.tecnicoResponsable||'-')+'</td>'+
+                        '<td>'+(r.mensajeroSalida||'-')+'</td>';
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('tabla-data').style.display='table';
+                document.getElementById('tabla-count').textContent = rows.length + ' registros';
+            } catch(e) { document.getElementById('tabla-loading').textContent='⚠️ Error: '+e.message; }
+        }
+
+        // ── Gráficas ──────────────────────────────────────────────────────
+        async function cargarGraficas() {
+            document.getElementById('graf-loading').style.display='block';
+            document.getElementById('graf-content').style.display='none';
+            try {
+                var rows = await getCompletados();
+                document.getElementById('graf-loading').style.display='none';
+                if (!rows.length) { document.getElementById('graf-empty').style.display='block'; return; }
+
+                var avg = function(arr){ return arr.length ? Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length) : null; };
+                var byBanco={}, byTec={}, cumple=0, alerta=0, noCumple=0;
+                var bancoNames={'BSH':'Banco de Sangre Humacao','SM-HR':'SM Hato Rey','SM-GB':'SM Guaynabo'};
+
+                rows.forEach(function(r){
+                    var t=calcTAT(r); if(!t) return;
+                    var b=r.bancoDes||'N/A'; if(!byBanco[b]) byBanco[b]=[]; byBanco[b].push(t.total);
+                    var mt=r.tecnicoResponsable||'N/A'; if(!byTec[mt]) byTec[mt]=[]; byTec[mt].push(t.total);
+                    if(t.total<=65) cumple++; else if(t.total<=75) alerta++; else noCumple++;
+                });
+
+                // By banco bars
+                var maxB = Math.max.apply(null, Object.values(byBanco).map(function(a){return avg(a)||0;})) || 65;
+                document.getElementById('graf-by-banco').innerHTML = Object.keys(byBanco).map(function(b){
+                    var a=avg(byBanco[b]); return barHtml((bancoNames[b]||b)+' ('+byBanco[b].length+')', a, 65, Math.max(maxB,65));
+                }).join('');
+
+                // By tecnico bars
+                var maxT = Math.max.apply(null, Object.values(byTec).map(function(a){return avg(a)||0;})) || 65;
+                document.getElementById('graf-by-tecnico').innerHTML = Object.keys(byTec).map(function(t){
+                    var a=avg(byTec[t]); return barHtml(t+' ('+byTec[t].length+')', a, 65, Math.max(maxT,65));
+                }).join('');
+
+                // Estado distribution
+                var total=cumple+alerta+noCumple;
+                document.getElementById('graf-by-estado').innerHTML =
+                    '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px 20px;text-align:center;flex:1;">' +
+                    '<div style="font-size:1.4rem;font-weight:700;color:#16a34a;">'+cumple+'</div>' +
+                    '<div style="font-size:0.8rem;color:#166534;">Cumple ✅</div>' +
+                    '<div style="font-size:0.75rem;color:#6b7280;">'+Math.round(cumple/total*100)+'%</div></div>' +
+                    '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:14px 20px;text-align:center;flex:1;">' +
+                    '<div style="font-size:1.4rem;font-weight:700;color:#d97706;">'+alerta+'</div>' +
+                    '<div style="font-size:0.8rem;color:#92400e;">Alerta ⚠️</div>' +
+                    '<div style="font-size:0.75rem;color:#6b7280;">'+Math.round(alerta/total*100)+'%</div></div>' +
+                    '<div style="background:#fff0f1;border:1px solid #fbb6bc;border-radius:8px;padding:14px 20px;text-align:center;flex:1;">' +
+                    '<div style="font-size:1.4rem;font-weight:700;color:#dc2626;">'+noCumple+'</div>' +
+                    '<div style="font-size:0.8rem;color:#991b1b;">No Cumple ❌</div>' +
+                    '<div style="font-size:0.75rem;color:#6b7280;">'+Math.round(noCumple/total*100)+'%</div></div>';
+
+                document.getElementById('graf-content').style.display='block';
+            } catch(e) { document.getElementById('graf-loading').textContent='⚠️ Error: '+e.message; }
+        }
+
+        // ── Reporte de texto ──────────────────────────────────────────────
+        async function generarReporteFirebase() {
+            document.getElementById('reporte-loading').style.display='block';
+            document.getElementById('reporte-content').style.display='none';
+            try {
+                var rows = await getCompletados();
+                document.getElementById('reporte-loading').style.display='none';
+                if (!rows.length) { document.getElementById('reporte-empty').style.display='block'; return; }
+
+                var avg = function(arr){ return arr.length ? Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length) : 0; };
+                var tats=[], tatC=[], tatL=[], cumple=0, alerta=0, noCumple=0;
+                rows.forEach(function(r){ var t=calcTAT(r); if(!t) return; tats.push(t.total); tatC.push(t.carreo); tatL.push(t.llegada); if(t.total<=65) cumple++; else if(t.total<=75) alerta++; else noCumple++; });
+
+                var pct = tats.length ? Math.round(cumple/tats.length*100) : 0;
+                var now = new Date().toLocaleString('es-PR');
+                var bancoNames={'BSH':'Banco de Sangre Humacao','SM-HR':'SM Hato Rey','SM-GB':'SM Guaynabo'};
+                var byBanco={};
+                rows.forEach(function(r){ var t=calcTAT(r); if(!t) return; var b=bancoNames[r.bancoDes]||r.bancoDes||'N/A'; if(!byBanco[b]) byBanco[b]=[]; byBanco[b].push(t.total); });
+
+                var bancoLines = Object.keys(byBanco).map(function(b){
+                    return '  '+b+': '+byBanco[b].length+' carreos | TAT prom: '+avg(byBanco[b])+' min';
+                }).join('\n');
+
+                var L = '\n';
+                var S1 = '=======================================================';
+                var S2 = '-------------------------------------------------------';
+                var reporte = S1+L+'       REPORTE TAT - INDICADORES DE CALIDAD'+L+'     SISTEMA BLUDEE - BANCO DE SANGRE PUERTO RICO'+L+S1+L+L
+                    +'Generado: '+now+L+L
+                    +'RESUMEN EJECUTIVO'+L+S2+L
+                    +'  Total registros completados : '+rows.length+L
+                    +'  Cumplimiento general        : '+pct+'% '+(pct>=85?'OK':'ALERTA')+L
+                    +'  TAT promedio total          : '+avg(tats)+' min '+(avg(tats)<=65?'OK':'ALERTA')+L+L
+                    +'ANALISIS POR ETAPA'+L+S2+L
+                    +'  Carreo (Solicitud-Salida)   : '+avg(tatC)+' min (meta <=15 min) '+(avg(tatC)<=15?'OK':'ALERTA')+L
+                    +'  Llegada (Salida-Hospital)   : '+avg(tatL)+' min (meta <=30 min) '+(avg(tatL)<=30?'OK':'ALERTA')+L
+                    +'  TAT TOTAL                   : '+avg(tats)+' min (meta <=65 min) '+(avg(tats)<=65?'OK':'ALERTA')+L+L
+                    +'DISTRIBUCION POR ESTADO'+L+S2+L
+                    +'  Cumple   (<=65 min) : '+cumple+' registros ('+Math.round(cumple/(tats.length||1)*100)+'%)'+L
+                    +'  Alerta   (65-75 min): '+alerta+' registros ('+Math.round(alerta/(tats.length||1)*100)+'%)'+L
+                    +'  No Cumple (>75 min) : '+noCumple+' registros ('+Math.round(noCumple/(tats.length||1)*100)+'%)'+L+L
+                    +'POR BANCO DESTINO'+L+S2+L
+                    +bancoLines+L+L+S1+L;
+
+                                document.getElementById('reporte-content').textContent = reporte;
+                document.getElementById('reporte-content').style.display='block';
+            } catch(e) { document.getElementById('reporte-loading').textContent='⚠️ Error: '+e.message; }
+        }
+
+        // ── Export CSV ────────────────────────────────────────────────────
+        async function exportarCSV() {
+            try {
+                var rows = await getCompletados();
+                if (!rows.length) { alert('No hay registros para exportar'); return; }
+                var header = 'ID Solicitud,Banco,Razon Carreo,Fecha,TAT Carreo,TAT Llegada,TAT Total,Estado,Tecnico,Mensajero\n';
+                var csv = header + rows.map(function(r){
+                    var t=calcTAT(r);
+                    var estado = !t?'N/A':t.total<=65?'Cumple':t.total<=75?'Alerta':'No Cumple';
+                    return [r.idSolicitud,r.bancoDes,r.razonCarreo,r.fechaSolicitud,
+                        t?t.carreo:'',t?t.llegada:'',t?t.total:'',estado,
+                        r.tecnicoResponsable,r.mensajeroSalida].map(function(v){ return '"'+(v||'')+'"'; }).join(',');
+                }).join('\n');
+                var blob = new Blob([csv], {type:'text/csv'});
+                var a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'TAT_Bludee_' + new Date().toISOString().slice(0,10) + '.csv';
+                a.click();
+            } catch(e) { alert('Error exportando: '+e.message); }
+        }
+
+        // ── Imprimir tabla ────────────────────────────────────────────────
+        function imprimirTabla() { window.print(); }
 
         // Inicialización
         console.log('🩸 Módulo TAT cargado - Sistema BLUDEE');
