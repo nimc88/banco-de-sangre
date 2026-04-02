@@ -304,6 +304,87 @@
             transform: translateX(8px) scale(1.02);
         }
 
+        /* ── Buscador de módulos ── */
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            font-size: 1.2rem;
+            pointer-events: none;
+        }
+
+        #module-search {
+            width: 100%;
+            padding: 14px 18px 14px 50px;
+            border: 2px solid #e5e7eb;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-family: 'Segoe UI', sans-serif;
+            color: #2c3e50;
+            background: #f8f9fa;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        #module-search:focus {
+            border-color: #dc2626;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        #module-search::placeholder { color: #9ca3af; }
+
+        .search-results {
+            display: none;
+            margin-top: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-result-item {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .search-result-item:hover {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(220,38,38,0.2);
+        }
+
+        .search-no-results {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            padding: 6px 0;
+            display: none;
+        }
+
         .quick-actions {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
@@ -882,8 +963,6 @@
       display:flex;align-items:center;gap:6px;
     ">🚪 Cerrar sesión</button>
   </div>
-    <button class="logout-btn" onclick="logout()">🚪 Cerrar Sesión</button>
-    
     <!-- PÁGINA PRINCIPAL -->
     <div class="container" id="mainPage">
         <!-- Header Principal -->
@@ -932,6 +1011,16 @@
             <div class="alerts-list" id="alerts-list">
                 <!-- Se cargarán dinámicamente -->
             </div>
+        </div>
+
+        <!-- Buscador de Módulos -->
+        <div class="search-section">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="module-search" placeholder="Buscar módulo... (ej: donantes, inventario, reportes)" oninput="searchModules(this.value)">
+            </div>
+            <div class="search-results" id="search-results"></div>
+            <p class="search-no-results" id="search-no-results">No se encontraron módulos con ese nombre.</p>
         </div>
 
         <!-- Acciones Rápidas -->
@@ -1994,7 +2083,64 @@
             
             showNotification('🚀 Sistema BLUDEE Integral iniciado correctamente', 'success');
         });
-    </script>
+      // 🔍 Buscador de módulos
+    const allModules = [
+        { name: 'Inventario Actual',           icon: '📊', href: 'inventario_actual.html' },
+        { name: 'Trazabilidad',                icon: '🔄', href: 'trazabilidad_banco_sangre.html' },
+        { name: 'Gestión de Donantes',         icon: '👥', href: 'gestion_de_donantes.html' },
+        { name: 'Componentes Devueltos',       icon: '📦', href: 'modulo_componentes_devueltos.html' },
+        { name: 'Despacho de Emergencia',      icon: '🚨', href: 'despacho_emergencia.html' },
+        { name: 'Despacho de Unidad',          icon: '📤', href: 'despacho_unidad.html' },
+        { name: 'Registro Unidad Recibida',    icon: '📥', href: 'registro_unidad_recibida.html' },
+        { name: 'Indicadores de Calidad',      icon: '📊', href: 'indicadores_calidad.html' },
+        { name: 'Notas Clínicas',              icon: '📝', href: 'notas_clinicas_internas.html' },
+        { name: 'Historial de Transfusión',    icon: '📋', href: 'historial_transfusion_paciente.html' },
+        { name: 'Pruebas de Compatibilidad',   icon: '🔬', href: 'prueba_de_compatibilidad.html' },
+        { name: 'Registro de Transfusiones',   icon: '💉', href: '#' },
+        { name: 'Expedientes Mensuales',       icon: '📋', href: 'expedientes_mensuales.html' },
+        { name: 'Auditorías y Logs',           icon: '📋', href: 'auditorias_y_logs.html' },
+        { name: 'Estadísticas Generales',      icon: '📈', href: '#' },
+        { name: 'Gestión de Usuarios',         icon: '👥', href: 'usuarios.html' },
+        { name: 'Asistente Virtual',           icon: '🤖', href: 'chatbot.html' },
+        { name: 'Configuración del Sistema',   icon: '⚙️', href: '#' },
+        { name: 'Respaldos y Mantenimiento',   icon: '💾', href: '#' },
+        { name: 'Ayuda y Capacitación',        icon: '❓', href: '#' },
+        { name: 'Recibir Unidad',              icon: '📥', href: '#', onclick: "openIntegratedModule('receive')" },
+        { name: 'Despachar Unidad',            icon: '📤', href: '#', onclick: "openIntegratedModule('dispatch')" },
+        { name: 'Registro Completo',           icon: '📊', href: '#', onclick: "openIntegratedModule('tracking')" },
+    ];
+
+    function searchModules(query) {
+        var resultsDiv   = document.getElementById('search-results');
+        var noResults    = document.getElementById('search-no-results');
+        query = query.trim().toLowerCase();
+
+        if (!query) {
+            resultsDiv.style.display = 'none';
+            noResults.style.display  = 'none';
+            return;
+        }
+
+        var matches = allModules.filter(function(m) {
+            return m.name.toLowerCase().includes(query);
+        });
+
+        resultsDiv.style.display = 'flex';
+
+        if (matches.length === 0) {
+            resultsDiv.innerHTML    = '';
+            noResults.style.display = 'block';
+        } else {
+            noResults.style.display = 'none';
+            resultsDiv.innerHTML = matches.map(function(m) {
+                var action = m.onclick
+                    ? 'href="#" onclick="' + m.onclick + '"'
+                    : 'href="' + m.href + '"';
+                return '<a class="search-result-item" ' + action + '>' + m.icon + ' ' + m.name + '</a>';
+            }).join('');
+        }
+    }
+  </script>
   <script>
     // 🚪 Función de cerrar sesión
     function cerrarSesion() {
