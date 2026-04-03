@@ -398,6 +398,54 @@
         max-width: 300px;
       }
     }
+        /* ── Button-group selector ── */
+        .btn-group-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            display: block;
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .btn-group input[type="radio"] {
+            display: none;
+        }
+        .btn-group label {
+            padding: 9px 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.92rem;
+            background: #f9fafb;
+            color: #374151;
+            transition: all 0.2s;
+            margin-bottom: 0;
+            user-select: none;
+        }
+        .btn-group label:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .btn-group input[type="radio"]:checked + label {
+            background: #1e40af;
+            border-color: #1e40af;
+            color: white;
+            box-shadow: 0 2px 8px rgba(30,64,175,0.3);
+        }
+        /* Estado de unidad – colores distintos */
+        .btn-group.estado input[type="radio"]:checked + label.opt-excelente { background:#059669;border-color:#059669; }
+        .btn-group.estado input[type="radio"]:checked + label.opt-bueno      { background:#2563eb;border-color:#2563eb; }
+        .btn-group.estado input[type="radio"]:checked + label.opt-regular    { background:#d97706;border-color:#d97706; }
+        .btn-group.estado input[type="radio"]:checked + label.opt-rechazado  { background:#dc2626;border-color:#dc2626; }
+        /* Rh */
+        .btn-group.rh input[type="radio"]:checked + label.opt-pos { background:#059669;border-color:#059669; }
+        .btn-group.rh input[type="radio"]:checked + label.opt-neg { background:#dc2626;border-color:#dc2626; }
   </style>
 </head>
 <body>
@@ -437,7 +485,7 @@
         <div class="form-grid">
           <div class="form-group">
             <label for="id_componente">ID del Componente <span class="required">*</span></label>
-            <input type="text" id="id_componente" placeholder="Ej: PRBC-001234" required>
+            <input type="text" id="id_componente" placeholder="Ingresa el ID del componente" required>
           </div>
           
           <div class="form-group">
@@ -453,36 +501,54 @@
           </div>
 
           <div class="form-group">
-            <label for="grupo_sangre">Grupo Sanguíneo <span class="required">*</span></label>
-            <select id="grupo_sangre" required>
-              <option value="">Seleccionar...</option>
-              <option value="O">O</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="AB">AB</option>
-            </select>
+            <span class="btn-group-label">ABO/Rh Donante <span class="required">*</span></span>
+            <div class="btn-group" id="grupo_sangre_btns">
+              <input type="radio" name="grupo_sangre" id="gs_O"  value="O">
+              <label for="gs_O">O</label>
+              <input type="radio" name="grupo_sangre" id="gs_A"  value="A">
+              <label for="gs_A">A</label>
+              <input type="radio" name="grupo_sangre" id="gs_B"  value="B">
+              <label for="gs_B">B</label>
+              <input type="radio" name="grupo_sangre" id="gs_AB" value="AB">
+              <label for="gs_AB">AB</label>
+            </div>
+            <input type="hidden" id="grupo_sangre" required>
+            <div class="btn-group rh" id="rh_componente_btns" style="margin-top:8px;">
+              <input type="radio" name="rh_componente" id="rh_pos" value="+">
+              <label for="rh_pos" class="opt-pos">＋ Positivo</label>
+              <input type="radio" name="rh_componente" id="rh_neg" value="-">
+              <label for="rh_neg" class="opt-neg">− Negativo</label>
+            </div>
+            <input type="hidden" id="rh_componente" required>
           </div>
 
-          <div class="form-group">
-            <label for="rh_componente">Factor Rh <span class="required">*</span></label>
-            <select id="rh_componente" required>
-              <option value="">Seleccionar...</option>
-              <option value="+">Positivo (+)</option>
-              <option value="-">Negativo (−)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="volumen">Volumen <span class="required">*</span></label>
-            <input type="text" id="volumen" placeholder="Ingrese volumen en mL" required>
-          </div>
-
-          <div class="form-group">
-            <label for="fecha_recibo">Fecha y Hora de Recibo <span class="required">*</span></label>
-            <input type="datetime-local" id="fecha_recibo" required>
+          <div class="form-group full-width">
+            <span class="btn-group-label">Suplidor <span class="required">*</span></span>
+            <div class="btn-group" id="suplidor_btns">
+              <input type="radio" name="suplidor" id="sup_humacao" value="Banco de Sangre Humacao">
+              <label for="sup_humacao">🏥 Banco de Sangre Humacao</label>
+              <input type="radio" name="suplidor" id="sup_smhr" value="Servicios Mutuos-Hato Rey">
+              <label for="sup_smhr">🏨 Servicios Mutuos-Hato Rey</label>
+              <input type="radio" name="suplidor" id="sup_smgb" value="Servicios Mutuos-Guaynabo">
+              <label for="sup_smgb">🏨 Servicios Mutuos-Guaynabo</label>
+              <input type="radio" name="suplidor" id="sup_otro" value="Otro">
+              <label for="sup_otro">➕ Otro</label>
+            </div>
+            <input type="hidden" id="suplidor" required>
           </div>
         </div>
-        
+        <div class="form-group full-width">
+            <span class="btn-group-label">Estado de la Unidad <span class="required">*</span></span>
+            <div class="btn-group estado" id="inspeccion_btns">
+              <input type="radio" name="inspeccion" id="ins_rec" value="Recibida">
+              <label for="ins_rec" class="opt-bueno">📥 Recibida</label>
+              <input type="radio" name="inspeccion" id="ins_des" value="Despachada">
+              <label for="ins_des" class="opt-excelente">📤 Despachada</label>
+              <input type="radio" name="inspeccion" id="ins_dev" value="Devuelta">
+              <label for="ins_dev" class="opt-rechazado">🔄 Devuelta</label>
+            </div>
+            <input type="hidden" id="inspeccion" required>
+          </div>
         <div id="temp_options"></div>
       </div>
 
@@ -504,31 +570,32 @@
           </div>
           
           <div class="form-group">
-            <label for="grupo_sangre_paciente">Grupo Sanguíneo <span class="required">*</span></label>
-            <select id="grupo_sangre_paciente" required>
-              <option value="">Seleccionar...</option>
-              <option value="O">O</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="AB">AB</option>
-            </select>
+            <span class="btn-group-label">ABO/Rh Paciente <span class="required">*</span></span>
+            <div class="btn-group" id="grupo_sangre_paciente_btns">
+              <input type="radio" name="grupo_sangre_paciente" id="gsp_O"  value="O">
+              <label for="gsp_O">O</label>
+              <input type="radio" name="grupo_sangre_paciente" id="gsp_A"  value="A">
+              <label for="gsp_A">A</label>
+              <input type="radio" name="grupo_sangre_paciente" id="gsp_B"  value="B">
+              <label for="gsp_B">B</label>
+              <input type="radio" name="grupo_sangre_paciente" id="gsp_AB" value="AB">
+              <label for="gsp_AB">AB</label>
+            </div>
+            <input type="hidden" id="grupo_sangre_paciente" required>
+            <div class="btn-group rh" id="rh_paciente_btns" style="margin-top:8px;">
+              <input type="radio" name="rh_paciente" id="rhp_pos" value="+">
+              <label for="rhp_pos" class="opt-pos">＋ Positivo</label>
+              <input type="radio" name="rh_paciente" id="rhp_neg" value="-">
+              <label for="rhp_neg" class="opt-neg">− Negativo</label>
+            </div>
+            <input type="hidden" id="rh_paciente" required>
           </div>
 
-          <div class="form-group">
-            <label for="rh_paciente">Factor Rh <span class="required">*</span></label>
-            <select id="rh_paciente" required>
-              <option value="">Seleccionar...</option>
-              <option value="+">Positivo (+)</option>
-              <option value="-">Negativo (−)</option>
-            </select>
-          </div>
-          
           <div class="form-group">
             <label for="doctor">Doctor Solicitante <span class="required">*</span></label>
             <input type="text" id="doctor" placeholder="Dr./Dra. Apellido" required>
           </div>
         </div>
-      </div>
 
       <!-- Personal Médico -->
       <div class="form-section section-medical">
@@ -538,13 +605,13 @@
         </h2>
         <div class="form-grid">
           <div class="form-group">
-            <label for="tecnologo">Tecnólogo Médico (MT) <span class="required">*</span></label>
-            <input type="text" id="tecnologo" value="Norma I. Medina" required>
+            <label for="tecnologo">Released By — Nombre del MT <span class="required">*</span></label>
+            <input type="text" id="tecnologo" placeholder="MT. Nombre Apellido" required>
           </div>
           
           <div class="form-group">
-            <label for="enfermero">Enfermero(a) Notificado</label>
-            <input type="text" id="enfermero" placeholder="Lic. Apellido">
+            <label for="enfermero">Persona Notificada — Nombre del Enfermero/Supervisor</label>
+            <input type="text" id="enfermero" placeholder="Lic. Nombre Apellido">
           </div>
           
           <div class="form-group">
@@ -792,6 +859,28 @@
       document.body.appendChild(t);
       setTimeout(function(){ t.remove(); }, 3500);
     }
+
+        // ── Sincronizar botones con inputs hidden ──
+        function syncBtnGroups() {
+            var groups = [
+                {name:'grupo_sangre',         hidden:'grupo_sangre'},
+                {name:'rh_componente',        hidden:'rh_componente'},
+                {name:'grupo_sangre_paciente',hidden:'grupo_sangre_paciente'},
+                {name:'rh_paciente',          hidden:'rh_paciente'},
+                {name:'suplidor',             hidden:'suplidor'},
+                {name:'inspeccion',           hidden:'inspeccion'},
+            ];
+            groups.forEach(function(g) {
+                var radios = document.querySelectorAll('input[name="'+g.name+'"]');
+                radios.forEach(function(r) {
+                    r.addEventListener('change', function() {
+                        var h = document.getElementById(g.hidden);
+                        if (h) h.value = this.value;
+                    });
+                });
+            });
+        }
+        document.addEventListener('DOMContentLoaded', syncBtnGroups);
   </script>
 </body>
 </html>
