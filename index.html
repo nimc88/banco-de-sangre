@@ -1529,6 +1529,42 @@
         let editingIndex = -1;
         let unitCounter = 1;
 
+        // ── LocalStorage persistence ─────────────────────────────
+        const LS_ENTRIES = 'bludee_entries_v2';
+        const LS_STOCK   = 'bludee_emg_stock_v1';
+
+        function guardarLocal() {
+            try {
+                localStorage.setItem(LS_ENTRIES, JSON.stringify(currentEntries));
+            } catch(e) { console.warn('localStorage write error:', e.message); }
+        }
+
+        function cargarLocal() {
+            try {
+                var raw = localStorage.getItem(LS_ENTRIES);
+                if (raw) {
+                    currentEntries = JSON.parse(raw);
+                    console.log('✅ ' + currentEntries.length + ' entradas cargadas desde localStorage');
+                }
+            } catch(e) { console.warn('localStorage read error:', e.message); }
+        }
+
+        function guardarEmgLocal() {
+            try {
+                localStorage.setItem(LS_STOCK, JSON.stringify(emergencyStock));
+            } catch(e) { console.warn('localStorage emg write error:', e.message); }
+        }
+
+        function cargarEmgLocal() {
+            try {
+                var raw = localStorage.getItem(LS_STOCK);
+                if (raw) {
+                    emergencyStock = JSON.parse(raw);
+                    console.log('✅ ' + emergencyStock.length + ' unidades emg cargadas desde localStorage');
+                }
+            } catch(e) { console.warn('localStorage emg read error:', e.message); }
+        }
+
         // Actualizar fecha y hora
         function updateDateTime() {
             const now = new Date();
@@ -1581,11 +1617,16 @@
             updateEntryCounter();
         }
 
-        // ✅ Carga todas las entradas desde Firebase y las muestra en la tabla
+        // ✅ Carga entradas — Firebase primero, localStorage como respaldo
         async function cargarEntradasDeFirebase() {
+            // Always load localStorage first (instant, offline-safe)
+            cargarLocal();
+            updateTable();
+
+            // Then try Firebase to get latest cloud data
             if (typeof db === 'undefined' || !db) {
-                console.warn('Firebase no disponible — modo local activado');
-                updateTable(); return;
+                console.warn('Firebase no disponible — usando datos locales');
+                return;
             }
             try {
                 var snapshot = await db.collection("entradas_unidades")
@@ -1593,20 +1634,27 @@
                     .limit(200)
                     .get();
 
+                if (snapshot.empty && currentEntries.length > 0) {
+                    // Firebase is empty but we have local data — keep local
+                    console.warn('Firebase vacío — manteniendo datos locales');
+                    return;
+                }
+
                 currentEntries = [];
                 snapshot.forEach(function(doc) {
                     var data = doc.data();
-                    // ✅ Ignorar entradas marcadas como eliminadas
                     if (data.eliminado === true) return;
                     data.firebaseId = doc.id;
                     currentEntries.push(data);
                 });
 
+                // Sync Firebase data back to localStorage
+                guardarLocal();
                 updateTable();
                 updateEntryCounter();
-                console.log("✅ " + currentEntries.length + " entradas activas cargadas desde Firebase");
+                console.log("✅ " + currentEntries.length + " entradas cargadas desde Firebase");
             } catch(e) {
-                console.error("❌ Error al cargar desde Firebase:", e.message);
+                console.warn("Firebase no accesible — usando datos locales:", e.message);
             }
         }
 
@@ -1790,7 +1838,7 @@
                     // Mark emergency stock unit as used
                     if (selVal.startsWith('EMG::')) {
                         var emgIdx = emergencyStock.findIndex(function(u){ return u.numeroUnidad === unitId; });
-                        if (emgIdx >= 0) emergencyStock[emgIdx].estado = 'usado';
+                        if (emgIdx >= 0) { emergencyStock[emgIdx].estado = 'usado'; guardarEmgLocal(); }
                         renderEmergencyStock();
                     }
                     showNotification('✅ Despacho registrado — ' + unitId, 'success');
@@ -1809,6 +1857,7 @@
                 currentEntries.unshift(entryData);
             }
 
+            guardarLocal();   // persist to localStorage immediately
             updateTable();
             updateSystemStats();
             clearForm();
@@ -1948,6 +1997,7 @@
                 }
                 // Quitar de la tabla local
                 currentEntries.splice(index, 1);
+                guardarLocal();
                 updateTable();
                 updateEntryCounter();
                 showNotification('🗑️ Entrada eliminada correctamente', 'success');
@@ -2293,6 +2343,7 @@
             if (prbcR) prbcR.checked = true;
             document.getElementById('emergencyAddForm').style.display = 'none';
 
+            guardarEmgLocal();
             renderEmergencyStock();
             showNotification('✅ Unidad agregada al Stock de Emergencia', 'success');
         }
@@ -2801,6 +2852,8 @@
             
             currentEntries = [];
             unitCounter = 1;
+            cargarLocal();     // load entries from localStorage
+            cargarEmgLocal();  // load emergency stock from localStorage
             
             showNotification('🚀 Sistema BLUDEE Integral iniciado correctamente', 'success');
         });
