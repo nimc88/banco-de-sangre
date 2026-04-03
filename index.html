@@ -973,10 +973,10 @@
         <!-- Información del Usuario -->
         <div class="user-info">
             <div class="user-welcome">
-                <div class="user-avatar" id="user-avatar">NM</div>
+                <div class="user-avatar" id="user-avatar">?</div>
                 <div class="user-details">
                     <h3 id="username">—</h3>
-                    <p id="user-role">Tecnólogo Médico Principal</p>
+                    <p id="user-role">—</p>
                 </div>
             </div>
             <div class="current-time" id="current-time"></div>
@@ -1165,9 +1165,18 @@
                             <option value="emergencia">🚨 Despacho de Emergencia</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <!-- Recibo: escribir número manualmente -->
+                    <div class="form-group" id="unidadInputGroup">
                         <label for="numeroUnidad">Número de Unidad:</label>
-                        <input type="text" id="numeroUnidad" placeholder="Ingresa el ID de la unidad">
+                        <input type="text" id="numeroUnidad" placeholder="Ej: PRBC-001234">
+                    </div>
+                    <!-- Despacho: seleccionar de unidades recibidas -->
+                    <div class="form-group" id="unidadSelectGroup" style="display:none;">
+                        <label for="selectUnidadDespacho">Seleccionar Unidad Recibida:</label>
+                        <select id="selectUnidadDespacho" onchange="autoFillFromRecibo(this.value)"
+                                style="font-size:0.95rem;">
+                            <option value="">— Seleccionar unidad —</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Estado de la Unidad:</label>
@@ -1585,6 +1594,20 @@
                 document.getElementById('estadoUnidad').value = 'despachada';
             }
 
+            // Swap unidad input vs dropdown
+            var inputGrp  = document.getElementById('unidadInputGroup');
+            var selectGrp = document.getElementById('unidadSelectGroup');
+            if (inputGrp && selectGrp) {
+                if (esRecibo) {
+                    inputGrp.style.display  = 'flex';
+                    selectGrp.style.display = 'none';
+                } else {
+                    inputGrp.style.display  = 'none';
+                    selectGrp.style.display = 'flex';
+                    populateUnidadDropdown();
+                }
+            }
+
             // Mostrar botones de acción
             var fa = document.querySelector('.form-actions');
             if (fa) fa.style.display = 'flex';
@@ -1624,7 +1647,36 @@
                 showNotification('⚠️ Error al guardar en la nube: ' + e.message, 'warning');
             }
 
-            if (editingIndex >= 0) {
+            var tipo = getVal('tipoOperacion');
+            if (tipo === 'despacho' || tipo === 'emergencia') {
+                // Find the existing recibo entry and UPDATE it
+                var sel = document.getElementById('selectUnidadDespacho');
+                var unitId = sel ? sel.value : '';
+                var existingIdx = currentEntries.findIndex(function(e) {
+                    return e.numeroUnidad === unitId;
+                });
+                if (existingIdx >= 0) {
+                    // Merge despacho data into existing recibo entry
+                    var existing = currentEntries[existingIdx];
+                    currentEntries[existingIdx] = Object.assign({}, existing, {
+                        estadoUnidad:   entryData.estadoUnidad || 'despachada',
+                        fechaDespacho:  entryData.fecha,
+                        timeDispatched: entryData.timeDispatched,
+                        inspeccion:     entryData.inspeccion,
+                        releasedBy:     entryData.releasedBy,
+                        firmaReleased:  entryData.firmaReleased,
+                        receivedBy:     entryData.receivedBy,
+                        firmaReceived:  entryData.firmaReceived,
+                        returned:       entryData.returned,
+                        comentarios:    entryData.comentarios,
+                        timestampDespacho: new Date().toISOString()
+                    });
+                    showNotification('✅ Despacho registrado en la unidad ' + unitId, 'success');
+                } else {
+                    // No matching recibo found — create new entry
+                    currentEntries.unshift(entryData);
+                }
+            } else if (editingIndex >= 0) {
                 currentEntries[editingIndex] = entryData;
             } else {
                 currentEntries.unshift(entryData);
@@ -2047,6 +2099,91 @@
         }
 
 
+
+        // ── Populate despacho dropdown with received units ────────
+        function populateUnidadDropdown() {
+            var sel = document.getElementById('selectUnidadDespacho');
+            if (!sel) return;
+            var current = sel.value;
+            sel.innerHTML = '<option value="">— Seleccionar unidad —</option>';
+            currentEntries.forEach(function(e) {
+                if (e.estadoUnidad === 'recibida' || e.estadoUnidad === 'proceso') {
+                    var opt = document.createElement('option');
+                    opt.value = e.numeroUnidad;
+                    var comp = e.componente ? ' | ' + e.componente : '';
+                    var pac  = e.paciente   ? ' — ' + e.paciente   : '';
+                    opt.textContent = e.numeroUnidad + comp + pac;
+                    sel.appendChild(opt);
+                }
+            });
+            if (current) sel.value = current;
+        }
+
+        // ── Auto-fill recibo fields when unit is selected ─────────
+        function autoFillFromRecibo(numeroUnidad) {
+            if (!numeroUnidad) return;
+            var entry = currentEntries.find(function(e) {
+                return e.numeroUnidad === numeroUnidad;
+            });
+            if (!entry) return;
+
+            // Set hidden numeroUnidad
+            document.getElementById('numeroUnidad').value = numeroUnidad;
+
+            // Fill text fields
+            var fields = ['paciente','record','medico','volumen',
+                          'fechaExpiracion','transportTemp','timeReceived',
+                          'personaNotificada','horaNotificacion','mt',
+                          'horaExpiracion','comentarios'];
+            fields.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el && entry[id]) el.value = entry[id];
+            });
+
+            // Re-select radio buttons for ABO/Rh Paciente
+            if (entry.aboRhPaciente) {
+                var abo = entry.aboRhPaciente.replace(/[+-]/, '');
+                var rh  = entry.aboRhPaciente.includes('+') ? '+' : '-';
+                var aboR = document.querySelector('input[name="aboRhPaciente"][value="' + abo + '"]');
+                var rhR  = document.querySelector('input[name="rhPaciente"][value="' + rh + '"]');
+                if (aboR) aboR.checked = true;
+                if (rhR)  rhR.checked  = true;
+            }
+            // ABO/Rh Donante
+            if (entry.aboRhDonante) {
+                var aboD = entry.aboRhDonante.replace(/[+-]/, '');
+                var rhD  = entry.aboRhDonante.includes('+') ? '+' : '-';
+                var aboDr = document.querySelector('input[name="aboRhDonante"][value="' + aboD + '"]');
+                var rhDr  = document.querySelector('input[name="rhDonante"][value="' + rhD + '"]');
+                if (aboDr) aboDr.checked = true;
+                if (rhDr)  rhDr.checked  = true;
+            }
+            // Componente
+            if (entry.componente) {
+                var compR = document.querySelector('input[name="componente"][value="' + entry.componente + '"]');
+                if (compR) { compR.checked = true; onComponenteChange(entry.componente); }
+            }
+            // Localización
+            if (entry.localizacion) {
+                var locR = document.querySelector('input[name="localizacion"][value="' + entry.localizacion + '"]');
+                if (locR) locR.checked = true;
+            }
+            // Suplidor
+            if (entry.suplidor) {
+                var supR = document.querySelector('input[name="suplidor"][value="' + entry.suplidor + '"]');
+                if (supR) supR.checked = true;
+            }
+
+            // Show horaExpiracion if PRBC Fraccionada
+            if (entry.componente === 'PRBC Fraccionada' && entry.horaExpiracion) {
+                var horaEl = document.getElementById('horaExpiracion');
+                if (horaEl) { horaEl.style.display = 'block'; horaEl.value = entry.horaExpiracion; }
+            }
+
+            checkExpiracion();
+            showNotification('✅ Datos de recibo cargados para ' + numeroUnidad, 'success');
+        }
+
         // ── PRBC Fraccionada: hora expiración + alerta 23h ────────
         function onComponenteChange(valor) {
             var horaInput  = document.getElementById('horaExpiracion');
@@ -2224,16 +2361,23 @@
         }
 
         function checkAuthentication() {
-            const isAuthenticated = true;
-            
-            if (!isAuthenticated) {
-                window.location.href = 'login.html';
-                return;
+            if (typeof auth !== 'undefined' && auth) {
+                auth.onAuthStateChanged(function(user) {
+                    if (!user) { window.location.href = 'login.html'; return; }
+                    var displayName = user.displayName || user.email || '';
+                    var initials = displayName
+                        .split(' ')
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .map(function(w) { return w[0].toUpperCase(); })
+                        .join('');
+                    document.getElementById('username').textContent   = displayName || '—';
+                    document.getElementById('user-role').textContent  = '—';
+                    document.getElementById('user-avatar').textContent = initials || '?';
+                    currentUser.name     = displayName;
+                    currentUser.initials = initials;
+                });
             }
-            
-            document.getElementById('username').textContent = currentUser.name;
-            document.getElementById('user-role').textContent = currentUser.role;
-            document.getElementById('user-avatar').textContent = currentUser.initials;
         }
 
         // Atajos de teclado mejorados
