@@ -18,16 +18,22 @@
         messagingSenderId: "476330144377",
         appId: "1:476330144377:web:88d31603514ca265409aa8"
       };
-      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-      var auth = firebase.auth();
-      var db   = firebase.firestore();
-
-      // 🔐 Si no hay sesión activa → manda al login
-      auth.onAuthStateChanged(function(user) {
-        if (!user) {
-          window.location.href = 'login.html';
+      var auth, db;
+      try {
+        if (typeof firebase !== 'undefined') {
+          if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+          auth = firebase.auth();
+          db   = firebase.firestore();
+          // 🔐 Si no hay sesión activa → manda al login
+          auth.onAuthStateChanged(function(user) {
+            if (!user) window.location.href = 'login.html';
+          });
+        } else {
+          console.warn('⚠️ Firebase SDK no disponible — modo offline activado');
         }
-      });
+      } catch(e) {
+        console.warn('⚠️ Error inicializando Firebase:', e.message);
+      }
     </script>
     <style>
         * {
@@ -302,87 +308,6 @@
         .menu-item.integrated:hover {
             background: linear-gradient(135deg, #b3e5fc, #81d4fa);
             transform: translateX(8px) scale(1.02);
-        }
-
-        /* ── Buscador de módulos ── */
-        .search-section {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 20px 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            margin-bottom: 20px;
-        }
-
-        .search-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 18px;
-            font-size: 1.2rem;
-            pointer-events: none;
-        }
-
-        #module-search {
-            width: 100%;
-            padding: 14px 18px 14px 50px;
-            border: 2px solid #e5e7eb;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-family: 'Segoe UI', sans-serif;
-            color: #2c3e50;
-            background: #f8f9fa;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        #module-search:focus {
-            border-color: #dc2626;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-        }
-
-        #module-search::placeholder { color: #9ca3af; }
-
-        .search-results {
-            display: none;
-            margin-top: 14px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .search-result-item {
-            background: linear-gradient(135deg, #fef2f2, #fee2e2);
-            color: #991b1b;
-            border: 1px solid #fecaca;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .search-result-item:hover {
-            background: linear-gradient(135deg, #fee2e2, #fecaca);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(220,38,38,0.2);
-        }
-
-        .search-no-results {
-            color: #9ca3af;
-            font-size: 0.9rem;
-            padding: 6px 0;
-            display: none;
         }
 
         .quick-actions {
@@ -944,6 +869,61 @@
                 justify-content: center;
             }
         }
+
+        /* ── Signature pads ── */
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .sig-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+        .sig-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .sig-canvas {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            background: white;
+            cursor: crosshair;
+            display: block;
+            margin: 0 auto 8px;
+            touch-action: none;
+        }
+        .sig-canvas:hover { border-color: #3b82f6; }
+        .sig-clear {
+            background: #fee2e2; color: #dc2626;
+            border: 1px solid #fca5a5; border-radius: 6px;
+            padding: 4px 12px; cursor: pointer;
+            font-size: 0.8rem; font-weight: 600;
+        }
+        .sig-clear:hover { background: #fecaca; }
+
+        /* ── Button groups ── */
+        .btn-group { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:2px; }
+        .btn-group input[type="radio"] { display:none; }
+        .btn-group label {
+            padding:7px 14px; border:2px solid #e5e7eb; border-radius:8px;
+            cursor:pointer; font-weight:600; font-size:0.85rem;
+            background:#f9fafb; color:#374151; transition:all 0.2s;
+            margin-bottom:0; user-select:none;
+        }
+        .btn-group label:hover { border-color:#3b82f6; background:#eff6ff; }
+        .btn-group input[type="radio"]:checked + label { background:#1e40af; border-color:#1e40af; color:white; box-shadow:0 2px 8px rgba(30,64,175,0.25); }
+        .btn-rh input[type="radio"]:checked + label.opt-pos { background:#059669; border-color:#059669; }
+        .btn-rh input[type="radio"]:checked + label.opt-neg { background:#dc2626; border-color:#dc2626; }
+        .btn-estado input[type="radio"]:checked + label.opt-recibida   { background:#2563eb; border-color:#2563eb; }
+        .btn-estado input[type="radio"]:checked + label.opt-despachada { background:#059669; border-color:#059669; }
+        .btn-estado input[type="radio"]:checked + label.opt-devuelta   { background:#dc2626; border-color:#dc2626; }
     </style>
 </head>
 <body>
@@ -1013,16 +993,6 @@
             </div>
         </div>
 
-        <!-- Buscador de Módulos -->
-        <div class="search-section">
-            <div class="search-wrapper">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="module-search" placeholder="Buscar módulo... (ej: donantes, inventario, reportes)" oninput="searchModules(this.value)">
-            </div>
-            <div class="search-results" id="search-results"></div>
-            <p class="search-no-results" id="search-no-results">No se encontraron módulos con ese nombre.</p>
-        </div>
-
         <!-- Acciones Rápidas -->
         <div class="quick-actions">
             <h3>⚡ Acciones Rápidas</h3>
@@ -1060,8 +1030,8 @@
                 <a class="menu-item" href="gestion_de_donantes.html">👥 Gestión de Donantes</a>
                 <a class="menu-item" href="modulo_componentes_devueltos.html">📦 Componentes Devueltos</a>
                 <a class="menu-item emergency" href="despacho_emergencia.html">🚨 Despacho de Emergencia</a>
-                <a class="menu-item" href="despacho_unidad.html">📤 Despacho de Unidad</a>
-                <a class="menu-item" href="registro_unidad_recibida.html">📥 Registro Unidad Recibida</a>
+                <a class="menu-item" onclick="openIntegratedModule('dispatch')" style="cursor:pointer;">📤 Despacho de Unidad</a>
+                <a class="menu-item" onclick="openIntegratedModule('receive')" style="cursor:pointer;">📥 Registro Unidad Recibida</a>
                 <a class="menu-item" href="indicadores_calidad.html">📊 Indicadores de Calidad</a>
             </div>
 
@@ -1197,16 +1167,16 @@
                     </div>
                     <div class="form-group">
                         <label for="numeroUnidad">Número de Unidad:</label>
-                        <input type="text" id="numeroUnidad" placeholder="Auto-generado" readonly>
+                        <input type="text" id="numeroUnidad" placeholder="Ingresa el ID de la unidad">
                     </div>
                     <div class="form-group">
-                        <label for="estadoUnidad">Estado de la Unidad:</label>
-                        <select id="estadoUnidad">
-                            <option value="recibida">Recibida</option>
-                            <option value="proceso">En Proceso</option>
-                            <option value="despachada">Despachada</option>
-                            <option value="devuelta">Devuelta</option>
-                        </select>
+                        <label>Estado de la Unidad:</label>
+                        <div class="btn-group btn-estado" id="estadoUnidad_btns">
+                            <input type="radio" name="estadoUnidad" id="est_rec" value="recibida"><label for="est_rec" class="opt-recibida">📥 Recibida</label>
+                            <input type="radio" name="estadoUnidad" id="est_des" value="despachada"><label for="est_des" class="opt-despachada">📤 Despachada</label>
+                            <input type="radio" name="estadoUnidad" id="est_dev" value="devuelta"><label for="est_dev" class="opt-devuelta">🔄 Devuelta</label>
+                        </div>
+                        <input type="hidden" id="estadoUnidad" value="recibida">
                     </div>
 
                     <!-- Información del paciente -->
@@ -1219,21 +1189,27 @@
                         <input type="text" id="record" placeholder="Número de record">
                     </div>
                     <div class="form-group">
-                        <label for="localizacion">Localización/Destino:</label>
-                        <select id="localizacion">
-                            <option value="">Seleccionar...</option>
-                            <option value="Emergencia">Emergencia</option>
-                            <option value="Cirugía">Cirugía</option>
-                            <option value="UCI">UCI</option>
-                            <option value="Medicina Interna">Medicina Interna</option>
-                            <option value="Pediatría">Pediatría</option>
-                            <option value="Obstetricia">Obstetricia</option>
-                            <option value="Banco de Sangre">Banco de Sangre</option>
-                        </select>
+                        <label>Localización/Destino:</label>
+                        <div class="btn-group" id="localizacion_btns">
+                            <input type="radio" name="localizacion" id="loc_em" value="Emergencia"><label for="loc_em">🚨 Emergencia</label>
+                            <input type="radio" name="localizacion" id="loc_cx" value="Cirugía"><label for="loc_cx">🔪 Cirugía</label>
+                            <input type="radio" name="localizacion" id="loc_uci" value="UCI"><label for="loc_uci">🏥 UCI</label>
+                            <input type="radio" name="localizacion" id="loc_mi" value="Medicina Interna"><label for="loc_mi">💊 Med. Interna</label>
+                            <input type="radio" name="localizacion" id="loc_ped" value="Pediatría"><label for="loc_ped">👶 Pediatría</label>
+                            <input type="radio" name="localizacion" id="loc_obs" value="Obstetricia"><label for="loc_obs">🤰 Obstetricia</label>
+                            <input type="radio" name="localizacion" id="loc_bs" value="Banco de Sangre"><label for="loc_bs">🩸 Banco de Sangre</label>
+                        </div>
+                        <input type="hidden" id="localizacion">
                     </div>
                     <div class="form-group">
-                        <label for="suplidor">Suplidor:</label>
-                        <input type="text" id="suplidor" placeholder="Cruz Roja PR">
+                        <label>Suplidor:</label>
+                        <div class="btn-group" id="suplidor_btns">
+                            <input type="radio" name="suplidor" id="s_bsh" value="Banco de Sangre Humacao"><label for="s_bsh">🏥 B.S. Humacao</label>
+                            <input type="radio" name="suplidor" id="s_smhr" value="Servicios Mutuos-Hato Rey"><label for="s_smhr">🏨 S.M. Hato Rey</label>
+                            <input type="radio" name="suplidor" id="s_smgb" value="Servicios Mutuos-Guaynabo"><label for="s_smgb">🏨 S.M. Guaynabo</label>
+                            <input type="radio" name="suplidor" id="s_otro" value="Otro"><label for="s_otro">➕ Otro</label>
+                        </div>
+                        <input type="hidden" id="suplidor">
                     </div>
 
                     <!-- Información médica -->
@@ -1242,52 +1218,58 @@
                         <input type="text" id="medico" placeholder="Dr/Dra. Nombre">
                     </div>
                     <div class="form-group">
-                        <label for="aboRhPaciente">ABO/Rh Paciente:</label>
-                        <select id="aboRhPaciente">
-                            <option value="">Seleccionar...</option>
-                            <option value="O+">O+</option>
-                            <option value="O-">O-</option>
-                            <option value="A+">A+</option>
-                            <option value="A-">A-</option>
-                            <option value="B+">B+</option>
-                            <option value="B-">B-</option>
-                            <option value="AB+">AB+</option>
-                            <option value="AB-">AB-</option>
-                        </select>
+                        <label>ABO/Rh Paciente:</label>
+                        <div class="btn-group" id="aboRhPac_btns">
+                            <input type="radio" name="aboRhPaciente" id="pp_O"  value="O"><label for="pp_O">O</label>
+                            <input type="radio" name="aboRhPaciente" id="pp_A"  value="A"><label for="pp_A">A</label>
+                            <input type="radio" name="aboRhPaciente" id="pp_B"  value="B"><label for="pp_B">B</label>
+                            <input type="radio" name="aboRhPaciente" id="pp_AB" value="AB"><label for="pp_AB">AB</label>
+                        </div>
+                        <div class="btn-group btn-rh" id="rhPac_btns" style="margin-top:6px;">
+                            <input type="radio" name="rhPaciente" id="rhp_pos" value="+"><label for="rhp_pos" class="opt-pos">＋ Pos</label>
+                            <input type="radio" name="rhPaciente" id="rhp_neg" value="-"><label for="rhp_neg" class="opt-neg">− Neg</label>
+                        </div>
+                        <input type="hidden" id="aboRhPaciente">
                     </div>
                     <div class="form-group">
-                        <label for="aboRhDonante">ABO/Rh Donante:</label>
-                        <select id="aboRhDonante">
-                            <option value="">Seleccionar...</option>
-                            <option value="O+">O+</option>
-                            <option value="O-">O-</option>
-                            <option value="A+">A+</option>
-                            <option value="A-">A-</option>
-                            <option value="B+">B+</option>
-                            <option value="B-">B-</option>
-                            <option value="AB+">AB+</option>
-                            <option value="AB-">AB-</option>
-                        </select>
+                        <label>ABO/Rh Donante:</label>
+                        <div class="btn-group" id="aboRhDon_btns">
+                            <input type="radio" name="aboRhDonante" id="pd_O"  value="O"><label for="pd_O">O</label>
+                            <input type="radio" name="aboRhDonante" id="pd_A"  value="A"><label for="pd_A">A</label>
+                            <input type="radio" name="aboRhDonante" id="pd_B"  value="B"><label for="pd_B">B</label>
+                            <input type="radio" name="aboRhDonante" id="pd_AB" value="AB"><label for="pd_AB">AB</label>
+                        </div>
+                        <div class="btn-group btn-rh" id="rhDon_btns" style="margin-top:6px;">
+                            <input type="radio" name="rhDonante" id="rhd_pos" value="+"><label for="rhd_pos" class="opt-pos">＋ Pos</label>
+                            <input type="radio" name="rhDonante" id="rhd_neg" value="-"><label for="rhd_neg" class="opt-neg">− Neg</label>
+                        </div>
+                        <input type="hidden" id="aboRhDonante">
                     </div>
                     <!-- Detalles técnicos -->
                     <div class="form-group">
-                        <label for="componente">Componente:</label>
-                        <select id="componente">
-                            <option value="">Seleccionar...</option>
-                            <option value="PRBC Completa">PRBC Completa</option>
-                            <option value="PRBC Fraccionada">PRBC Fraccionada</option>
-                            <option value="Plasma">Plasma</option>
-                            <option value="Plaquetas">Plaquetas</option>
-                            <option value="Crioprecipitado">Crioprecipitado</option>
-                        </select>
+                        <label>Componente:</label>
+                        <div class="btn-group" id="componente_btns">
+                            <input type="radio" name="componente" id="comp_prbc" value="PRBC Completa"><label for="comp_prbc">🩸 PRBC Completa</label>
+                            <input type="radio" name="componente" id="comp_prbcf" value="PRBC Fraccionada"><label for="comp_prbcf">🩸 PRBC Fraccionada</label>
+                            <input type="radio" name="componente" id="comp_plasma" value="Plasma"><label for="comp_plasma">💧 Plasma</label>
+                            <input type="radio" name="componente" id="comp_plaq" value="Plaquetas"><label for="comp_plaq">🔬 Plaquetas</label>
+                            <input type="radio" name="componente" id="comp_crio" value="Crioprecipitado"><label for="comp_crio">🧊 Crioprecipitado</label>
+                        </div>
+                        <input type="hidden" id="componente">
                     </div>
                     <div class="form-group">
                         <label for="volumen">Volumen (ml):</label>
                         <input type="number" id="volumen" placeholder="250">
                     </div>
-                    <div class="form-group">
-                        <label for="fechaExpiracion">Fecha Expiración:</label>
-                        <input type="date" id="fechaExpiracion">
+                    <div class="form-group" id="expiracion_group">
+                        <label for="fechaExpiracion" id="expiracion_label">Fecha Expiración:</label>
+                        <input type="date" id="fechaExpiracion" onchange="checkExpiracion()">
+                        <!-- Solo visible para PRBC Fraccionada -->
+                        <input type="time" id="horaExpiracion" style="display:none;margin-top:6px;"
+                               placeholder="Hora de expiración" onchange="checkExpiracion()">
+                        <div id="exp_alerta" style="display:none;margin-top:6px;padding:8px 12px;
+                             background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;
+                             color:#92400e;font-size:0.85rem;font-weight:600;"></div>
                     </div>
                     <div class="form-group">
                         <label for="transportTemp">Transport Temp (°C):</label>
@@ -1326,20 +1308,42 @@
                         <input type="text" id="mt" placeholder="Nombre del MT">
                     </div>
                     <div class="form-group">
-                        <label for="releasedBy">Released by:</label>
-                        <input type="text" id="releasedBy" placeholder="Nombre">
+                        <label for="releasedBy">Released By — Nombre del MT:</label>
+                        <input type="text" id="releasedBy" placeholder="MT. Nombre Apellido">
                     </div>
                     <div class="form-group">
-                        <label for="receivedBy">Received by:</label>
-                        <input type="text" id="receivedBy" placeholder="Nombre">
+                        <label for="receivedBy">Received By — Nombre del Enfermero:</label>
+                        <input type="text" id="receivedBy" placeholder="Lic. Nombre Apellido">
                     </div>
                     <div class="form-group">
-                        <label for="personaNotificada">Persona Notificada:</label>
-                        <input type="text" id="personaNotificada" placeholder="Nombre">
+                        <label for="personaNotificada">Persona Notificada — Enfermero/Supervisor:</label>
+                        <input type="text" id="personaNotificada" placeholder="Lic./Dr. Nombre Apellido">
                     </div>
                     <div class="form-group">
                         <label for="horaNotificacion">Hora Notificación:</label>
                         <input type="time" id="horaNotificacion">
+                    </div>
+
+                    <!-- Firmas digitales -->
+                    <div class="form-group form-row-full">
+                        <label style="font-weight:700;color:#374151;font-size:1rem;">✍️ Firmas Digitales</label>
+                        <div class="signatures-grid">
+                            <div class="sig-box">
+                                <p class="sig-label">Técnico Responsable (MT)</p>
+                                <canvas id="firmasMT" class="sig-canvas" width="260" height="100"></canvas>
+                                <button type="button" class="sig-clear" onclick="clearSig('firmasMT')">🗑️ Limpiar</button>
+                            </div>
+                            <div class="sig-box">
+                                <p class="sig-label">Released By — MT</p>
+                                <canvas id="firmasReleased" class="sig-canvas" width="260" height="100"></canvas>
+                                <button type="button" class="sig-clear" onclick="clearSig('firmasReleased')">🗑️ Limpiar</button>
+                            </div>
+                            <div class="sig-box">
+                                <p class="sig-label">Received By — Enfermero/a</p>
+                                <canvas id="firmasReceived" class="sig-canvas" width="260" height="100"></canvas>
+                                <button type="button" class="sig-clear" onclick="clearSig('firmasReceived')">🗑️ Limpiar</button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Comentarios -->
@@ -1394,7 +1398,10 @@
                                 <th>Hora Notif.</th>
                                 <th>MT</th>
                                 <th>Released by</th>
+                                <th>Firma MT</th>
+                                <th>Firma Released</th>
                                 <th>Received by</th>
+                                <th>Firma Received</th>
                                 <th>Devuelta</th>
                                 <th>Comentarios</th>
                                 <th>Acciones</th>
@@ -1512,6 +1519,10 @@
 
         // ✅ Carga todas las entradas desde Firebase y las muestra en la tabla
         async function cargarEntradasDeFirebase() {
+            if (typeof db === 'undefined' || !db) {
+                console.warn('Firebase no disponible — modo local activado');
+                updateTable(); return;
+            }
             try {
                 var snapshot = await db.collection("entradas_unidades")
                     .orderBy("fechaGuardado", "desc")
@@ -1553,7 +1564,7 @@
             const today = new Date();
             document.getElementById('fecha').value = today.toISOString().split('T')[0];
             document.getElementById('tipoOperacion').value = type;
-            document.getElementById('numeroUnidad').value = `BLD-${String(unitCounter++).padStart(3, '0')}`;
+            document.getElementById('numeroUnidad').value = '';
             
             const now = new Date().toLocaleTimeString('es-PR', {hour: '2-digit', minute: '2-digit'});
             if (type === 'recibo') {
@@ -1608,12 +1619,15 @@
 
             // Guardar en Firebase
             try {
-                var user = await new Promise(function(resolve) {
-                    var unsubscribe = auth.onAuthStateChanged(function(u) {
-                        unsubscribe(); resolve(u);
+                var user = null;
+                if (typeof auth !== 'undefined' && auth) {
+                    user = await new Promise(function(resolve) {
+                        var unsubscribe = auth.onAuthStateChanged(function(u) {
+                            unsubscribe(); resolve(u);
+                        });
                     });
-                });
-                if (user) {
+                }
+                if (user && typeof db !== 'undefined' && db) {
                     await db.collection("entradas_unidades").add({
                         ...entryData,
                         guardadoPor: user.email,
@@ -1675,6 +1689,7 @@
                 volumen:           getVal('volumen'),
                 suplidor:          getVal('suplidor'),
                 fechaExpiracion:   getVal('fechaExpiracion'),
+                horaExpiracion:    getVal('horaExpiracion'),
                 transportTemp:     getVal('transportTemp'),
                 timeReceived:      getVal('timeReceived'),
                 timeDispatched:    getVal('timeDispatched'),
@@ -1685,12 +1700,16 @@
                 receivedBy:        getVal('receivedBy'),
                 personaNotificada: getVal('personaNotificada'),
                 horaNotificacion:  getVal('horaNotificacion'),
+                firmaMT:           getSig('firmasMT'),
+                firmaReleased:     getSig('firmasReleased'),
+                firmaReceived:     getSig('firmasReceived'),
                 comentarios:       getVal('comentarios'),
                 timestamp: new Date().toISOString()
             };
         }
 
         function clearForm() {
+            clearAllSigs();
             document.getElementById('entryForm').querySelectorAll('input, select, textarea').forEach(input => {
                 if (input.id !== 'fecha' && input.type !== 'date') {
                     input.value = '';
@@ -1700,6 +1719,7 @@
         }
 
         function cancelEntry() {
+            resetBtnGroups();
             if (confirm('¿Está seguro que desea cancelar? Los cambios no guardados se perderán.')) {
                 clearForm();
                 document.getElementById('entryForm').style.display = 'none';
@@ -1730,7 +1750,7 @@
         function duplicateEntry(index) {
             const entry = {...currentEntries[index]};
             entry.id = `BLD-${Date.now()}`;
-            entry.numeroUnidad = `BLD-${String(unitCounter++).padStart(3, '0')}`;
+            entry.numeroUnidad = entry.numeroUnidad + '-copia';
             entry.timestamp = new Date().toISOString();
             
             currentEntries.unshift(entry);
@@ -1743,7 +1763,7 @@
             if (!confirm(`¿Está seguro que desea eliminar la entrada ${entry.numeroUnidad}?\n\nEl registro quedará guardado en el historial pero no aparecerá en la tabla.`)) return;
 
             try {
-                if (entry.firebaseId) {
+                if (entry.firebaseId && typeof db !== 'undefined' && db) {
                     // Marcar como eliminado en Firebase (no se borra, queda en historial)
                     var user = await new Promise(function(resolve) {
                         var u = auth.onAuthStateChanged(function(usr) { u(); resolve(usr); });
@@ -1803,7 +1823,10 @@
                     <td>${entry.horaNotificacion || '-'}</td>
                     <td>${entry.mt || '-'}</td>
                     <td>${entry.releasedBy || '-'}</td>
+                    <td>${entry.firmaMT ? '<img src="'+entry.firmaMT+'" style="height:36px;border:1px solid #ddd;border-radius:4px;">' : '-'}</td>
+                    <td>${entry.firmaReleased ? '<img src="'+entry.firmaReleased+'" style="height:36px;border:1px solid #ddd;border-radius:4px;">' : '-'}</td>
                     <td>${entry.receivedBy || '-'}</td>
+                    <td>${entry.firmaReceived ? '<img src="'+entry.firmaReceived+'" style="height:36px;border:1px solid #ddd;border-radius:4px;">' : '-'}</td>
                     <td>${entry.returned || 'No'}</td>
                     <td>${entry.comentarios || '-'}</td>
                     <td>
@@ -1889,6 +1912,220 @@
             
             showNotification('📊 Datos exportados exitosamente', 'success');
         }
+
+
+
+        // ── Signature pad logic ──────────────────────────────────
+        var sigPads = {};
+
+        function initSignaturePads() {
+            ['firmasMT','firmasReleased','firmasReceived'].forEach(function(id) {
+                var canvas = document.getElementById(id);
+                if (!canvas) return;
+                var ctx = canvas.getContext('2d');
+                var drawing = false;
+
+                function getPos(e) {
+                    var r = canvas.getBoundingClientRect();
+                    var src = e.touches ? e.touches[0] : e;
+                    return { x: src.clientX - r.left, y: src.clientY - r.top };
+                }
+                function start(e) { e.preventDefault(); drawing = true; var p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+                function draw(e)  { e.preventDefault(); if (!drawing) return; var p = getPos(e); ctx.lineTo(p.x, p.y); ctx.strokeStyle='#1e293b'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke(); }
+                function stop()   { drawing = false; }
+
+                canvas.addEventListener('mousedown',  start);
+                canvas.addEventListener('mousemove',  draw);
+                canvas.addEventListener('mouseup',    stop);
+                canvas.addEventListener('mouseleave', stop);
+                canvas.addEventListener('touchstart', start, {passive:false});
+                canvas.addEventListener('touchmove',  draw,  {passive:false});
+                canvas.addEventListener('touchend',   stop);
+                sigPads[id] = canvas;
+            });
+        }
+
+        function clearSig(id) {
+            var canvas = document.getElementById(id);
+            if (!canvas) return;
+            canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+        }
+
+        function getSig(id) {
+            var canvas = document.getElementById(id);
+            if (!canvas) return '';
+            // Only return data if something was drawn (not a blank canvas)
+            var ctx = canvas.getContext('2d');
+            var blank = document.createElement('canvas');
+            blank.width = canvas.width; blank.height = canvas.height;
+            if (canvas.toDataURL() === blank.toDataURL()) return '';
+            return canvas.toDataURL('image/png');
+        }
+
+        function clearAllSigs() {
+            ['firmasMT','firmasReleased','firmasReceived'].forEach(clearSig);
+        }
+
+        // ── Sync button groups to hidden inputs ──
+        function initBtnGroups() {
+            // ABO Paciente + Rh Paciente → combined aboRhPaciente
+            ['aboRhPaciente','rhPaciente'].forEach(function(name) {
+                document.querySelectorAll('input[name="'+name+'"]').forEach(function(r) {
+                    r.addEventListener('change', updateAboRh);
+                });
+            });
+            // ABO Donante + Rh Donante → combined aboRhDonante
+            ['aboRhDonante','rhDonante'].forEach(function(name) {
+                document.querySelectorAll('input[name="'+name+'"]').forEach(function(r) {
+                    r.addEventListener('change', updateAboRhDon);
+                });
+            });
+            // Componente
+            document.querySelectorAll('input[name="componente"]').forEach(function(r) {
+                r.addEventListener('change', function() {
+                    var h = document.getElementById('componente');
+                    if(h) h.value = this.value;
+                    onComponenteChange(this.value);
+                });
+            });
+            // Localizacion
+            document.querySelectorAll('input[name="localizacion"]').forEach(function(r) {
+                r.addEventListener('change', function() {
+                    var h = document.getElementById('localizacion');
+                    if(h) h.value = this.value;
+                });
+            });
+            // Localización
+            document.querySelectorAll('input[name="localizacion"]').forEach(function(r) {
+                r.addEventListener('change', function() {
+                    var h = document.getElementById('localizacion');
+                    if(h) h.value = this.value;
+                });
+            });
+            // Suplidor
+            document.querySelectorAll('input[name="suplidor"]').forEach(function(r) {
+                r.addEventListener('change', function() {
+                    var h = document.getElementById('suplidor');
+                    if(h) h.value = this.value;
+                });
+            });
+            // Estado
+            document.querySelectorAll('input[name="estadoUnidad"]').forEach(function(r) {
+                r.addEventListener('change', function() {
+                    var h = document.getElementById('estadoUnidad');
+                    if(h) h.value = this.value;
+                    // keep status badge in sync
+                    var badge = document.getElementById('entryStatus');
+                    if(badge) {
+                        badge.className = 'status-badge status-' + this.value;
+                        badge.textContent = this.value.charAt(0).toUpperCase() + this.value.slice(1);
+                    }
+                });
+            });
+        }
+        function updateAboRh() {
+            var abo = document.querySelector('input[name="aboRhPaciente"]:checked');
+            var rh  = document.querySelector('input[name="rhPaciente"]:checked');
+            var h   = document.getElementById('aboRhPaciente');
+            if(h) h.value = (abo ? abo.value : '') + (rh ? rh.value : '');
+        }
+        function updateAboRhDon() {
+            var abo = document.querySelector('input[name="aboRhDonante"]:checked');
+            var rh  = document.querySelector('input[name="rhDonante"]:checked');
+            var h   = document.getElementById('aboRhDonante');
+            if(h) h.value = (abo ? abo.value : '') + (rh ? rh.value : '');
+        }
+        // Reset button groups when form is cleared
+        function resetBtnGroups() {
+            document.querySelectorAll('.btn-group input[type="radio"]').forEach(function(r) {
+                r.checked = false;
+            });
+            var h;
+            ['aboRhPaciente','aboRhDonante','suplidor','estadoUnidad','localizacion'].forEach(function(id) {
+                h = document.getElementById(id);
+                if(h) h.value = id === 'estadoUnidad' ? 'recibida' : '';
+            });
+        }
+
+
+        // ── PRBC Fraccionada: hora expiración + alerta 23h ────────
+        function onComponenteChange(valor) {
+            var horaInput  = document.getElementById('horaExpiracion');
+            var expLabel   = document.getElementById('expiracion_label');
+            if (!horaInput) return;
+            if (valor === 'PRBC Fraccionada') {
+                horaInput.style.display = 'block';
+                if (expLabel) expLabel.textContent = 'Fecha y Hora de Expiración:';
+            } else {
+                horaInput.style.display = 'none';
+                if (expLabel) expLabel.textContent = 'Fecha Expiración:';
+                document.getElementById('exp_alerta').style.display = 'none';
+            }
+            checkExpiracion();
+        }
+
+        function checkExpiracion() {
+            var comp      = document.getElementById('componente').value;
+            var fechaVal  = document.getElementById('fechaExpiracion').value;
+            var horaVal   = document.getElementById('horaExpiracion').value;
+            var alertaDiv = document.getElementById('exp_alerta');
+            if (!alertaDiv || !fechaVal) { if(alertaDiv) alertaDiv.style.display='none'; return; }
+
+            // Build expiration datetime
+            var fechaExp;
+            if (comp === 'PRBC Fraccionada' && horaVal) {
+                fechaExp = new Date(fechaVal + 'T' + horaVal + ':00');
+            } else {
+                fechaExp = new Date(fechaVal + 'T23:59:00');
+            }
+
+            var ahora      = new Date();
+            var diffMs     = fechaExp - ahora;
+            var diffHoras  = diffMs / (1000 * 60 * 60);
+
+            if (diffMs < 0) {
+                // Already expired
+                alertaDiv.style.display = 'block';
+                alertaDiv.style.background = '#fef2f2';
+                alertaDiv.style.borderColor = '#dc2626';
+                alertaDiv.style.color = '#991b1b';
+                alertaDiv.innerHTML = '🚨 <strong>¡UNIDAD EXPIRADA!</strong> Esta unidad ya venció y no puede ser despachada.';
+                showNotification('🚨 ¡UNIDAD EXPIRADA! No apta para despacho.', 'error');
+            } else if (comp === 'PRBC Fraccionada' && diffHoras <= 23) {
+                // Within 23-hour alert window
+                var hRestantes = Math.floor(diffHoras);
+                var mRestantes = Math.floor((diffHoras - hRestantes) * 60);
+                alertaDiv.style.display = 'block';
+                alertaDiv.style.background = '#fef3c7';
+                alertaDiv.style.borderColor = '#f59e0b';
+                alertaDiv.style.color = '#92400e';
+                alertaDiv.innerHTML = '⚠️ <strong>¡VENTANA DE 23 HORAS!</strong> PRBC Fraccionada vence en '
+                    + hRestantes + 'h ' + mRestantes + 'min. Debe despacharse pronto.';
+                // Pop-up alert once
+                if (!alertaDiv.dataset.alertShown) {
+                    alertaDiv.dataset.alertShown = '1';
+                    setTimeout(function() {
+                        alert('⚠️ ALERTA DE EXPIRACIÓN\n\nEsta PRBC Fraccionada tiene una ventana de 23 horas para ser despachada.\n\nTiempo restante: ' + hRestantes + 'h ' + mRestantes + 'min\n\nVencimiento: ' + fechaExp.toLocaleString('es-PR'));
+                    }, 300);
+                }
+            } else if (diffHoras <= 48) {
+                // General warning for other components near expiry
+                alertaDiv.style.display = 'block';
+                alertaDiv.style.background = '#fffbeb';
+                alertaDiv.style.borderColor = '#fcd34d';
+                alertaDiv.style.color = '#78350f';
+                alertaDiv.innerHTML = '⏰ Próxima a vencer: ' + Math.floor(diffHoras) + ' horas restantes.';
+            } else {
+                alertaDiv.style.display = 'none';
+                if (alertaDiv.dataset) delete alertaDiv.dataset.alertShown;
+            }
+        }
+
+        // Run expiry check every minute while module is open
+        setInterval(function() {
+            var form = document.getElementById('entryForm');
+            if (form && form.style.display !== 'none') checkExpiracion();
+        }, 60000);
 
         // Sistema de notificaciones
         function showNotification(message, type = 'info') {
@@ -2043,6 +2280,8 @@
         // Inicialización mejorada
         document.addEventListener('DOMContentLoaded', function() {
             checkAuthentication();
+            initBtnGroups();
+            initSignaturePads();
             updateDateTime();
             loadSystemStats();
             
@@ -2083,64 +2322,7 @@
             
             showNotification('🚀 Sistema BLUDEE Integral iniciado correctamente', 'success');
         });
-      // 🔍 Buscador de módulos
-    const allModules = [
-        { name: 'Inventario Actual',           icon: '📊', href: 'inventario_actual.html' },
-        { name: 'Trazabilidad',                icon: '🔄', href: 'trazabilidad_banco_sangre.html' },
-        { name: 'Gestión de Donantes',         icon: '👥', href: 'gestion_de_donantes.html' },
-        { name: 'Componentes Devueltos',       icon: '📦', href: 'modulo_componentes_devueltos.html' },
-        { name: 'Despacho de Emergencia',      icon: '🚨', href: 'despacho_emergencia.html' },
-        { name: 'Despacho de Unidad',          icon: '📤', href: 'despacho_unidad.html' },
-        { name: 'Registro Unidad Recibida',    icon: '📥', href: 'registro_unidad_recibida.html' },
-        { name: 'Indicadores de Calidad',      icon: '📊', href: 'indicadores_calidad.html' },
-        { name: 'Notas Clínicas',              icon: '📝', href: 'notas_clinicas_internas.html' },
-        { name: 'Historial de Transfusión',    icon: '📋', href: 'historial_transfusion_paciente.html' },
-        { name: 'Pruebas de Compatibilidad',   icon: '🔬', href: 'prueba_de_compatibilidad.html' },
-        { name: 'Registro de Transfusiones',   icon: '💉', href: '#' },
-        { name: 'Expedientes Mensuales',       icon: '📋', href: 'expedientes_mensuales.html' },
-        { name: 'Auditorías y Logs',           icon: '📋', href: 'auditorias_y_logs.html' },
-        { name: 'Estadísticas Generales',      icon: '📈', href: '#' },
-        { name: 'Gestión de Usuarios',         icon: '👥', href: 'usuarios.html' },
-        { name: 'Asistente Virtual',           icon: '🤖', href: 'chatbot.html' },
-        { name: 'Configuración del Sistema',   icon: '⚙️', href: '#' },
-        { name: 'Respaldos y Mantenimiento',   icon: '💾', href: '#' },
-        { name: 'Ayuda y Capacitación',        icon: '❓', href: '#' },
-        { name: 'Recibir Unidad',              icon: '📥', href: '#', onclick: "openIntegratedModule('receive')" },
-        { name: 'Despachar Unidad',            icon: '📤', href: '#', onclick: "openIntegratedModule('dispatch')" },
-        { name: 'Registro Completo',           icon: '📊', href: '#', onclick: "openIntegratedModule('tracking')" },
-    ];
-
-    function searchModules(query) {
-        var resultsDiv   = document.getElementById('search-results');
-        var noResults    = document.getElementById('search-no-results');
-        query = query.trim().toLowerCase();
-
-        if (!query) {
-            resultsDiv.style.display = 'none';
-            noResults.style.display  = 'none';
-            return;
-        }
-
-        var matches = allModules.filter(function(m) {
-            return m.name.toLowerCase().includes(query);
-        });
-
-        resultsDiv.style.display = 'flex';
-
-        if (matches.length === 0) {
-            resultsDiv.innerHTML    = '';
-            noResults.style.display = 'block';
-        } else {
-            noResults.style.display = 'none';
-            resultsDiv.innerHTML = matches.map(function(m) {
-                var action = m.onclick
-                    ? 'href="#" onclick="' + m.onclick + '"'
-                    : 'href="' + m.href + '"';
-                return '<a class="search-result-item" ' + action + '>' + m.icon + ' ' + m.name + '</a>';
-            }).join('');
-        }
-    }
-  </script>
+    </script>
   <script>
     // 🚪 Función de cerrar sesión
     function cerrarSesion() {
