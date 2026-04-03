@@ -1165,25 +1165,19 @@
                     <div id="emergencyAddForm" style="display:none;background:white;border-radius:10px;padding:16px;margin-bottom:16px;border:1px solid #fca5a5;">
                         <h4 style="color:#dc2626;margin-bottom:12px;">📦 Nueva Unidad al Stock de Emergencia</h4>
                         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
-                            <div><label style="font-size:0.85rem;font-weight:600;">ABO/Rh</label>
-                                <div class="btn-group" style="margin-top:4px;">
-                                    <input type="radio" name="emg_abo" id="emg_O"  value="O"><label for="emg_O">O</label>
-                                    <input type="radio" name="emg_abo" id="emg_A"  value="A"><label for="emg_A">A</label>
-                                    <input type="radio" name="emg_abo" id="emg_B"  value="B"><label for="emg_B">B</label>
-                                    <input type="radio" name="emg_abo" id="emg_AB" value="AB"><label for="emg_AB">AB</label>
-                                </div>
+                            <div><label style="font-size:0.85rem;font-weight:600;">ABO/Rh — Grupo Santiago</label>
+                                <p style="font-size:0.75rem;color:#dc2626;margin:2px 0 4px;">Solo O Positivo y O Negativo</p>
                                 <div class="btn-group btn-rh" style="margin-top:4px;">
-                                    <input type="radio" name="emg_rh" id="emg_pos" value="+"><label for="emg_pos" class="opt-pos">＋</label>
-                                    <input type="radio" name="emg_rh" id="emg_neg" value="-"><label for="emg_neg" class="opt-neg">−</label>
+                                    <input type="radio" name="emg_aboRh" id="emg_Opos" value="O+"><label for="emg_Opos" class="opt-pos">O ＋</label>
+                                    <input type="radio" name="emg_aboRh" id="emg_Oneg" value="O-"><label for="emg_Oneg" class="opt-neg">O −</label>
                                 </div>
                             </div>
                             <div><label style="font-size:0.85rem;font-weight:600;"># Unidad</label>
                                 <input type="text" id="emg_unidad" placeholder="Ej: EMG-001" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
                             <div><label style="font-size:0.85rem;font-weight:600;">Componente</label>
+                                <p style="font-size:0.75rem;color:#dc2626;margin:2px 0 4px;">Solo PRBC</p>
                                 <div class="btn-group" style="margin-top:4px;">
-                                    <input type="radio" name="emg_comp" id="emg_prbc"   value="PRBC Completa"><label for="emg_prbc">PRBC</label>
-                                    <input type="radio" name="emg_comp" id="emg_plasma" value="Plasma"><label for="emg_plasma">Plasma</label>
-                                    <input type="radio" name="emg_comp" id="emg_plaq"   value="Plaquetas"><label for="emg_plaq">Plaquetas</label>
+                                    <input type="radio" name="emg_comp" id="emg_prbc" value="PRBC Completa" checked><label for="emg_prbc">🩸 PRBC</label>
                                 </div>
                             </div>
                             <div><label style="font-size:0.85rem;font-weight:600;">Volumen (ml)</label>
@@ -1191,11 +1185,10 @@
                             <div><label style="font-size:0.85rem;font-weight:600;">Fecha Expiración</label>
                                 <input type="date" id="emg_fecha_exp" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
                             <div><label style="font-size:0.85rem;font-weight:600;">Suplidor</label>
-                                <div class="btn-group" style="margin-top:4px;">
-                                    <input type="radio" name="emg_sup" id="emg_bsh"  value="Banco de Sangre Humacao"><label for="emg_bsh">B.S. Humacao</label>
-                                    <input type="radio" name="emg_sup" id="emg_smhr" value="Servicios Mutuos-Hato Rey"><label for="emg_smhr">S.M. Hato Rey</label>
-                                    <input type="radio" name="emg_sup" id="emg_smgb" value="Servicios Mutuos-Guaynabo"><label for="emg_smgb">S.M. Guaynabo</label>
-                                </div>
+                                <p style="font-size:0.8rem;color:#6b7280;margin-top:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;">
+                                    N/A — Stock en nevera del Banco de Sangre del hospital
+                                </p>
+                                <input type="hidden" id="emg_sup_val" value="N/A (Stock Hospital)">
                             </div>
                             <div><label style="font-size:0.85rem;font-weight:600;">Transporte Temp (°C)</label>
                                 <input type="number" id="emg_temp" placeholder="°C" step="0.1" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
@@ -1746,9 +1739,15 @@
             }
 
             var tipo = getVal('tipoOperacion');
-            if (tipo === 'despacho') {
-                var sel = document.getElementById('selectUnidadDespacho');
-                var unitId = sel ? sel.value.trim() : '';
+            if (tipo === 'despacho' || tipo === 'emergencia') {
+                var sel    = document.getElementById('selectUnidadDespacho');
+                var selVal = sel ? sel.value.trim() : '';
+                // Strip EMG:: prefix to get plain unit id
+                var unitId = selVal.startsWith('EMG::') ? selVal.replace('EMG::','') : selVal;
+
+                // Also accept the hidden text input as fallback
+                if (!unitId) unitId = (getVal('numeroUnidad') || '').trim();
+
                 var existingIdx = -1;
                 if (unitId) {
                     for (var i = 0; i < currentEntries.length; i++) {
@@ -1757,9 +1756,9 @@
                         }
                     }
                 }
+
                 if (existingIdx >= 0) {
                     var existing = currentEntries[existingIdx];
-                    // Merge: keep ALL recibo fields, add despacho fields
                     currentEntries[existingIdx] = Object.assign({}, existing, {
                         estadoUnidad:      'despachada',
                         fechaDespacho:     entryData.fecha,
@@ -1771,25 +1770,39 @@
                         firmaReceived:     entryData.firmaReceived,
                         returned:          entryData.returned,
                         comentarios:       entryData.comentarios,
-                        // Preserve recibo fields that may be empty in despacho form
-                        fechaExpiracion:   existing.fechaExpiracion || entryData.fechaExpiracion,
-                        horaExpiracion:    existing.horaExpiracion  || entryData.horaExpiracion,
-                        firmaMT:           existing.firmaMT         || entryData.firmaMT,
+                        sinCrossmatch:     tipo === 'emergencia' ? true : (existing.sinCrossmatch || false),
+                        paciente:          entryData.paciente        || existing.paciente,
+                        record:            entryData.record          || existing.record,
+                        medico:            entryData.medico          || existing.medico,
+                        localizacion:      entryData.localizacion    || existing.localizacion,
+                        // Always preserve recibo-origin fields
+                        fechaExpiracion:   existing.fechaExpiracion  || entryData.fechaExpiracion,
+                        horaExpiracion:    existing.horaExpiracion   || entryData.horaExpiracion,
+                        firmaMT:           existing.firmaMT          || entryData.firmaMT,
+                        timeReceived:      existing.timeReceived     || entryData.timeReceived,
+                        transportTemp:     existing.transportTemp    || entryData.transportTemp,
+                        suplidor:          existing.suplidor         || entryData.suplidor,
+                        componente:        existing.componente       || entryData.componente,
+                        aboRhPaciente:     entryData.aboRhPaciente   || existing.aboRhPaciente,
+                        aboRhDonante:      entryData.aboRhDonante    || existing.aboRhDonante,
                         timestampDespacho: new Date().toISOString()
                     });
+                    // Mark emergency stock unit as used
+                    if (selVal.startsWith('EMG::')) {
+                        var emgIdx = emergencyStock.findIndex(function(u){ return u.numeroUnidad === unitId; });
+                        if (emgIdx >= 0) emergencyStock[emgIdx].estado = 'usado';
+                        renderEmergencyStock();
+                    }
                     showNotification('✅ Despacho registrado — ' + unitId, 'success');
                 } else {
-                    entryData.estadoUnidad = 'despachada';
+                    // No matching recibo — new entry
+                    entryData.estadoUnidad      = 'despachada';
+                    entryData.sinCrossmatch     = tipo === 'emergencia';
+                    entryData.timeReceived      = entryData.timeReceived      || (tipo==='emergencia' ? 'N/A' : '');
+                    entryData.personaNotificada = entryData.personaNotificada || (tipo==='emergencia' ? 'N/A' : '');
+                    entryData.horaNotificacion  = entryData.horaNotificacion  || (tipo==='emergencia' ? 'N/A' : '');
                     currentEntries.unshift(entryData);
                 }
-            } else if (tipo === 'emergencia') {
-                // Emergency: auto-set N/A fields, mark sinCrossmatch
-                entryData.estadoUnidad      = 'despachada';
-                entryData.timeReceived      = entryData.timeReceived      || 'N/A';
-                entryData.personaNotificada = entryData.personaNotificada || 'N/A';
-                entryData.horaNotificacion  = entryData.horaNotificacion  || 'N/A';
-                entryData.sinCrossmatch     = true;
-                currentEntries.unshift(entryData);
             } else if (editingIndex >= 0) {
                 currentEntries[editingIndex] = entryData;
             } else {
@@ -2234,6 +2247,9 @@
 
         function showEmergencyAddForm() {
             document.getElementById('emergencyAddForm').style.display = 'block';
+            // PRBC is the only component — always pre-checked
+            var prbcR = document.getElementById('emg_prbc');
+            if (prbcR) prbcR.checked = true;
         }
 
         function getEmgRadio(name) {
@@ -2242,13 +2258,11 @@
         }
 
         function addEmergencyUnit() {
-            var abo  = getEmgRadio('emg_abo');
-            var rh   = getEmgRadio('emg_rh');
-            var comp = getEmgRadio('emg_comp');
-            var sup  = getEmgRadio('emg_sup');
+            var aboRh  = getEmgRadio('emg_aboRh');
+            var comp   = getEmgRadio('emg_comp');
             var unidad = document.getElementById('emg_unidad').value.trim();
 
-            if (!abo || !rh || !comp || !unidad) {
+            if (!aboRh || !comp || !unidad) {
                 showNotification('⚠️ Completa ABO/Rh, Componente y # Unidad', 'warning');
                 return;
             }
@@ -2256,11 +2270,11 @@
             emergencyStock.push({
                 id:             'EMG-' + Date.now(),
                 numeroUnidad:   unidad,
-                aboRh:          abo + rh,
+                aboRh:          aboRh,
                 componente:     comp,
                 volumen:        document.getElementById('emg_vol').value,
                 fechaExpiracion:document.getElementById('emg_fecha_exp').value,
-                suplidor:       sup,
+                suplidor:       'N/A (Stock Hospital)',
                 transportTemp:  document.getElementById('emg_temp').value,
                 mt:             document.getElementById('emg_mt').value,
                 sinCrossmatch:  true,
@@ -2274,6 +2288,9 @@
                 if (el) el.value = '';
             });
             document.querySelectorAll('input[name^="emg_"]').forEach(function(r) { r.checked = false; });
+            // Re-check PRBC (only option)
+            var prbcR = document.getElementById('emg_prbc');
+            if (prbcR) prbcR.checked = true;
             document.getElementById('emergencyAddForm').style.display = 'none';
 
             renderEmergencyStock();
@@ -2349,14 +2366,18 @@
             showNotification('🚨 Completa los datos del paciente para el despacho de emergencia', 'info');
         }
 
-        // ── Populate despacho dropdown with received units ────────
+        // ── Populate despacho dropdown with received + emergency units ──
         function populateUnidadDropdown() {
             var sel = document.getElementById('selectUnidadDespacho');
             if (!sel) return;
             var current = sel.value;
             sel.innerHTML = '<option value="">— Seleccionar unidad —</option>';
+
+            // Regular received units
+            var hasRecibidas = false;
             currentEntries.forEach(function(e) {
                 if (e.estadoUnidad === 'recibida' || e.estadoUnidad === 'proceso') {
+                    hasRecibidas = true;
                     var opt = document.createElement('option');
                     opt.value = e.numeroUnidad;
                     var comp = e.componente ? ' | ' + e.componente : '';
@@ -2365,14 +2386,40 @@
                     sel.appendChild(opt);
                 }
             });
+
+            // Emergency stock available units
+            var emgAvail = emergencyStock.filter(function(u) { return u.estado === 'disponible'; });
+            if (emgAvail.length > 0) {
+                var sep = document.createElement('option');
+                sep.disabled = true;
+                sep.textContent = '── 🚨 Stock Emergencia (Sin Crossmatch) ──';
+                sel.appendChild(sep);
+                emgAvail.forEach(function(u) {
+                    var opt = document.createElement('option');
+                    opt.value = 'EMG::' + u.numeroUnidad;
+                    opt.textContent = '🚨 ' + u.numeroUnidad + ' | ' + (u.aboRh||'') + ' | ' + (u.componente||'');
+                    opt.style.color = '#dc2626';
+                    opt.style.fontWeight = '600';
+                    sel.appendChild(opt);
+                });
+            }
             if (current) sel.value = current;
         }
 
         // ── Auto-fill recibo fields when unit is selected ─────────
         function autoFillFromRecibo(numeroUnidad) {
             if (!numeroUnidad) return;
+
+            // Emergency stock unit selected
+            if (numeroUnidad.startsWith('EMG::')) {
+                var emgId = numeroUnidad.replace('EMG::', '');
+                var emgUnit = emergencyStock.find(function(u) { return u.numeroUnidad === emgId; });
+                if (emgUnit) autoFillFromEmergencyStock(emgUnit);
+                return;
+            }
+
             var entry = currentEntries.find(function(e) {
-                return e.numeroUnidad === numeroUnidad;
+                return (e.numeroUnidad || '').trim() === numeroUnidad.trim();
             });
             if (!entry) return;
 
@@ -2462,6 +2509,47 @@
 
             checkExpiracion();
             showNotification('✅ Datos cargados — ' + numeroUnidad + (entry.paciente ? ' · ' + entry.paciente : ''), 'success');
+        }
+
+        // ── Auto-fill from Emergency Stock unit ─────────────────
+        function autoFillFromEmergencyStock(unit) {
+            document.getElementById('tipoOperacion').value = 'emergencia';
+            document.getElementById('numeroUnidad').value  = unit.numeroUnidad;
+            // Pre-fill stock fields
+            var fields = {
+                volumen:           unit.volumen        || '',
+                fechaExpiracion:   unit.fechaExpiracion|| '',
+                transportTemp:     unit.transportTemp  || '',
+                mt:                unit.mt             || ''
+            };
+            Object.keys(fields).forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.value = fields[id];
+            });
+            // Auto N/A
+            document.getElementById('timeReceived').value      = 'N/A';
+            document.getElementById('personaNotificada').value = 'N/A';
+            document.getElementById('horaNotificacion').value  = 'N/A';
+            document.getElementById('suplidor').value          = 'N/A (Stock Hospital)';
+            // Uncheck all suplidor radios
+            document.querySelectorAll('input[name="suplidor"]').forEach(function(r){ r.checked=false; });
+            // Componente
+            if (unit.componente) {
+                var cr = document.querySelector('input[name="componente"][value="' + unit.componente + '"]');
+                if (cr) { cr.checked=true; cr.dispatchEvent(new Event('change',{bubbles:true})); }
+                var hc = document.getElementById('componente'); if(hc) hc.value=unit.componente;
+            }
+            // ABO/Rh Donante
+            if (unit.aboRh) {
+                var rhC = unit.aboRh.slice(-1), aboC = unit.aboRh.slice(0,-1);
+                var ar = document.querySelector('input[name="aboRhDonante"][value="'+aboC+'"]');
+                var rr = document.querySelector('input[name="rhDonante"][value="'+rhC+'"]');
+                if(ar){ar.checked=true;ar.dispatchEvent(new Event('change',{bubbles:true}));}
+                if(rr){rr.checked=true;rr.dispatchEvent(new Event('change',{bubbles:true}));}
+                var hd=document.getElementById('aboRhDonante'); if(hd) hd.value=unit.aboRh;
+            }
+            updateFormMode();
+            showNotification('🚨 Unidad de emergencia cargada — Sin Crossmatch', 'info');
         }
 
         // ── PRBC Fraccionada: hora expiración + alerta 23h ────────
