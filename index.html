@@ -975,7 +975,7 @@
             <div class="user-welcome">
                 <div class="user-avatar" id="user-avatar">NM</div>
                 <div class="user-details">
-                    <h3 id="username">Norma I. Medina, MT</h3>
+                    <h3 id="username">—</h3>
                     <p id="user-role">Tecnólogo Médico Principal</p>
                 </div>
             </div>
@@ -1386,28 +1386,26 @@
                             <tr>
                                 <th>Estado</th>
                                 <th>Fecha</th>
-                                <th>N° Unidad</th>
                                 <th>Paciente</th>
-                                <th>Record</th>
                                 <th>Localización</th>
+                                <th>Record</th>
                                 <th>Médico</th>
+                                <th># Unidad</th>
                                 <th>ABO/Rh Paciente</th>
                                 <th>ABO/Rh Donante</th>
                                 <th>Componente</th>
                                 <th>Volumen</th>
-                                <th>Fecha Exp.</th>
+                                <th>Fecha Expiración</th>
                                 <th>Suplidor</th>
-                                <th>H. Recibida</th>
-                                <th>H. Despachada</th>
-                                <th>Temp. Transport</th>
-                                <th>Inspección</th>
+                                <th>Hora Recibida</th>
+                                <th>Transporte</th>
                                 <th>Persona Notificada</th>
-                                <th>Hora Notif.</th>
                                 <th>MT</th>
-                                <th>Released by</th>
                                 <th>Firma MT</th>
+                                <th>Inspección</th>
+                                <th>Released By</th>
                                 <th>Firma Released</th>
-                                <th>Received by</th>
+                                <th>Received By</th>
                                 <th>Firma Received</th>
                                 <th>Devuelta</th>
                                 <th>Comentarios</th>
@@ -1415,41 +1413,7 @@
                             </tr>
                         </thead>
                         <tbody id="integratedTableBody">
-                            <!-- Entrada de ejemplo -->
-                            <tr data-status="despachada">
-                                <td><span class="status-badge status-despachada">DESPACHADA</span></td>
-                                <td>2024-09-17</td>
-                                <td>BLD-001</td>
-                                <td>María González</td>
-                                <td>MG-001</td>
-                                <td>Emergencia</td>
-                                <td>Dr. Rodríguez</td>
-                                <td>O+</td>
-                                <td>D-12345</td>
-                                <td>O+</td>
-                                <td>Glóbulos Rojos</td>
-                                <td>250ml</td>
-                                <td>2024-10-15</td>
-                                <td>Cruz Roja PR</td>
-                                <td>08:30</td>
-                                <td>09:00</td>
-                                <td>4.2°C</td>
-                                <td>Aprobada</td>
-                                <td>Enf. Pérez</td>
-                                <td>08:35</td>
-                                <td>MT-José</td>
-                                <td>Lab-Ana</td>
-                                <td>Enf-Luis</td>
-                                <td>No</td>
-                                <td>Transfusión exitosa</td>
-                                <td>
-                                    <div class="row-actions">
-                                        <button class="action-btn btn-edit" onclick="editEntry(0)" title="Editar">✏️</button>
-                                        <button class="action-btn btn-duplicate" onclick="duplicateEntry(0)" title="Duplicar">📋</button>
-                                        <button class="action-btn btn-delete" onclick="deleteEntry(0)" title="Eliminar">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <!-- Tabla vacía — se llena con registros reales -->
                         </tbody>
                     </table>
                 </div>
@@ -1463,9 +1427,9 @@
     <script>
         // Variables globales
         let currentUser = {
-            name: 'Norma I. Medina',
-            role: 'Tecnólogo Médico Principal',
-            initials: 'NM'
+            name: '',
+            role: '',
+            initials: '?'
         };
 
         let currentEntries = [];
@@ -1690,38 +1654,53 @@
             return el ? el.value : '';
         }
 
+        function getRadio(name) {
+            var c = document.querySelector('input[name="' + name + '"]:checked');
+            return c ? c.value : '';
+        }
+        function getAboRh(aboName, rhName) {
+            var abo = document.querySelector('input[name="' + aboName + '"]:checked');
+            var rh  = document.querySelector('input[name="' + rhName + '"]:checked');
+            return (abo ? abo.value : '') + (rh ? rh.value : '');
+        }
+
         function collectFormData() {
+            var comp      = getRadio('componente');
+            var fechaExp  = getVal('fechaExpiracion');
+            var horaExp   = getVal('horaExpiracion');
+            var expDisplay = fechaExp
+                ? (comp === 'PRBC Fraccionada' && horaExp ? fechaExp + ' ' + horaExp : fechaExp)
+                : '';
             return {
-                id: editingIndex >= 0 ? currentEntries[editingIndex].id : `BLD-${Date.now()}`,
+                id:                editingIndex >= 0 ? currentEntries[editingIndex].id : 'BLD-' + Date.now(),
                 fecha:             getVal('fecha'),
                 numeroUnidad:      getVal('numeroUnidad'),
                 tipoOperacion:     getVal('tipoOperacion'),
-                estadoUnidad:      getVal('estadoUnidad'),
+                estadoUnidad:      getVal('estadoUnidad') || 'recibida',
                 paciente:          getVal('paciente'),
+                localizacion:      getRadio('localizacion'),
                 record:            getVal('record'),
-                localizacion:      getVal('localizacion'),
                 medico:            getVal('medico'),
-                aboRhPaciente:     getVal('aboRhPaciente'),
-                aboRhDonante:      getVal('aboRhDonante'),
-                componente:        getVal('componente'),
+                aboRhPaciente:     getAboRh('aboRhPaciente', 'rhPaciente'),
+                aboRhDonante:      getAboRh('aboRhDonante', 'rhDonante'),
+                componente:        comp,
                 volumen:           getVal('volumen'),
-                suplidor:          getVal('suplidor'),
-                fechaExpiracion:   getVal('fechaExpiracion'),
-                horaExpiracion:    getVal('horaExpiracion'),
-                transportTemp:     getVal('transportTemp'),
+                fechaExpiracion:   expDisplay,
+                suplidor:          getRadio('suplidor'),
                 timeReceived:      getVal('timeReceived'),
-                timeDispatched:    getVal('timeDispatched'),
-                inspeccion:        getVal('inspeccion'),
-                returned:          getVal('returned'),
-                mt:                getVal('mt'),
-                releasedBy:        getVal('releasedBy'),
-                receivedBy:        getVal('receivedBy'),
+                transportTemp:     getVal('transportTemp'),
                 personaNotificada: getVal('personaNotificada'),
                 horaNotificacion:  getVal('horaNotificacion'),
+                mt:                getVal('mt'),
                 firmaMT:           getSig('firmasMT'),
+                inspeccion:        getVal('inspeccion'),
+                releasedBy:        getVal('releasedBy'),
                 firmaReleased:     getSig('firmasReleased'),
+                receivedBy:        getVal('receivedBy'),
                 firmaReceived:     getSig('firmasReceived'),
+                returned:          getVal('returned'),
                 comentarios:       getVal('comentarios'),
+                timeDispatched:    getVal('timeDispatched'),
                 timestamp: new Date().toISOString()
             };
         }
@@ -1819,33 +1798,34 @@
                     'devuelta': 'DEVUELTA'
                 };
                 
+                const sig = (data) => data
+                    ? `<img src="${data}" style="height:36px;border:1px solid #ddd;border-radius:4px;">`
+                    : '-';
                 row.innerHTML = `
                     <td><span class="status-badge ${statusClass}">${statusText[entry.estadoUnidad] || 'N/A'}</span></td>
                     <td>${entry.fecha || '-'}</td>
-                    <td><strong>${entry.numeroUnidad || '-'}</strong></td>
                     <td>${entry.paciente || '-'}</td>
-                    <td>${entry.record || '-'}</td>
                     <td>${entry.localizacion || '-'}</td>
+                    <td>${entry.record || '-'}</td>
                     <td>${entry.medico || '-'}</td>
+                    <td><strong>${entry.numeroUnidad || '-'}</strong></td>
                     <td>${entry.aboRhPaciente || '-'}</td>
                     <td>${entry.aboRhDonante || '-'}</td>
                     <td>${entry.componente || '-'}</td>
-                    <td>${entry.volumen ? entry.volumen + 'ml' : '-'}</td>
+                    <td>${entry.volumen ? entry.volumen + ' ml' : '-'}</td>
                     <td>${entry.fechaExpiracion || '-'}</td>
                     <td>${entry.suplidor || '-'}</td>
                     <td>${entry.timeReceived || '-'}</td>
-                    <td>${entry.timeDispatched || '-'}</td>
                     <td>${entry.transportTemp ? entry.transportTemp + '°C' : '-'}</td>
-                    <td>${entry.inspeccion || '-'}</td>
-                    <td>${entry.personaNotificada || '-'}</td>
-                    <td>${entry.horaNotificacion || '-'}</td>
+                    <td>${entry.personaNotificada || '-'}${entry.horaNotificacion ? ' (' + entry.horaNotificacion + ')' : ''}</td>
                     <td>${entry.mt || '-'}</td>
+                    <td>${sig(entry.firmaMT)}</td>
+                    <td>${entry.inspeccion || '-'}</td>
                     <td>${entry.releasedBy || '-'}</td>
-                    <td>${entry.firmaMT ? '<img src="'+entry.firmaMT+'" style="height:36px;border:1px solid #ddd;border-radius:4px;">' : '-'}</td>
-                    <td>${entry.firmaReleased ? '<img src="'+entry.firmaReleased+'" style="height:36px;border:1px solid #ddd;border-radius:4px;">' : '-'}</td>
+                    <td>${sig(entry.firmaReleased)}</td>
                     <td>${entry.receivedBy || '-'}</td>
-                    <td>${entry.firmaReceived ? '<img src="'+entry.firmaReceived+'" style="height:36px;border:1px solid #ddd;border-radius:4px;">' : '-'}</td>
-                    <td>${entry.returned || 'No'}</td>
+                    <td>${sig(entry.firmaReceived)}</td>
+                    <td>${entry.returned || '-'}</td>
                     <td>${entry.comentarios || '-'}</td>
                     <td>
                         <div class="row-actions">
@@ -2004,6 +1984,7 @@
                     var h = document.getElementById('componente');
                     if(h) h.value = this.value;
                     onComponenteChange(this.value);
+                    checkExpiracion();
                 });
             });
             // Localizacion
@@ -2306,37 +2287,8 @@
             setInterval(loadSystemStats, 30000);
             setInterval(updateDateTime, 1000);
             
-            // Cargar datos de ejemplo adicionales
-            currentEntries = [
-                {
-                    id: 'BLD-001',
-                    fecha: '2024-09-17',
-                    numeroUnidad: 'BLD-001',
-                    estadoUnidad: 'despachada',
-                    paciente: 'María González',
-                    record: 'MG-001',
-                    localizacion: 'Emergencia',
-                    medico: 'Dr. Rodríguez',
-                    aboRhPaciente: 'O+',
-                    aboRhDonante: 'O+',
-                    componente: 'PRBC Completa',
-                    volumen: '250',
-                    fechaExpiracion: '2024-10-15',
-                    suplidor: 'Cruz Roja PR',
-                    timeReceived: '08:30',
-                    timeDispatched: '09:00',
-                    transportTemp: '4.2',
-                    inspeccion: 'Aprobada',
-                    returned: 'No',
-                    mt: 'MT-José',
-                    releasedBy: 'Lab-Ana',
-                    receivedBy: 'Enf-Luis',
-                    comentarios: 'Transfusión exitosa',
-                    timestamp: '2024-09-17T08:30:00.000Z'
-                }
-            ];
-            
-            unitCounter = 2; // Siguiente número disponible
+            currentEntries = [];
+            unitCounter = 1;
             
             showNotification('🚀 Sistema BLUDEE Integral iniciado correctamente', 'success');
         });
