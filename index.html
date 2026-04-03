@@ -1259,7 +1259,7 @@
                     </div>
                     <div class="form-group">
                         <label for="volumen">Volumen (ml):</label>
-                        <input type="number" id="volumen" placeholder="250">
+                        <input type="number" id="volumen" placeholder="Ingresa ml">
                     </div>
                     <div class="form-group" id="expiracion_group">
                         <label for="fechaExpiracion" id="expiracion_label">Fecha Expiración:</label>
@@ -1273,7 +1273,7 @@
                     </div>
                     <div class="form-group">
                         <label for="transportTemp">Transport Temp (°C):</label>
-                        <input type="number" id="transportTemp" step="0.1" placeholder="4.0">
+                        <input type="number" id="transportTemp" step="0.1" placeholder="°C">
                     </div>
 
                     <!-- Control de tiempo -->
@@ -1281,11 +1281,11 @@
                         <label for="timeReceived">Hora Recibida:</label>
                         <input type="time" id="timeReceived">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-solo-despacho="1">
                         <label for="timeDispatched">Hora Despachada:</label>
                         <input type="time" id="timeDispatched">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-solo-despacho="1">
                         <label for="inspeccion">Inspección:</label>
                         <select id="inspeccion">
                             <option value="">Seleccionar...</option>
@@ -1294,7 +1294,7 @@
                             <option value="Pendiente">Pendiente</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-solo-despacho="1">
                         <label for="returned">Devuelta:</label>
                         <select id="returned">
                             <option value="No">No</option>
@@ -1307,11 +1307,11 @@
                         <label for="mt">Técnico Responsable (MT):</label>
                         <input type="text" id="mt" placeholder="Nombre del MT">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-solo-despacho="1">
                         <label for="releasedBy">Released By — Nombre del MT:</label>
                         <input type="text" id="releasedBy" placeholder="MT. Nombre Apellido">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-solo-despacho="1">
                         <label for="receivedBy">Received By — Nombre del Enfermero:</label>
                         <input type="text" id="receivedBy" placeholder="Lic. Nombre Apellido">
                     </div>
@@ -1324,15 +1324,22 @@
                         <input type="time" id="horaNotificacion">
                     </div>
 
-                    <!-- Firmas digitales -->
-                    <div class="form-group form-row-full">
-                        <label style="font-weight:700;color:#374151;font-size:1rem;">✍️ Firmas Digitales</label>
+                    <!-- Firma MT — solo en Recibo -->
+                    <div class="form-group form-row-full" data-solo-recibo="1">
+                        <label style="font-weight:700;color:#374151;font-size:1rem;">✍️ Firma Técnico Responsable (MT)</label>
                         <div class="signatures-grid">
                             <div class="sig-box">
                                 <p class="sig-label">Técnico Responsable (MT)</p>
                                 <canvas id="firmasMT" class="sig-canvas" width="260" height="100"></canvas>
                                 <button type="button" class="sig-clear" onclick="clearSig('firmasMT')">🗑️ Limpiar</button>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Firmas Released + Received — solo en Despacho -->
+                    <div class="form-group form-row-full" data-solo-despacho="1">
+                        <label style="font-weight:700;color:#374151;font-size:1rem;">✍️ Firmas de Autorización</label>
+                        <div class="signatures-grid">
                             <div class="sig-box">
                                 <p class="sig-label">Released By — MT</p>
                                 <canvas id="firmasReleased" class="sig-canvas" width="260" height="100"></canvas>
@@ -1582,13 +1589,24 @@
         function updateFormMode() {
             var tipo = document.getElementById('tipoOperacion').value;
             var statusBadge = document.getElementById('entryStatus');
+            var esRecibo = (tipo === 'recibo');
 
-            // Mostrar TODOS los campos siempre — más confiable
+            // Mostrar todos los campos base
             document.querySelectorAll('#entryForm .form-group').forEach(function(g) {
                 g.style.display = 'flex';
             });
 
-            // Solo actualizar el badge de estado según el tipo
+            // Ocultar campos exclusivos de despacho si es recibo
+            document.querySelectorAll('#entryForm [data-solo-despacho]').forEach(function(g) {
+                g.style.display = esRecibo ? 'none' : 'flex';
+            });
+
+            // Ocultar campos exclusivos de recibo si es despacho
+            document.querySelectorAll('#entryForm [data-solo-recibo]').forEach(function(g) {
+                g.style.display = esRecibo ? 'flex' : 'none';
+            });
+
+            // Badge de estado y valor hidden
             if (tipo === 'recibo') {
                 statusBadge.className = 'status-badge status-recibida';
                 statusBadge.textContent = 'RECIBIDA';
