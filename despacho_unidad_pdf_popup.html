@@ -441,6 +441,55 @@
                 margin-bottom: 20px;
             }
         }
+
+        /* ── Button-group selector ── */
+        .btn-group-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            display: block;
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .btn-group input[type="radio"] {
+            display: none;
+        }
+        .btn-group label {
+            padding: 9px 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.92rem;
+            background: #f9fafb;
+            color: #374151;
+            transition: all 0.2s;
+            margin-bottom: 0;
+            user-select: none;
+        }
+        .btn-group label:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .btn-group input[type="radio"]:checked + label {
+            background: #1e40af;
+            border-color: #1e40af;
+            color: white;
+            box-shadow: 0 2px 8px rgba(30,64,175,0.3);
+        }
+        /* Estado de unidad – colores distintos */
+        .btn-group.estado input[type="radio"]:checked + label.opt-excelente { background:#059669;border-color:#059669; }
+        .btn-group.estado input[type="radio"]:checked + label.opt-bueno      { background:#2563eb;border-color:#2563eb; }
+        .btn-group.estado input[type="radio"]:checked + label.opt-regular    { background:#d97706;border-color:#d97706; }
+        .btn-group.estado input[type="radio"]:checked + label.opt-rechazado  { background:#dc2626;border-color:#dc2626; }
+        /* Rh */
+        .btn-group.rh input[type="radio"]:checked + label.opt-pos { background:#059669;border-color:#059669; }
+        .btn-group.rh input[type="radio"]:checked + label.opt-neg { background:#dc2626;border-color:#dc2626; }
     </style>
 </head>
 <body>
@@ -484,10 +533,6 @@
                         <label for="unidad">Unidad a Despachar <span class="required">*</span></label>
                         <select id="unidad" required>
                             <option value="">Seleccionar unidad...</option>
-                            <option value="Unidad 001 - PRBC - ±250 mL - A+">Unidad 001 - PRBC - ±250 mL - A+</option>
-                            <option value="Unidad 002 - PRBC fraccionada - ±125 mL - O-">Unidad 002 - PRBC fraccionada - ±125 mL - O-</option>
-                            <option value="Unidad 003 - Plasma Fresco Congelado - ±200 mL - AB+">Unidad 003 - Plasma Fresco Congelado - ±200 mL - AB+</option>
-                            <option value="Unidad 004 - Plaquetas - ±50 mL - O+">Unidad 004 - Plaquetas - ±50 mL - O+</option>
                         </select>
                     </div>
                     
@@ -496,17 +541,18 @@
                         <input type="text" id="paciente" placeholder="Nombre del paciente">
                     </div>
 
-                    <div class="form-group">
-                        <label for="inspeccion">Estado de la Unidad <span class="required">*</span></label>
-                        <select id="inspeccion" class="status-select" required>
-                            <option value="">Seleccionar estado...</option>
-                            <option value="Excelente">✅ Excelente - Sin observaciones</option>
-                            <option value="Bueno">✅ Bueno - Condiciones normales</option>
-                            <option value="Regular">⚠️ Regular - Con observaciones menores</option>
-                            <option value="Rechazado">❌ Rechazado - No apto para transfusión</option>
-                        </select>
+                    <div class="form-group full-width">
+                        <span class="btn-group-label">Estado de la Unidad <span class="required">*</span></span>
+                        <div class="btn-group estado" id="inspeccion_btns">
+                          <input type="radio" name="inspeccion" id="ins_rec" value="Recibida">
+                          <label for="ins_rec" class="opt-bueno">📥 Recibida</label>
+                          <input type="radio" name="inspeccion" id="ins_des" value="Despachada">
+                          <label for="ins_des" class="opt-excelente">📤 Despachada</label>
+                          <input type="radio" name="inspeccion" id="ins_dev" value="Devuelta">
+                          <label for="ins_dev" class="opt-rechazado">🔄 Devuelta</label>
+                        </div>
+                        <input type="hidden" id="inspeccion" required>
                     </div>
-                </div>
             </div>
 
             <!-- Información del Despacho -->
@@ -536,12 +582,12 @@
                 </h2>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="enfermera">Enfermera Responsable <span class="required">*</span></label>
+                        <label for="enfermera">Received By — Nombre del Enfermero <span class="required">*</span></label>
                         <input type="text" id="enfermera" placeholder="Lic. Nombre Apellido" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="mt">Tecnólogo Médico (MT) <span class="required">*</span></label>
+                        <label for="mt">Released By — Nombre del MT <span class="required">*</span></label>
                         <input type="text" id="mt" placeholder="MT. Nombre Apellido" required>
                     </div>
                 </div>
