@@ -997,7 +997,7 @@
         <div class="quick-actions">
             <h3>⚡ Acciones Rápidas</h3>
             <div class="actions-grid">
-                <button class="action-card integrated-action" onclick="window.location.href='despacho_emergencia.html'">
+                <button class="action-card integrated-action" onclick="openIntegratedModule('emergency')">
                     <div class="icon">🚨</div>
                     <div class="title">Emergencia</div>
                     <div class="description">Despacho urgente</div>
@@ -1029,7 +1029,7 @@
                 <a class="menu-item" href="trazabilidad_banco_sangre.html">🔄 Trazabilidad</a>
                 <a class="menu-item" href="gestion_de_donantes.html">👥 Gestión de Donantes</a>
                 <a class="menu-item" href="modulo_componentes_devueltos.html">📦 Componentes Devueltos</a>
-                <a class="menu-item emergency" href="despacho_emergencia.html">🚨 Despacho de Emergencia</a>
+                <a class="menu-item emergency" onclick="openIntegratedModule('emergency')" style="cursor:pointer;">🚨 Despacho de Emergencia</a>
                 <a class="menu-item" onclick="openIntegratedModule('dispatch')" style="cursor:pointer;">📤 Despacho de Unidad</a>
                 <a class="menu-item" onclick="openIntegratedModule('receive')" style="cursor:pointer;">📥 Registro Unidad Recibida</a>
                 <a class="menu-item" href="indicadores_calidad.html">📊 Indicadores de Calidad</a>
@@ -1137,6 +1137,97 @@
                     </div>
                     <div class="status-filter" data-status="devuelta" onclick="filterByStatus('devuelta')">
                         🔄 Devueltas
+                    </div>
+                    <div class="status-filter" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;border-color:#dc2626;"
+                         onclick="showEmergencyStock()">
+                        🚨 Stock-Emergencia
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ PANEL STOCK-EMERGENCIA ══ -->
+            <div id="emergencyStockPanel" style="display:none;">
+                <div style="background:linear-gradient(135deg,#fef2f2,#fee2e2);border:2px solid #fca5a5;border-radius:12px;padding:20px;margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <h3 style="color:#991b1b;display:flex;align-items:center;gap:8px;">
+                            🚨 Stock de Emergencia — Sin Crossmatch
+                        </h3>
+                        <div style="display:flex;gap:8px;">
+                            <button class="module-btn btn-new" onclick="showEmergencyAddForm()" style="font-size:0.85rem;padding:8px 14px;">
+                                ➕ Agregar Unidad
+                            </button>
+                            <button class="module-btn" style="background:#6b7280;color:white;font-size:0.85rem;padding:8px 14px;" onclick="hideEmergencyStock()">
+                                ← Volver
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Add unit form -->
+                    <div id="emergencyAddForm" style="display:none;background:white;border-radius:10px;padding:16px;margin-bottom:16px;border:1px solid #fca5a5;">
+                        <h4 style="color:#dc2626;margin-bottom:12px;">📦 Nueva Unidad al Stock de Emergencia</h4>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+                            <div><label style="font-size:0.85rem;font-weight:600;">ABO/Rh</label>
+                                <div class="btn-group" style="margin-top:4px;">
+                                    <input type="radio" name="emg_abo" id="emg_O"  value="O"><label for="emg_O">O</label>
+                                    <input type="radio" name="emg_abo" id="emg_A"  value="A"><label for="emg_A">A</label>
+                                    <input type="radio" name="emg_abo" id="emg_B"  value="B"><label for="emg_B">B</label>
+                                    <input type="radio" name="emg_abo" id="emg_AB" value="AB"><label for="emg_AB">AB</label>
+                                </div>
+                                <div class="btn-group btn-rh" style="margin-top:4px;">
+                                    <input type="radio" name="emg_rh" id="emg_pos" value="+"><label for="emg_pos" class="opt-pos">＋</label>
+                                    <input type="radio" name="emg_rh" id="emg_neg" value="-"><label for="emg_neg" class="opt-neg">−</label>
+                                </div>
+                            </div>
+                            <div><label style="font-size:0.85rem;font-weight:600;"># Unidad</label>
+                                <input type="text" id="emg_unidad" placeholder="Ej: EMG-001" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
+                            <div><label style="font-size:0.85rem;font-weight:600;">Componente</label>
+                                <div class="btn-group" style="margin-top:4px;">
+                                    <input type="radio" name="emg_comp" id="emg_prbc"   value="PRBC Completa"><label for="emg_prbc">PRBC</label>
+                                    <input type="radio" name="emg_comp" id="emg_plasma" value="Plasma"><label for="emg_plasma">Plasma</label>
+                                    <input type="radio" name="emg_comp" id="emg_plaq"   value="Plaquetas"><label for="emg_plaq">Plaquetas</label>
+                                </div>
+                            </div>
+                            <div><label style="font-size:0.85rem;font-weight:600;">Volumen (ml)</label>
+                                <input type="number" id="emg_vol" placeholder="ml" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
+                            <div><label style="font-size:0.85rem;font-weight:600;">Fecha Expiración</label>
+                                <input type="date" id="emg_fecha_exp" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
+                            <div><label style="font-size:0.85rem;font-weight:600;">Suplidor</label>
+                                <div class="btn-group" style="margin-top:4px;">
+                                    <input type="radio" name="emg_sup" id="emg_bsh"  value="Banco de Sangre Humacao"><label for="emg_bsh">B.S. Humacao</label>
+                                    <input type="radio" name="emg_sup" id="emg_smhr" value="Servicios Mutuos-Hato Rey"><label for="emg_smhr">S.M. Hato Rey</label>
+                                    <input type="radio" name="emg_sup" id="emg_smgb" value="Servicios Mutuos-Guaynabo"><label for="emg_smgb">S.M. Guaynabo</label>
+                                </div>
+                            </div>
+                            <div><label style="font-size:0.85rem;font-weight:600;">Transporte Temp (°C)</label>
+                                <input type="number" id="emg_temp" placeholder="°C" step="0.1" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
+                            <div><label style="font-size:0.85rem;font-weight:600;">MT Responsable</label>
+                                <input type="text" id="emg_mt" placeholder="MT. Nombre" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-top:12px;">
+                            <button class="module-btn btn-save" onclick="addEmergencyUnit()" style="padding:10px 20px;">💾 Guardar en Stock</button>
+                            <button class="module-btn" style="background:#6b7280;color:white;padding:10px 20px;" onclick="document.getElementById('emergencyAddForm').style.display='none'">Cancelar</button>
+                        </div>
+                    </div>
+                    <!-- Stock table -->
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                            <thead>
+                                <tr style="background:#dc2626;color:white;">
+                                    <th style="padding:8px;"># Unidad</th>
+                                    <th style="padding:8px;">ABO/Rh</th>
+                                    <th style="padding:8px;">Componente</th>
+                                    <th style="padding:8px;">Volumen</th>
+                                    <th style="padding:8px;">Fecha Exp.</th>
+                                    <th style="padding:8px;">Suplidor</th>
+                                    <th style="padding:8px;">Transporte</th>
+                                    <th style="padding:8px;">MT</th>
+                                    <th style="padding:8px;">Estado</th>
+                                    <th style="padding:8px;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emergencyStockBody">
+                                <tr><td colspan="10" style="text-align:center;padding:20px;color:#9ca3af;">Sin unidades en stock de emergencia</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1555,6 +1646,13 @@
                 document.getElementById('estadoUnidad').value = 'proceso';
             }
             
+            // Emergency: pre-fill N/A for irrelevant fields
+            if (type === 'emergencia') {
+                document.getElementById('timeReceived').value      = 'N/A';
+                document.getElementById('personaNotificada').value = 'N/A';
+                document.getElementById('horaNotificacion').value  = 'N/A';
+            }
+
             updateFormMode();
             editingIndex = -1;
         }
@@ -1648,34 +1746,50 @@
             }
 
             var tipo = getVal('tipoOperacion');
-            if (tipo === 'despacho' || tipo === 'emergencia') {
-                // Find the existing recibo entry and UPDATE it
+            if (tipo === 'despacho') {
                 var sel = document.getElementById('selectUnidadDespacho');
-                var unitId = sel ? sel.value : '';
-                var existingIdx = currentEntries.findIndex(function(e) {
-                    return e.numeroUnidad === unitId;
-                });
+                var unitId = sel ? sel.value.trim() : '';
+                var existingIdx = -1;
+                if (unitId) {
+                    for (var i = 0; i < currentEntries.length; i++) {
+                        if ((currentEntries[i].numeroUnidad || '').trim() === unitId) {
+                            existingIdx = i; break;
+                        }
+                    }
+                }
                 if (existingIdx >= 0) {
-                    // Merge despacho data into existing recibo entry
                     var existing = currentEntries[existingIdx];
+                    // Merge: keep ALL recibo fields, add despacho fields
                     currentEntries[existingIdx] = Object.assign({}, existing, {
-                        estadoUnidad:   'despachada',
-                        fechaDespacho:  entryData.fecha,
-                        timeDispatched: entryData.timeDispatched,
-                        inspeccion:     entryData.inspeccion,
-                        releasedBy:     entryData.releasedBy,
-                        firmaReleased:  entryData.firmaReleased,
-                        receivedBy:     entryData.receivedBy,
-                        firmaReceived:  entryData.firmaReceived,
-                        returned:       entryData.returned,
-                        comentarios:    entryData.comentarios,
+                        estadoUnidad:      'despachada',
+                        fechaDespacho:     entryData.fecha,
+                        timeDispatched:    entryData.timeDispatched,
+                        inspeccion:        entryData.inspeccion,
+                        releasedBy:        entryData.releasedBy,
+                        firmaReleased:     entryData.firmaReleased,
+                        receivedBy:        entryData.receivedBy,
+                        firmaReceived:     entryData.firmaReceived,
+                        returned:          entryData.returned,
+                        comentarios:       entryData.comentarios,
+                        // Preserve recibo fields that may be empty in despacho form
+                        fechaExpiracion:   existing.fechaExpiracion || entryData.fechaExpiracion,
+                        horaExpiracion:    existing.horaExpiracion  || entryData.horaExpiracion,
+                        firmaMT:           existing.firmaMT         || entryData.firmaMT,
                         timestampDespacho: new Date().toISOString()
                     });
-                    showNotification('✅ Despacho registrado en la unidad ' + unitId, 'success');
+                    showNotification('✅ Despacho registrado — ' + unitId, 'success');
                 } else {
-                    // No matching recibo found — create new entry
+                    entryData.estadoUnidad = 'despachada';
                     currentEntries.unshift(entryData);
                 }
+            } else if (tipo === 'emergencia') {
+                // Emergency: auto-set N/A fields, mark sinCrossmatch
+                entryData.estadoUnidad      = 'despachada';
+                entryData.timeReceived      = entryData.timeReceived      || 'N/A';
+                entryData.personaNotificada = entryData.personaNotificada || 'N/A';
+                entryData.horaNotificacion  = entryData.horaNotificacion  || 'N/A';
+                entryData.sinCrossmatch     = true;
+                currentEntries.unshift(entryData);
             } else if (editingIndex >= 0) {
                 currentEntries[editingIndex] = entryData;
             } else {
@@ -1850,7 +1964,7 @@
                     ? `<img src="${data}" style="height:36px;border:1px solid #ddd;border-radius:4px;">`
                     : '-';
                 row.innerHTML = `
-                    <td><span class="status-badge ${statusClass}">${statusText[entry.estadoUnidad] || 'N/A'}</span></td>
+                    <td><span class="status-badge ${statusClass}">${statusText[entry.estadoUnidad] || 'N/A'}</span>${entry.sinCrossmatch ? '<br><span style="font-size:0.7rem;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;border-radius:4px;padding:1px 5px;">Sin Crossmatch</span>' : ''}</td>
                     <td>${entry.fecha || '-'}</td>
                     <td>${entry.paciente || '-'}</td>
                     <td>${entry.localizacion || '-'}</td>
@@ -2099,6 +2213,141 @@
         }
 
 
+
+
+        // ══════════════════════════════════════════════
+        //  STOCK-EMERGENCIA
+        // ══════════════════════════════════════════════
+        var emergencyStock = [];
+
+        function showEmergencyStock() {
+            document.getElementById('emergencyStockPanel').style.display = 'block';
+            document.getElementById('entryForm').style.display = 'none';
+            document.querySelector('.enhanced-table').style.display = 'none';
+            renderEmergencyStock();
+        }
+
+        function hideEmergencyStock() {
+            document.getElementById('emergencyStockPanel').style.display = 'none';
+            document.querySelector('.enhanced-table').style.display = 'block';
+        }
+
+        function showEmergencyAddForm() {
+            document.getElementById('emergencyAddForm').style.display = 'block';
+        }
+
+        function getEmgRadio(name) {
+            var c = document.querySelector('input[name="' + name + '"]:checked');
+            return c ? c.value : '';
+        }
+
+        function addEmergencyUnit() {
+            var abo  = getEmgRadio('emg_abo');
+            var rh   = getEmgRadio('emg_rh');
+            var comp = getEmgRadio('emg_comp');
+            var sup  = getEmgRadio('emg_sup');
+            var unidad = document.getElementById('emg_unidad').value.trim();
+
+            if (!abo || !rh || !comp || !unidad) {
+                showNotification('⚠️ Completa ABO/Rh, Componente y # Unidad', 'warning');
+                return;
+            }
+
+            emergencyStock.push({
+                id:             'EMG-' + Date.now(),
+                numeroUnidad:   unidad,
+                aboRh:          abo + rh,
+                componente:     comp,
+                volumen:        document.getElementById('emg_vol').value,
+                fechaExpiracion:document.getElementById('emg_fecha_exp').value,
+                suplidor:       sup,
+                transportTemp:  document.getElementById('emg_temp').value,
+                mt:             document.getElementById('emg_mt').value,
+                sinCrossmatch:  true,
+                estado:         'disponible',
+                fechaIngreso:   new Date().toISOString()
+            });
+
+            // Clear form
+            ['emg_unidad','emg_vol','emg_fecha_exp','emg_temp','emg_mt'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.querySelectorAll('input[name^="emg_"]').forEach(function(r) { r.checked = false; });
+            document.getElementById('emergencyAddForm').style.display = 'none';
+
+            renderEmergencyStock();
+            showNotification('✅ Unidad agregada al Stock de Emergencia', 'success');
+        }
+
+        function renderEmergencyStock() {
+            var tbody = document.getElementById('emergencyStockBody');
+            if (!tbody) return;
+            if (emergencyStock.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;color:#9ca3af;">Sin unidades en stock de emergencia</td></tr>';
+                return;
+            }
+            tbody.innerHTML = emergencyStock.map(function(u, i) {
+                var esBadge = u.estado === 'disponible'
+                    ? '<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;">Disponible</span>'
+                    : '<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;">Usado</span>';
+                var accionBtn = u.estado === 'disponible'
+                    ? '<button onclick="dispatchFromEmergencyStock(' + i + ')" style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.8rem;">🚨 Despachar</button>'
+                    : '—';
+                return '<tr style="border-bottom:1px solid #fecaca;">' +
+                    '<td style="padding:8px;font-weight:600;">' + (u.numeroUnidad || '-') + '</td>' +
+                    '<td style="padding:8px;font-weight:700;color:#dc2626;">' + (u.aboRh || '-') + '</td>' +
+                    '<td style="padding:8px;">' + (u.componente || '-') + '</td>' +
+                    '<td style="padding:8px;">' + (u.volumen ? u.volumen + ' ml' : '-') + '</td>' +
+                    '<td style="padding:8px;">' + (u.fechaExpiracion || '-') + '</td>' +
+                    '<td style="padding:8px;">' + (u.suplidor || '-') + '</td>' +
+                    '<td style="padding:8px;">' + (u.transportTemp ? u.transportTemp + '°C' : '-') + '</td>' +
+                    '<td style="padding:8px;">' + (u.mt || '-') + '</td>' +
+                    '<td style="padding:8px;">' + esBadge + '</td>' +
+                    '<td style="padding:8px;">' + accionBtn + '</td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        function dispatchFromEmergencyStock(idx) {
+            var unit = emergencyStock[idx];
+            if (!unit) return;
+            // Mark as used in stock
+            emergencyStock[idx].estado = 'usado';
+            renderEmergencyStock();
+            // Hide stock panel, show form in emergency mode
+            hideEmergencyStock();
+            document.getElementById('entryForm').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'inline-flex';
+            document.getElementById('formTitle').textContent = '🚨 Despacho Emergencia — ' + unit.numeroUnidad;
+            document.getElementById('tipoOperacion').value = 'emergencia';
+            // Pre-fill from stock
+            document.getElementById('numeroUnidad').value = unit.numeroUnidad;
+            document.getElementById('volumen').value      = unit.volumen || '';
+            document.getElementById('fechaExpiracion').value = unit.fechaExpiracion || '';
+            document.getElementById('transportTemp').value   = unit.transportTemp || '';
+            document.getElementById('mt').value             = unit.mt || '';
+            document.getElementById('timeReceived').value      = 'N/A';
+            document.getElementById('personaNotificada').value = 'N/A';
+            document.getElementById('horaNotificacion').value  = 'N/A';
+            // Componente radio
+            var compR = document.querySelector('input[name="componente"][value="' + unit.componente + '"]');
+            if (compR) { compR.checked = true; compR.dispatchEvent(new Event('change',{bubbles:true})); }
+            // Suplidor radio
+            var supR = document.querySelector('input[name="suplidor"][value="' + unit.suplidor + '"]');
+            if (supR) { supR.checked = true; supR.dispatchEvent(new Event('change',{bubbles:true})); }
+            // ABO/Rh Donante from stock unit
+            if (unit.aboRh) {
+                var rhChar  = unit.aboRh.slice(-1);
+                var aboChar = unit.aboRh.slice(0, -1);
+                var aboR = document.querySelector('input[name="aboRhDonante"][value="' + aboChar + '"]');
+                var rhR  = document.querySelector('input[name="rhDonante"][value="' + rhChar + '"]');
+                if (aboR) { aboR.checked = true; aboR.dispatchEvent(new Event('change',{bubbles:true})); }
+                if (rhR)  { rhR.checked = true;  rhR.dispatchEvent(new Event('change',{bubbles:true})); }
+            }
+            updateFormMode();
+            showNotification('🚨 Completa los datos del paciente para el despacho de emergencia', 'info');
+        }
 
         // ── Populate despacho dropdown with received units ────────
         function populateUnidadDropdown() {
