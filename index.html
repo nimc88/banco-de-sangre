@@ -2127,65 +2127,92 @@
             });
             if (!entry) return;
 
-            // Set hidden numeroUnidad
-            document.getElementById('numeroUnidad').value = numeroUnidad;
+            // Helper: set radio + fire change to sync hidden input
+            function setRadio(name, value) {
+                if (!value) return;
+                var r = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+                if (r) {
+                    r.checked = true;
+                    r.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
 
-            // Fill text/date/time fields individually
-            var fields = ['paciente','record','medico','volumen',
-                          'transportTemp','timeReceived',
-                          'personaNotificada','horaNotificacion','mt','comentarios'];
-            fields.forEach(function(id) {
+            // Helper: set a text/date/time input
+            function setField(id, value) {
+                if (!value) return;
                 var el = document.getElementById(id);
-                if (el && entry[id]) el.value = entry[id];
-            });
-            // fechaExpiracion (date only — never the combined string)
-            var fechaEl = document.getElementById('fechaExpiracion');
-            if (fechaEl && entry.fechaExpiracion) fechaEl.value = entry.fechaExpiracion;
-            // horaExpiracion (time only)
-            var horaEl = document.getElementById('horaExpiracion');
-            if (horaEl && entry.horaExpiracion) {
-                horaEl.value = entry.horaExpiracion;
-                horaEl.style.display = 'block';
+                if (el) el.value = value;
             }
 
-            // Re-select radio buttons for ABO/Rh Paciente
+            // ── Número de unidad (hidden)
+            setField('numeroUnidad', numeroUnidad);
+
+            // ── Text / date / time fields
+            setField('paciente',          entry.paciente);
+            setField('record',            entry.record);
+            setField('medico',            entry.medico);
+            setField('volumen',           entry.volumen);
+            setField('fechaExpiracion',   entry.fechaExpiracion);
+            setField('horaExpiracion',    entry.horaExpiracion);
+            setField('transportTemp',     entry.transportTemp);
+            setField('timeReceived',      entry.timeReceived);
+            setField('personaNotificada', entry.personaNotificada);
+            setField('horaNotificacion',  entry.horaNotificacion);
+            setField('mt',                entry.mt);
+
+            // ── ABO/Rh Paciente — parse e.g. "O+" → abo="O", rh="+"
             if (entry.aboRhPaciente) {
-                var abo = entry.aboRhPaciente.replace(/[+-]/, '');
-                var rh  = entry.aboRhPaciente.includes('+') ? '+' : '-';
-                var aboR = document.querySelector('input[name="aboRhPaciente"][value="' + abo + '"]');
-                var rhR  = document.querySelector('input[name="rhPaciente"][value="' + rh + '"]');
-                if (aboR) aboR.checked = true;
-                if (rhR)  rhR.checked  = true;
+                var rhCharP = entry.aboRhPaciente.slice(-1);          // last char
+                var aboCharP = entry.aboRhPaciente.slice(0, -1);      // all but last
+                setRadio('aboRhPaciente', aboCharP);
+                setRadio('rhPaciente',    rhCharP);
+                // sync hidden
+                var hP = document.getElementById('aboRhPaciente');
+                if (hP) hP.value = entry.aboRhPaciente;
             }
-            // ABO/Rh Donante
+
+            // ── ABO/Rh Donante
             if (entry.aboRhDonante) {
-                var aboD = entry.aboRhDonante.replace(/[+-]/, '');
-                var rhD  = entry.aboRhDonante.includes('+') ? '+' : '-';
-                var aboDr = document.querySelector('input[name="aboRhDonante"][value="' + aboD + '"]');
-                var rhDr  = document.querySelector('input[name="rhDonante"][value="' + rhD + '"]');
-                if (aboDr) aboDr.checked = true;
-                if (rhDr)  rhDr.checked  = true;
+                var rhCharD = entry.aboRhDonante.slice(-1);
+                var aboCharD = entry.aboRhDonante.slice(0, -1);
+                setRadio('aboRhDonante', aboCharD);
+                setRadio('rhDonante',    rhCharD);
+                var hD = document.getElementById('aboRhDonante');
+                if (hD) hD.value = entry.aboRhDonante;
             }
-            // Componente
+
+            // ── Componente (also triggers hora expiracion visibility)
             if (entry.componente) {
-                var compR = document.querySelector('input[name="componente"][value="' + entry.componente + '"]');
-                if (compR) { compR.checked = true; onComponenteChange(entry.componente); }
+                setRadio('componente', entry.componente);
+                var hComp = document.getElementById('componente');
+                if (hComp) hComp.value = entry.componente;
+                onComponenteChange(entry.componente);
+                // If PRBC Fraccionada and we have horaExpiracion, show it
+                if (entry.componente === 'PRBC Fraccionada' && entry.horaExpiracion) {
+                    var horaEl = document.getElementById('horaExpiracion');
+                    if (horaEl) {
+                        horaEl.style.display = 'block';
+                        horaEl.value = entry.horaExpiracion;
+                    }
+                }
             }
-            // Localización
+
+            // ── Localización
             if (entry.localizacion) {
-                var locR = document.querySelector('input[name="localizacion"][value="' + entry.localizacion + '"]');
-                if (locR) locR.checked = true;
+                setRadio('localizacion', entry.localizacion);
+                var hLoc = document.getElementById('localizacion');
+                if (hLoc) hLoc.value = entry.localizacion;
             }
-            // Suplidor
+
+            // ── Suplidor
             if (entry.suplidor) {
-                var supR = document.querySelector('input[name="suplidor"][value="' + entry.suplidor + '"]');
-                if (supR) supR.checked = true;
+                setRadio('suplidor', entry.suplidor);
+                var hSup = document.getElementById('suplidor');
+                if (hSup) hSup.value = entry.suplidor;
             }
-
-
 
             checkExpiracion();
-            showNotification('✅ Datos de recibo cargados para ' + numeroUnidad, 'success');
+            showNotification('✅ Datos cargados — ' + numeroUnidad + (entry.paciente ? ' · ' + entry.paciente : ''), 'success');
         }
 
         // ── PRBC Fraccionada: hora expiración + alerta 23h ────────
