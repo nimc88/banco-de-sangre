@@ -1659,7 +1659,7 @@
                     // Merge despacho data into existing recibo entry
                     var existing = currentEntries[existingIdx];
                     currentEntries[existingIdx] = Object.assign({}, existing, {
-                        estadoUnidad:   entryData.estadoUnidad || 'despachada',
+                        estadoUnidad:   'despachada',
                         fechaDespacho:  entryData.fecha,
                         timeDispatched: entryData.timeDispatched,
                         inspeccion:     entryData.inspeccion,
@@ -1718,11 +1718,6 @@
 
         function collectFormData() {
             var comp      = getRadio('componente');
-            var fechaExp  = getVal('fechaExpiracion');
-            var horaExp   = getVal('horaExpiracion');
-            var expDisplay = fechaExp
-                ? (comp === 'PRBC Fraccionada' && horaExp ? fechaExp + ' ' + horaExp : fechaExp)
-                : '';
             return {
                 id:                editingIndex >= 0 ? currentEntries[editingIndex].id : 'BLD-' + Date.now(),
                 fecha:             getVal('fecha'),
@@ -1737,7 +1732,8 @@
                 aboRhDonante:      getAboRh('aboRhDonante', 'rhDonante'),
                 componente:        comp,
                 volumen:           getVal('volumen'),
-                fechaExpiracion:   expDisplay,
+                fechaExpiracion:   getVal('fechaExpiracion'),
+                horaExpiracion:    getVal('horaExpiracion'),
                 suplidor:          getRadio('suplidor'),
                 timeReceived:      getVal('timeReceived'),
                 transportTemp:     getVal('transportTemp'),
@@ -1865,7 +1861,11 @@
                     <td>${entry.aboRhDonante || '-'}</td>
                     <td>${entry.componente || '-'}</td>
                     <td>${entry.volumen ? entry.volumen + ' ml' : '-'}</td>
-                    <td>${entry.fechaExpiracion || '-'}</td>
+                    <td>${entry.fechaExpiracion
+                        ? (entry.componente === 'PRBC Fraccionada' && entry.horaExpiracion
+                            ? entry.fechaExpiracion + ' ' + entry.horaExpiracion
+                            : entry.fechaExpiracion)
+                        : '-'}</td>
                     <td>${entry.suplidor || '-'}</td>
                     <td>${entry.timeReceived || '-'}</td>
                     <td>${entry.transportTemp ? entry.transportTemp + '°C' : '-'}</td>
@@ -2130,15 +2130,23 @@
             // Set hidden numeroUnidad
             document.getElementById('numeroUnidad').value = numeroUnidad;
 
-            // Fill text fields
+            // Fill text/date/time fields individually
             var fields = ['paciente','record','medico','volumen',
-                          'fechaExpiracion','transportTemp','timeReceived',
-                          'personaNotificada','horaNotificacion','mt',
-                          'horaExpiracion','comentarios'];
+                          'transportTemp','timeReceived',
+                          'personaNotificada','horaNotificacion','mt','comentarios'];
             fields.forEach(function(id) {
                 var el = document.getElementById(id);
                 if (el && entry[id]) el.value = entry[id];
             });
+            // fechaExpiracion (date only — never the combined string)
+            var fechaEl = document.getElementById('fechaExpiracion');
+            if (fechaEl && entry.fechaExpiracion) fechaEl.value = entry.fechaExpiracion;
+            // horaExpiracion (time only)
+            var horaEl = document.getElementById('horaExpiracion');
+            if (horaEl && entry.horaExpiracion) {
+                horaEl.value = entry.horaExpiracion;
+                horaEl.style.display = 'block';
+            }
 
             // Re-select radio buttons for ABO/Rh Paciente
             if (entry.aboRhPaciente) {
@@ -2174,11 +2182,7 @@
                 if (supR) supR.checked = true;
             }
 
-            // Show horaExpiracion if PRBC Fraccionada
-            if (entry.componente === 'PRBC Fraccionada' && entry.horaExpiracion) {
-                var horaEl = document.getElementById('horaExpiracion');
-                if (horaEl) { horaEl.style.display = 'block'; horaEl.value = entry.horaExpiracion; }
-            }
+
 
             checkExpiracion();
             showNotification('✅ Datos de recibo cargados para ' + numeroUnidad, 'success');
