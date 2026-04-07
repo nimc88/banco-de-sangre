@@ -1230,14 +1230,14 @@
                                 <input type="date" id="emg_fecha_exp" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
                             <div><label style="font-size:0.85rem;font-weight:600;">Suplidor</label>
                                 <p style="font-size:0.8rem;color:#6b7280;margin-top:4px;padding:6px 10px;background:#f3f4f6;border-radius:6px;">
-                                    N/A — Stock en nevera del Banco de Sangre del hospital
+                                    In Site — Stock en nevera del Banco de Sangre
                                 </p>
-                                <input type="hidden" id="emg_sup_val" value="N/A (Stock Hospital)">
+                                <input type="hidden" id="emg_sup_val" value="In Site">
                             </div>
                             <div><label style="font-size:0.85rem;font-weight:600;">Transporte Temp (°C)</label>
                                 <input type="number" id="emg_temp" placeholder="°C" step="0.1" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
                             <div><label style="font-size:0.85rem;font-weight:600;">MT Responsable</label>
-                                <input type="text" id="emg_mt" placeholder="MT. Nombre" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
+                                <input type="text" id="emg_mt" placeholder="N/A" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;"></div>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:12px;">
                             <button class="module-btn btn-save" onclick="addEmergencyUnit()" style="padding:10px 20px;">💾 Guardar en Stock</button>
@@ -1423,11 +1423,11 @@
                         <label for="timeReceived">Hora Recibida:</label>
                         <input type="time" id="timeReceived">
                     </div>
-                    <div class="form-group" data-solo-despacho="1">
+                    <div class="form-group" data-despacho-emg="1">
                         <label for="timeDispatched">Hora Despachada:</label>
                         <input type="time" id="timeDispatched">
                     </div>
-                    <div class="form-group" data-solo-despacho="1">
+                    <div class="form-group" data-despacho-emg="1">
                         <label for="inspeccion">Inspección:</label>
                         <select id="inspeccion">
                             <option value="">Seleccionar...</option>
@@ -1436,7 +1436,7 @@
                             <option value="Pendiente">Pendiente</option>
                         </select>
                     </div>
-                    <div class="form-group" data-solo-despacho="1">
+                    <div class="form-group" data-despacho-emg="1">
                         <label for="returned">Devuelta:</label>
                         <select id="returned">
                             <option value="No">No</option>
@@ -1449,11 +1449,11 @@
                         <label for="mt">Técnico Responsable (MT):</label>
                         <input type="text" id="mt" placeholder="Nombre del MT">
                     </div>
-                    <div class="form-group" data-solo-despacho="1">
+                    <div class="form-group" data-despacho-emg="1">
                         <label for="releasedBy">Released By — Nombre del MT:</label>
                         <input type="text" id="releasedBy" placeholder="MT. Nombre Apellido">
                     </div>
-                    <div class="form-group" data-solo-despacho="1">
+                    <div class="form-group" data-despacho-emg="1">
                         <label for="receivedBy">Received By — Nombre del Enfermero:</label>
                         <input type="text" id="receivedBy" placeholder="Lic. Nombre Apellido">
                     </div>
@@ -1478,8 +1478,8 @@
                         </div>
                     </div>
 
-                    <!-- Firmas Released + Received — solo en Despacho -->
-                    <div class="form-group form-row-full" data-solo-despacho="1">
+                    <!-- Firmas Released + Received — Despacho y Emergencia -->
+                    <div class="form-group form-row-full" data-despacho-emg="1">
                         <label style="font-weight:700;color:#374151;font-size:1rem;">✍️ Firmas de Autorización</label>
                         <div class="signatures-grid">
                             <div class="sig-box">
@@ -2076,23 +2076,80 @@
         }
 
         function editEntry(index) {
-            const entry = currentEntries[index];
+            var entry = currentEntries[index];
             if (!entry) return;
-            
+
             editingIndex = index;
+            // Make sure module is open and showing the form
+            if (!document.getElementById('integratedModule').classList.contains('active')) {
+                document.getElementById('integratedModule').classList.add('active');
+                document.getElementById('mainPage').style.display = 'none';
+            }
+            document.getElementById('emergencyStockPanel').style.display = 'none';
+            document.querySelector('.enhanced-table').style.display = 'block';
             document.getElementById('entryForm').style.display = 'block';
-            document.getElementById('formTitle').textContent = `Editando: ${entry.numeroUnidad}`;
+            document.getElementById('formTitle').textContent = 'Editando: ' + (entry.numeroUnidad || '');
             document.getElementById('saveBtn').style.display = 'inline-flex';
-            
-            // Llenar formulario con datos existentes
-            Object.keys(entry).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    element.value = entry[key] || '';
-                }
+
+            // Restore text/date/time inputs
+            var textFields = ['fecha','numeroUnidad','tipoOperacion','paciente','record','medico',
+                'volumen','fechaExpiracion','horaExpiracion','transportTemp','timeReceived',
+                'timeDispatched','inspeccion','returned','mt','releasedBy','receivedBy',
+                'personaNotificada','horaNotificacion','comentarios','estadoUnidad'];
+            textFields.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el && entry[id] !== undefined) el.value = entry[id];
             });
-            
+
+            // Helper to set radio + fire change
+            function restoreRadio(name, value) {
+                if (!value) return;
+                var r = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+                if (r) { r.checked = true; r.dispatchEvent(new Event('change', {bubbles:true})); }
+            }
+
+            // Restore all radio groups
+            if (entry.componente)    restoreRadio('componente', entry.componente);
+            if (entry.localizacion)  restoreRadio('localizacion', entry.localizacion);
+            if (entry.suplidor)      restoreRadio('suplidor', entry.suplidor);
+            if (entry.estadoUnidad)  restoreRadio('estadoUnidad', entry.estadoUnidad);
+
+            // ABO/Rh Paciente
+            if (entry.aboRhPaciente) {
+                var rhP = entry.aboRhPaciente.slice(-1);
+                var aboP = entry.aboRhPaciente.slice(0, -1);
+                restoreRadio('aboRhPaciente', aboP);
+                restoreRadio('rhPaciente', rhP);
+                var h = document.getElementById('aboRhPaciente'); if(h) h.value = entry.aboRhPaciente;
+            }
+            // ABO/Rh Donante
+            if (entry.aboRhDonante) {
+                var rhD = entry.aboRhDonante.slice(-1);
+                var aboD = entry.aboRhDonante.slice(0, -1);
+                restoreRadio('aboRhDonante', aboD);
+                restoreRadio('rhDonante', rhD);
+                var hd = document.getElementById('aboRhDonante'); if(hd) hd.value = entry.aboRhDonante;
+            }
+
+            // Restore signature images (draw on canvas)
+            function restoreSig(canvasId, dataUrl) {
+                if (!dataUrl) return;
+                var canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+                var img = new Image();
+                img.onload = function() {
+                    canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
+                img.src = dataUrl;
+            }
+            restoreSig('firmasMT',       entry.firmaMT);
+            restoreSig('firmasReleased', entry.firmaReleased);
+            restoreSig('firmasReceived', entry.firmaReceived);
+
             updateFormMode();
+            // Scroll form into view
+            document.getElementById('entryForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function duplicateEntry(index) {
@@ -2450,7 +2507,7 @@
                 numeroUnidad:   unidad,
                 volumen:        document.getElementById('emg_vol').value,
                 fechaExpiracion:document.getElementById('emg_fecha_exp').value,
-                suplidor:       'N/A (Stock Hospital)',
+                suplidor:       'In Site',
                 transportTemp:  document.getElementById('emg_temp').value,
                 mt:             document.getElementById('emg_mt').value,
                 sinCrossmatch:  true
@@ -2830,6 +2887,8 @@
         function autoFillFromEmergencyStock(unit) {
             document.getElementById('tipoOperacion').value = 'emergencia';
             document.getElementById('numeroUnidad').value  = unit.numeroUnidad;
+            var badge = document.getElementById('emgUnitBadge');
+            if (badge) badge.textContent = '🚨 ' + unit.numeroUnidad + '  |  ' + (unit.aboRh||'') + '  |  ' + (unit.componente||'');
             // Pre-fill stock fields
             var fields = {
                 volumen:           unit.volumen        || '',
@@ -2845,7 +2904,7 @@
             document.getElementById('timeReceived').value      = 'N/A';
             document.getElementById('personaNotificada').value = 'N/A';
             document.getElementById('horaNotificacion').value  = 'N/A';
-            document.getElementById('suplidor').value          = 'N/A (Stock Hospital)';
+            document.getElementById('suplidor').value          = 'In Site';
             // Uncheck all suplidor radios
             document.querySelectorAll('input[name="suplidor"]').forEach(function(r){ r.checked=false; });
             // Componente
