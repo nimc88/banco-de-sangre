@@ -1209,7 +1209,7 @@
                     <div id="emergencyAddForm" style="display:none;background:white;border-radius:10px;padding:16px;margin-bottom:16px;border:1px solid #fca5a5;">
                         <h4 style="color:#dc2626;margin-bottom:12px;">📦 Nueva Unidad al Stock de Emergencia</h4>
                         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
-                            <div><label style="font-size:0.85rem;font-weight:600;">ABO/Rh — Grupo Santiago</label>
+                            <div><label style="font-size:0.85rem;font-weight:600;">Grupo Sanguíneo (ABO/Rh)</label>
                                 <p style="font-size:0.75rem;color:#dc2626;margin:2px 0 4px;">Solo O Positivo y O Negativo</p>
                                 <div class="btn-group btn-rh" style="margin-top:4px;">
                                     <input type="radio" name="emg_aboRh" id="emg_Opos" value="O+"><label for="emg_Opos" class="opt-pos">O ＋</label>
@@ -1299,7 +1299,7 @@
                         <input type="text" id="numeroUnidad" placeholder="Ej: PRBC-001234">
                     </div>
                     <!-- Despacho: seleccionar de unidades recibidas -->
-                    <div class="form-group" id="unidadSelectGroup" style="display:none;">
+                    <div class="form-group" id="unidadSelectGroup" data-hide-emergencia="1" style="display:none;">
                         <label for="selectUnidadDespacho">Seleccionar Unidad Recibida:</label>
                         <select id="selectUnidadDespacho" onchange="autoFillFromRecibo(this.value)"
                                 style="font-size:0.95rem;">
@@ -1343,7 +1343,7 @@
                         </div>
                         <input type="hidden" id="localizacion">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-solo-recibo="1">
                         <label>Suplidor:</label>
                         <div class="btn-group" id="suplidor_btns">
                             <input type="radio" name="suplidor" id="s_bsh" value="Banco de Sangre Humacao"><label for="s_bsh">🏥 B.S. Humacao</label>
@@ -1373,7 +1373,7 @@
                         </div>
                         <input type="hidden" id="aboRhPaciente">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-hide-emergencia="1">
                         <label>ABO/Rh Donante:</label>
                         <div class="btn-group" id="aboRhDon_btns">
                             <input type="radio" name="aboRhDonante" id="pd_O"  value="O"><label for="pd_O">O</label>
@@ -1388,7 +1388,7 @@
                         <input type="hidden" id="aboRhDonante">
                     </div>
                     <!-- Detalles técnicos -->
-                    <div class="form-group">
+                    <div class="form-group" data-hide-emergencia="1">
                         <label>Componente:</label>
                         <div class="btn-group" id="componente_btns">
                             <input type="radio" name="componente" id="comp_prbc" value="PRBC Completa"><label for="comp_prbc">🩸 PRBC Completa</label>
@@ -1399,11 +1399,11 @@
                         </div>
                         <input type="hidden" id="componente">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-hide-emergencia="1">
                         <label for="volumen">Volumen (ml):</label>
                         <input type="number" id="volumen" placeholder="Ingresa ml">
                     </div>
-                    <div class="form-group" id="expiracion_group">
+                    <div class="form-group" id="expiracion_group" data-hide-emergencia="1">
                         <label for="fechaExpiracion" id="expiracion_label">Fecha Expiración:</label>
                         <input type="date" id="fechaExpiracion" onchange="checkExpiracion()">
                         <!-- Solo visible para PRBC Fraccionada -->
@@ -1413,13 +1413,13 @@
                              background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;
                              color:#92400e;font-size:0.85rem;font-weight:600;"></div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-hide-emergencia="1">
                         <label for="transportTemp">Transport Temp (°C):</label>
                         <input type="number" id="transportTemp" step="0.1" placeholder="°C">
                     </div>
 
                     <!-- Control de tiempo -->
-                    <div class="form-group">
+                    <div class="form-group" data-solo-recibo="1">
                         <label for="timeReceived">Hora Recibida:</label>
                         <input type="time" id="timeReceived">
                     </div>
@@ -1445,7 +1445,7 @@
                     </div>
 
                     <!-- Personal responsable -->
-                    <div class="form-group">
+                    <div class="form-group" data-hide-emergencia="1">
                         <label for="mt">Técnico Responsable (MT):</label>
                         <input type="text" id="mt" placeholder="Nombre del MT">
                     </div>
@@ -1457,11 +1457,11 @@
                         <label for="receivedBy">Received By — Nombre del Enfermero:</label>
                         <input type="text" id="receivedBy" placeholder="Lic. Nombre Apellido">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-solo-recibo="1">
                         <label for="personaNotificada">Persona Notificada — Enfermero/Supervisor:</label>
                         <input type="text" id="personaNotificada" placeholder="Lic./Dr. Nombre Apellido">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-solo-recibo="1">
                         <label for="horaNotificacion">Hora Notificación:</label>
                         <input type="time" id="horaNotificacion">
                     </div>
@@ -1783,6 +1783,7 @@
             }
 
             // Swap unidad input vs dropdown
+            var esEmergencia = (tipo === 'emergencia');
             var inputGrp  = document.getElementById('unidadInputGroup');
             var selectGrp = document.getElementById('unidadSelectGroup');
             if (inputGrp && selectGrp) {
@@ -1791,10 +1792,15 @@
                     selectGrp.style.display = 'none';
                 } else {
                     inputGrp.style.display  = 'none';
-                    selectGrp.style.display = 'flex';
-                    populateUnidadDropdown();
+                    selectGrp.style.display = esEmergencia ? 'none' : 'flex';
+                    if (!esEmergencia) populateUnidadDropdown();
                 }
             }
+
+            // Hide fields that should not appear in emergencia mode
+            document.querySelectorAll('#entryForm [data-hide-emergencia]').forEach(function(g) {
+                g.style.display = esEmergencia ? 'none' : 'flex';
+            });
 
             // Mostrar botones de acción
             var fa = document.querySelector('.form-actions');
@@ -2600,15 +2606,13 @@
             // Show a preview card with the stock unit data
             showReciboPreview({
                 componente:     unit.componente,
-                aboRhDonante:   unit.aboRh,
+                aboRh:          unit.aboRh,
                 volumen:        unit.volumen,
                 fechaExpiracion:unit.fechaExpiracion,
                 suplidor:       unit.suplidor,
                 transportTemp:  unit.transportTemp,
-                mt:             unit.mt,
-                timeReceived:   'N/A',
-                personaNotificada: 'N/A'
-            });
+                mt:             unit.mt
+            }, true);
             showNotification('🚨 Completa los datos del paciente para el despacho de emergencia', 'info');
         }
 
@@ -2758,39 +2762,66 @@
             showNotification('✅ Datos cargados — ' + numeroUnidad + (entry.paciente ? ' · ' + entry.paciente : ''), 'success');
         }
 
-        function showReciboPreview(entry) {
+        function showReciboPreview(entry, emergenciaMode) {
             var card = document.getElementById('reciboPreview');
             var grid = document.getElementById('reciboPreviewGrid');
             if (!card || !grid) return;
 
-            var fields = [
-                { label: 'Paciente',         value: entry.paciente },
-                { label: 'Récord',           value: entry.record },
-                { label: 'Médico',           value: entry.medico },
-                { label: 'Localización',     value: entry.localizacion },
-                { label: 'Componente',       value: entry.componente },
-                { label: 'ABO/Rh Paciente',  value: entry.aboRhPaciente },
-                { label: 'ABO/Rh Donante',   value: entry.aboRhDonante },
-                { label: 'Volumen',          value: entry.volumen ? entry.volumen + ' ml' : '' },
-                { label: 'Fecha Exp.',       value: entry.componente === 'PRBC Fraccionada' && entry.horaExpiracion
-                                                    ? (entry.fechaExpiracion + ' ' + entry.horaExpiracion)
-                                                    : entry.fechaExpiracion },
-                { label: 'Suplidor',         value: entry.suplidor },
-                { label: 'Hora Recibida',    value: entry.timeReceived },
-                { label: 'Transporte',       value: entry.transportTemp ? entry.transportTemp + '°C' : '' },
-                { label: 'MT',               value: entry.mt },
-                { label: 'Firma MT',         value: entry.firmaMT ? '✅ Firmado' : '' }
-            ];
+            var heading = card.querySelector('h4');
 
-            grid.innerHTML = fields.map(function(f) {
-                var hasValue = f.value && f.value.trim();
-                return '<div class="recibo-preview-item">' +
-                    '<div class="rp-label">' + f.label + '</div>' +
-                    '<div class="rp-value ' + (hasValue ? 'rp-check' : 'rp-missing') + '">' +
-                        (hasValue ? f.value : '⚠ Vacío') +
-                    '</div>' +
-                '</div>';
-            }).join('');
+            if (emergenciaMode) {
+                // Emergency: only show stock data that's already filled
+                // MT only needs to fill: paciente, record, medico, localizacion, aboRhPaciente
+                if (heading) heading.innerHTML = '🚨 Datos del Stock — Completa los campos del paciente';
+                var stockFields = [
+                    { label: 'Componente',       value: entry.componente },
+                    { label: 'ABO/Rh Donante',   value: entry.aboRhDonante || entry.aboRh },
+                    { label: 'Volumen',          value: entry.volumen ? entry.volumen + ' ml' : '' },
+                    { label: 'Fecha Exp.',       value: entry.fechaExpiracion },
+                    { label: 'Suplidor',         value: entry.suplidor },
+                    { label: 'Transporte',       value: entry.transportTemp ? entry.transportTemp + '°C' : '' },
+                    { label: 'MT Responsable',   value: entry.mt },
+                ];
+                grid.innerHTML = stockFields.map(function(f) {
+                    var hasValue = f.value && String(f.value).trim();
+                    return '<div class="recibo-preview-item">' +
+                        '<div class="rp-label">' + f.label + '</div>' +
+                        '<div class="rp-value ' + (hasValue ? 'rp-check' : 'rp-missing') + '">' +
+                            (hasValue ? f.value : '⚠ Vacío') +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            } else {
+                // Regular despacho: show all recibo fields
+                if (heading) heading.innerHTML = '📋 Datos del Recibo — Verificar antes de despachar';
+                var fields = [
+                    { label: 'Paciente',         value: entry.paciente },
+                    { label: 'Récord',           value: entry.record },
+                    { label: 'Médico',           value: entry.medico },
+                    { label: 'Localización',     value: entry.localizacion },
+                    { label: 'Componente',       value: entry.componente },
+                    { label: 'ABO/Rh Paciente',  value: entry.aboRhPaciente },
+                    { label: 'ABO/Rh Donante',   value: entry.aboRhDonante },
+                    { label: 'Volumen',          value: entry.volumen ? entry.volumen + ' ml' : '' },
+                    { label: 'Fecha Exp.',       value: entry.componente === 'PRBC Fraccionada' && entry.horaExpiracion
+                                                        ? (entry.fechaExpiracion + ' ' + entry.horaExpiracion)
+                                                        : entry.fechaExpiracion },
+                    { label: 'Suplidor',         value: entry.suplidor },
+                    { label: 'Hora Recibida',    value: entry.timeReceived },
+                    { label: 'Transporte',       value: entry.transportTemp ? entry.transportTemp + '°C' : '' },
+                    { label: 'MT',               value: entry.mt },
+                    { label: 'Firma MT',         value: entry.firmaMT ? '✅ Firmado' : '' }
+                ];
+                grid.innerHTML = fields.map(function(f) {
+                    var hasValue = f.value && String(f.value).trim();
+                    return '<div class="recibo-preview-item">' +
+                        '<div class="rp-label">' + f.label + '</div>' +
+                        '<div class="rp-value ' + (hasValue ? 'rp-check' : 'rp-missing') + '">' +
+                            (hasValue ? f.value : '⚠ Vacío') +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            }
 
             card.style.display = 'block';
         }
