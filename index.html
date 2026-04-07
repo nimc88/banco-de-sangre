@@ -1753,61 +1753,40 @@
         }
 
         async function saveEntry() {
-            // Validar campos obligatorios
-            if (!document.getElementById('fecha').value || !document.getElementById('numeroUnidad').value) {
-                showNotification('⚠️ Por favor complete los campos obligatorios', 'warning');
+            if (!document.getElementById('fecha').value) {
+                showNotification('⚠️ Por favor ingrese la fecha', 'warning');
                 return;
             }
 
-            const entryData = collectFormData();
-
-            // Guardar en Firebase
-            try {
-                var user = null;
-                if (typeof auth !== 'undefined' && auth) {
-                    user = await new Promise(function(resolve) {
-                        var unsubscribe = auth.onAuthStateChanged(function(u) {
-                            unsubscribe(); resolve(u);
-                        });
-                    });
-                }
-                if (user && typeof db !== 'undefined' && db) {
-                    await db.collection("entradas_unidades").add({
-                        ...entryData,
-                        guardadoPor: user.email,
-                        fechaGuardado: new Date().toISOString()
-                    });
-                    showNotification('✅ Guardado en Firebase correctamente', 'success');
-                } else {
-                    showNotification('⚠️ Sin sesión activa — guardado solo localmente', 'warning');
-                }
-            } catch(e) {
-                console.error('❌ Firebase error:', e.message);
-                showNotification('⚠️ Error al guardar en la nube: ' + e.message, 'warning');
-            }
-
             var tipo = getVal('tipoOperacion');
+            var entryData = collectFormData();
+
+            // ── Get Firebase user once ─────────────────────────────
+            var user = null;
+            if (typeof auth !== 'undefined' && auth) {
+                user = await new Promise(function(resolve) {
+                    var unsub = auth.onAuthStateChanged(function(u) { unsub(); resolve(u); });
+                });
+            }
+            var useFirebase = (user && typeof db !== 'undefined' && db);
+
+            // ── Find existing entry (for despacho / update) ────────
+            var sel    = document.getElementById('selectUnidadDespacho');
+            var selVal = (sel && sel.style.display !== 'none') ? sel.value.trim() : '';
+            var unitId = selVal.startsWith('EMG::') ? selVal.replace('EMG::','') : selVal;
+            if (!unitId) unitId = (getVal('numeroUnidad') || '').trim();
+
+            var existingIdx = currentEntries.findIndex(function(e) {
+                return (e.numeroUnidad || '').trim() === unitId;
+            });
+            var existing = existingIdx >= 0 ? currentEntries[existingIdx] : null;
+
             if (tipo === 'despacho' || tipo === 'emergencia') {
-                var sel    = document.getElementById('selectUnidadDespacho');
-                var selVal = sel ? sel.value.trim() : '';
-                // Strip EMG:: prefix to get plain unit id
-                var unitId = selVal.startsWith('EMG::') ? selVal.replace('EMG::','') : selVal;
-
-                // Also accept the hidden text input as fallback
-                if (!unitId) unitId = (getVal('numeroUnidad') || '').trim();
-
-                var existingIdx = -1;
-                if (unitId) {
-                    for (var i = 0; i < currentEntries.length; i++) {
-                        if ((currentEntries[i].numeroUnidad || '').trim() === unitId) {
-                            existingIdx = i; break;
-                        }
-                    }
-                }
-
-                if (existingIdx >= 0) {
-                    var existing = currentEntries[existingIdx];
-                    currentEntries[existingIdx] = Object.assign({}, existing, {
+                // ── BUILD merged record ────────────────────────────
+                var merged;
+                if (existing) {
+                    merged = Object.assign({}, existing, {
+                        // Despacho fields — always from new form
                         estadoUnidad:      'despachada',
                         fechaDespacho:     entryData.fecha,
                         timeDispatched:    entryData.timeDispatched,
@@ -1817,47 +1796,138 @@
                         receivedBy:        entryData.receivedBy,
                         firmaReceived:     entryData.firmaReceived,
                         returned:          entryData.returned,
-                        comentarios:       entryData.comentarios,
+                        comentarios:       entryData.comentarios || existing.comentarios,
                         sinCrossmatch:     tipo === 'emergencia' ? true : (existing.sinCrossmatch || false),
-                        paciente:          entryData.paciente        || existing.paciente,
-                        record:            entryData.record          || existing.record,
-                        medico:            entryData.medico          || existing.medico,
-                        localizacion:      entryData.localizacion    || existing.localizacion,
-                        // Always preserve recibo-origin fields
-                        fechaExpiracion:   existing.fechaExpiracion  || entryData.fechaExpiracion,
-                        horaExpiracion:    existing.horaExpiracion   || entryData.horaExpiracion,
-                        firmaMT:           existing.firmaMT          || entryData.firmaMT,
-                        timeReceived:      existing.timeReceived     || entryData.timeReceived,
-                        transportTemp:     existing.transportTemp    || entryData.transportTemp,
-                        suplidor:          existing.suplidor         || entryData.suplidor,
-                        componente:        existing.componente       || entryData.componente,
-                        aboRhPaciente:     entryData.aboRhPaciente   || existing.aboRhPaciente,
-                        aboRhDonante:      entryData.aboRhDonante    || existing.aboRhDonante,
+                        // Patient — prefer form (may have been updated at dispatch)
+                        paciente:          entryData.paciente   || existing.paciente,
+                        record:            entryData.record     || existing.record,
+                        medico:            entryData.medico     || existing.medico,
+                        localizacion:      entryData.localizacion || existing.localizacion,
+                        // ABO/Rh — if entered at dispatch, use those; else keep recibo
+                        aboRhPaciente:     entryData.aboRhPaciente || existing.aboRhPaciente,
+                        aboRhDonante:      entryData.aboRhDonante  || existing.aboRhDonante,
+                        // Recibo fields — NEVER overwrite with empty
+                        fechaExpiracion:   existing.fechaExpiracion || entryData.fechaExpiracion,
+                        horaExpiracion:    existing.horaExpiracion  || entryData.horaExpiracion,
+                        firmaMT:           existing.firmaMT         || entryData.firmaMT,
+                        timeReceived:      existing.timeReceived    || entryData.timeReceived,
+                        transportTemp:     existing.transportTemp   || entryData.transportTemp,
+                        suplidor:          existing.suplidor        || entryData.suplidor,
+                        componente:        existing.componente      || entryData.componente,
+                        volumen:           existing.volumen         || entryData.volumen,
                         timestampDespacho: new Date().toISOString()
                     });
+                    currentEntries[existingIdx] = merged;
+
+                    // ── Firebase: UPDATE existing doc ──────────────
+                    if (useFirebase && existing.firebaseId) {
+                        try {
+                            await db.collection("entradas_unidades")
+                                .doc(existing.firebaseId)
+                                .update({
+                                    estadoUnidad:      merged.estadoUnidad,
+                                    fechaDespacho:     merged.fechaDespacho,
+                                    timeDispatched:    merged.timeDispatched,
+                                    inspeccion:        merged.inspeccion,
+                                    releasedBy:        merged.releasedBy,
+                                    firmaReleased:     merged.firmaReleased,
+                                    receivedBy:        merged.receivedBy,
+                                    firmaReceived:     merged.firmaReceived,
+                                    returned:          merged.returned,
+                                    paciente:          merged.paciente,
+                                    record:            merged.record,
+                                    medico:            merged.medico,
+                                    localizacion:      merged.localizacion,
+                                    aboRhPaciente:     merged.aboRhPaciente,
+                                    aboRhDonante:      merged.aboRhDonante,
+                                    comentarios:       merged.comentarios,
+                                    sinCrossmatch:     merged.sinCrossmatch,
+                                    timestampDespacho: merged.timestampDespacho,
+                                    actualizadoPor:    user.email,
+                                    fechaActualizacion: new Date().toISOString()
+                                });
+                            showNotification('✅ Despacho guardado en Firebase — ' + unitId, 'success');
+                        } catch(e) {
+                            console.error('Firebase update error:', e.message);
+                            showNotification('✅ Despacho guardado localmente — ' + unitId, 'success');
+                        }
+                    } else {
+                        showNotification('✅ Despacho registrado — ' + unitId, 'success');
+                    }
+
                     // Mark emergency stock unit as used
                     if (selVal.startsWith('EMG::')) {
                         var emgIdx = emergencyStock.findIndex(function(u){ return u.numeroUnidad === unitId; });
                         if (emgIdx >= 0) { emergencyStock[emgIdx].estado = 'usado'; guardarEmgLocal(); }
                         renderEmergencyStock();
                     }
-                    showNotification('✅ Despacho registrado — ' + unitId, 'success');
+
                 } else {
-                    // No matching recibo — new entry
+                    // No matching recibo — create new dispatch entry
                     entryData.estadoUnidad      = 'despachada';
                     entryData.sinCrossmatch     = tipo === 'emergencia';
                     entryData.timeReceived      = entryData.timeReceived      || (tipo==='emergencia' ? 'N/A' : '');
                     entryData.personaNotificada = entryData.personaNotificada || (tipo==='emergencia' ? 'N/A' : '');
                     entryData.horaNotificacion  = entryData.horaNotificacion  || (tipo==='emergencia' ? 'N/A' : '');
                     currentEntries.unshift(entryData);
+                    if (useFirebase) {
+                        try {
+                            var ref = await db.collection("entradas_unidades").add({
+                                ...entryData,
+                                guardadoPor: user.email,
+                                fechaGuardado: new Date().toISOString()
+                            });
+                            currentEntries[0].firebaseId = ref.id;
+                        } catch(e) { console.error('Firebase add error:', e.message); }
+                    }
+                    showNotification('✅ Despacho de emergencia guardado', 'success');
                 }
+
             } else if (editingIndex >= 0) {
+                // ── EDITING existing entry ─────────────────────────
                 currentEntries[editingIndex] = entryData;
+                if (useFirebase && entryData.firebaseId) {
+                    try {
+                        await db.collection("entradas_unidades")
+                            .doc(entryData.firebaseId)
+                            .update({ ...entryData, actualizadoPor: user.email });
+                    } catch(e) { console.error('Firebase update error:', e.message); }
+                }
+                showNotification('✅ Registro actualizado', 'success');
+
             } else {
+                // ── NEW recibo entry ───────────────────────────────
+                entryData.estadoUnidad = entryData.estadoUnidad || 'recibida';
                 currentEntries.unshift(entryData);
+                if (useFirebase) {
+                    try {
+                        var docRef = await db.collection("entradas_unidades").add({
+                            ...entryData,
+                            guardadoPor:    user.email,
+                            fechaGuardado:  new Date().toISOString()
+                        });
+                        currentEntries[0].firebaseId = docRef.id;
+                        // Also save patient to separate patients collection
+                        if (entryData.paciente && entryData.record) {
+                            await db.collection("pacientes").doc(entryData.record).set({
+                                nombre:         entryData.paciente,
+                                record:         entryData.record,
+                                aboRhPaciente:  entryData.aboRhPaciente,
+                                medico:         entryData.medico,
+                                ultimaActualizacion: new Date().toISOString()
+                            }, { merge: true });
+                        }
+                        showNotification('✅ Recibo guardado en Firebase', 'success');
+                    } catch(e) {
+                        console.error('Firebase add error:', e.message);
+                        showNotification('✅ Recibo guardado localmente', 'success');
+                    }
+                } else {
+                    showNotification('✅ Recibo guardado localmente', 'success');
+                }
             }
 
-            guardarLocal();   // persist to localStorage immediately
+            guardarLocal();
             updateTable();
             updateSystemStats();
             clearForm();
