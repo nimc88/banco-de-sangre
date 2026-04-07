@@ -908,6 +908,50 @@
         }
         .sig-clear:hover { background: #fecaca; }
 
+        /* ── Recibo preview card ── */
+        .recibo-preview {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 2px solid #38bdf8;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .recibo-preview h4 {
+            color: #0369a1;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .recibo-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 8px;
+        }
+        .recibo-preview-item {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 10px;
+            border: 1px solid #bae6fd;
+        }
+        .recibo-preview-item .rp-label {
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .recibo-preview-item .rp-value {
+            font-size: 0.92rem;
+            color: #1e293b;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+        .rp-check { color: #059669; }
+        .rp-missing { color: #dc2626; font-style: italic; }
+
         /* ── Button groups ── */
         .btn-group { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:2px; }
         .btn-group input[type="radio"] { display:none; }
@@ -1261,6 +1305,11 @@
                                 style="font-size:0.95rem;">
                             <option value="">— Seleccionar unidad —</option>
                         </select>
+                    </div>
+                    <!-- Preview of recibo data shown when unit is selected -->
+                    <div class="recibo-preview form-group form-row-full" id="reciboPreview">
+                        <h4>📋 Datos del Recibo — Verificar antes de despachar</h4>
+                        <div class="recibo-preview-grid" id="reciboPreviewGrid"></div>
                     </div>
                     <div class="form-group">
                         <label>Estado de la Unidad:</label>
@@ -2000,6 +2049,8 @@
         }
 
         function clearForm() {
+            var preview = document.getElementById('reciboPreview');
+            if (preview) preview.style.display = 'none';
             clearAllSigs();
             document.getElementById('entryForm').querySelectorAll('input, select, textarea').forEach(input => {
                 if (input.id !== 'fecha' && input.type !== 'date') {
@@ -2387,36 +2438,51 @@
                 return;
             }
 
-            emergencyStock.push({
-                id:             'EMG-' + Date.now(),
-                numeroUnidad:   unidad,
+            var unitData = {
                 aboRh:          aboRh,
                 componente:     comp,
+                numeroUnidad:   unidad,
                 volumen:        document.getElementById('emg_vol').value,
                 fechaExpiracion:document.getElementById('emg_fecha_exp').value,
                 suplidor:       'N/A (Stock Hospital)',
                 transportTemp:  document.getElementById('emg_temp').value,
                 mt:             document.getElementById('emg_mt').value,
-                sinCrossmatch:  true,
-                estado:         'disponible',
-                fechaIngreso:   new Date().toISOString()
-            });
+                sinCrossmatch:  true
+            };
 
-            // Clear form
+            if (emgEditingIdx >= 0) {
+                // UPDATE existing
+                emergencyStock[emgEditingIdx] = Object.assign({}, emergencyStock[emgEditingIdx], unitData);
+                emgEditingIdx = -1;
+                showNotification('✅ Unidad actualizada en Stock de Emergencia', 'success');
+            } else {
+                // ADD new
+                emergencyStock.push(Object.assign({}, unitData, {
+                    id:          'EMG-' + Date.now(),
+                    estado:      'disponible',
+                    fechaIngreso: new Date().toISOString()
+                }));
+                showNotification('✅ Unidad agregada al Stock de Emergencia', 'success');
+            }
+
+            // Reset form
             ['emg_unidad','emg_vol','emg_fecha_exp','emg_temp','emg_mt'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (el) el.value = '';
             });
             document.querySelectorAll('input[name^="emg_"]').forEach(function(r) { r.checked = false; });
-            // Re-check PRBC (only option)
             var prbcR = document.getElementById('emg_prbc');
             if (prbcR) prbcR.checked = true;
+            // Reset heading
+            var heading = document.querySelector('#emergencyAddForm h4');
+            if (heading) heading.textContent = '📦 Nueva Unidad al Stock de Emergencia';
             document.getElementById('emergencyAddForm').style.display = 'none';
 
             guardarEmgLocal();
             renderEmergencyStock();
-            showNotification('✅ Unidad agregada al Stock de Emergencia', 'success');
         }
+
+        var emgEditingIdx = -1; // track which unit is being edited
 
         function renderEmergencyStock() {
             var tbody = document.getElementById('emergencyStockBody');
@@ -2427,11 +2493,15 @@
             }
             tbody.innerHTML = emergencyStock.map(function(u, i) {
                 var esBadge = u.estado === 'disponible'
-                    ? '<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;">Disponible</span>'
-                    : '<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;">Usado</span>';
-                var accionBtn = u.estado === 'disponible'
-                    ? '<button onclick="dispatchFromEmergencyStock(' + i + ')" style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.8rem;">🚨 Despachar</button>'
-                    : '—';
+                    ? '<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;">✅ Disponible</span>'
+                    : '<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:600;">🔴 Usado</span>';
+
+                var btns = u.estado === 'disponible'
+                    ? '<button onclick="dispatchFromEmergencyStock(' + i + ')" style="background:#dc2626;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.75rem;margin-right:4px;">🚨 Despachar</button>' +
+                      '<button onclick="editEmergencyUnit(' + i + ')" style="background:#2563eb;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.75rem;margin-right:4px;">✏️ Editar</button>' +
+                      '<button onclick="deleteEmergencyUnit(' + i + ')" style="background:#6b7280;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.75rem;">🗑️ Eliminar</button>'
+                    : '<button onclick="deleteEmergencyUnit(' + i + ')" style="background:#6b7280;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.75rem;">🗑️ Eliminar</button>';
+
                 return '<tr style="border-bottom:1px solid #fecaca;">' +
                     '<td style="padding:8px;font-weight:600;">' + (u.numeroUnidad || '-') + '</td>' +
                     '<td style="padding:8px;font-weight:700;color:#dc2626;">' + (u.aboRh || '-') + '</td>' +
@@ -2442,9 +2512,52 @@
                     '<td style="padding:8px;">' + (u.transportTemp ? u.transportTemp + '°C' : '-') + '</td>' +
                     '<td style="padding:8px;">' + (u.mt || '-') + '</td>' +
                     '<td style="padding:8px;">' + esBadge + '</td>' +
-                    '<td style="padding:8px;">' + accionBtn + '</td>' +
+                    '<td style="padding:8px;white-space:nowrap;">' + btns + '</td>' +
                     '</tr>';
             }).join('');
+        }
+
+        function editEmergencyUnit(idx) {
+            var u = emergencyStock[idx];
+            if (!u) return;
+            emgEditingIdx = idx;
+
+            // Show the add/edit form
+            document.getElementById('emergencyAddForm').style.display = 'block';
+
+            // Change heading and button label
+            var heading = document.querySelector('#emergencyAddForm h4');
+            if (heading) heading.textContent = '✏️ Editando Unidad — ' + u.numeroUnidad;
+            var saveBtn = document.querySelector('#emergencyAddForm button');
+            if (saveBtn) saveBtn.textContent = '💾 Guardar Cambios';
+
+            // Pre-fill form fields
+            document.getElementById('emg_unidad').value   = u.numeroUnidad || '';
+            document.getElementById('emg_vol').value       = u.volumen || '';
+            document.getElementById('emg_fecha_exp').value = u.fechaExpiracion || '';
+            document.getElementById('emg_temp').value      = u.transportTemp || '';
+            document.getElementById('emg_mt').value        = u.mt || '';
+
+            // ABO/Rh
+            var aboRhR = document.querySelector('input[name="emg_aboRh"][value="' + u.aboRh + '"]');
+            if (aboRhR) aboRhR.checked = true;
+
+            // PRBC always checked
+            var prbcR = document.getElementById('emg_prbc');
+            if (prbcR) prbcR.checked = true;
+
+            // Scroll to form
+            document.getElementById('emergencyAddForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function deleteEmergencyUnit(idx) {
+            var u = emergencyStock[idx];
+            if (!u) return;
+            if (!confirm('¿Eliminar la unidad ' + u.numeroUnidad + ' del stock de emergencia?')) return;
+            emergencyStock.splice(idx, 1);
+            guardarEmgLocal();
+            renderEmergencyStock();
+            showNotification('🗑️ Unidad eliminada del stock', 'success');
         }
 
         function dispatchFromEmergencyStock(idx) {
@@ -2484,6 +2597,18 @@
                 if (rhR)  { rhR.checked = true;  rhR.dispatchEvent(new Event('change',{bubbles:true})); }
             }
             updateFormMode();
+            // Show a preview card with the stock unit data
+            showReciboPreview({
+                componente:     unit.componente,
+                aboRhDonante:   unit.aboRh,
+                volumen:        unit.volumen,
+                fechaExpiracion:unit.fechaExpiracion,
+                suplidor:       unit.suplidor,
+                transportTemp:  unit.transportTemp,
+                mt:             unit.mt,
+                timeReceived:   'N/A',
+                personaNotificada: 'N/A'
+            });
             showNotification('🚨 Completa los datos del paciente para el despacho de emergencia', 'info');
         }
 
@@ -2629,7 +2754,45 @@
             }
 
             checkExpiracion();
+            showReciboPreview(entry);
             showNotification('✅ Datos cargados — ' + numeroUnidad + (entry.paciente ? ' · ' + entry.paciente : ''), 'success');
+        }
+
+        function showReciboPreview(entry) {
+            var card = document.getElementById('reciboPreview');
+            var grid = document.getElementById('reciboPreviewGrid');
+            if (!card || !grid) return;
+
+            var fields = [
+                { label: 'Paciente',         value: entry.paciente },
+                { label: 'Récord',           value: entry.record },
+                { label: 'Médico',           value: entry.medico },
+                { label: 'Localización',     value: entry.localizacion },
+                { label: 'Componente',       value: entry.componente },
+                { label: 'ABO/Rh Paciente',  value: entry.aboRhPaciente },
+                { label: 'ABO/Rh Donante',   value: entry.aboRhDonante },
+                { label: 'Volumen',          value: entry.volumen ? entry.volumen + ' ml' : '' },
+                { label: 'Fecha Exp.',       value: entry.componente === 'PRBC Fraccionada' && entry.horaExpiracion
+                                                    ? (entry.fechaExpiracion + ' ' + entry.horaExpiracion)
+                                                    : entry.fechaExpiracion },
+                { label: 'Suplidor',         value: entry.suplidor },
+                { label: 'Hora Recibida',    value: entry.timeReceived },
+                { label: 'Transporte',       value: entry.transportTemp ? entry.transportTemp + '°C' : '' },
+                { label: 'MT',               value: entry.mt },
+                { label: 'Firma MT',         value: entry.firmaMT ? '✅ Firmado' : '' }
+            ];
+
+            grid.innerHTML = fields.map(function(f) {
+                var hasValue = f.value && f.value.trim();
+                return '<div class="recibo-preview-item">' +
+                    '<div class="rp-label">' + f.label + '</div>' +
+                    '<div class="rp-value ' + (hasValue ? 'rp-check' : 'rp-missing') + '">' +
+                        (hasValue ? f.value : '⚠ Vacío') +
+                    '</div>' +
+                '</div>';
+            }).join('');
+
+            card.style.display = 'block';
         }
 
         // ── Auto-fill from Emergency Stock unit ─────────────────
