@@ -2059,11 +2059,14 @@
             var preview = document.getElementById('reciboPreview');
             if (preview) preview.style.display = 'none';
             clearAllSigs();
-            document.getElementById('entryForm').querySelectorAll('input, select, textarea').forEach(input => {
-                if (input.id !== 'fecha' && input.type !== 'date') {
-                    input.value = '';
-                }
+            // Clear text/number/time/textarea inputs — but NOT hidden inputs (radio-synced)
+            document.getElementById('entryForm').querySelectorAll('input, select, textarea').forEach(function(input) {
+                if (input.type === 'hidden') return;   // skip — managed by resetBtnGroups
+                if (input.type === 'date') return;     // keep date
+                if (input.type === 'radio') return;    // skip — managed by resetBtnGroups
+                input.value = '';
             });
+            resetBtnGroups();
             editingIndex = -1;
         }
 
@@ -2408,13 +2411,6 @@
                     if(h) h.value = this.value;
                 });
             });
-            // Localización
-            document.querySelectorAll('input[name="localizacion"]').forEach(function(r) {
-                r.addEventListener('change', function() {
-                    var h = document.getElementById('localizacion');
-                    if(h) h.value = this.value;
-                });
-            });
             // Suplidor
             document.querySelectorAll('input[name="suplidor"]').forEach(function(r) {
                 r.addEventListener('change', function() {
@@ -2450,12 +2446,11 @@
         }
         // Reset button groups when form is cleared
         function resetBtnGroups() {
-            document.querySelectorAll('.btn-group input[type="radio"]').forEach(function(r) {
+            document.querySelectorAll('#entryForm .btn-group input[type="radio"]').forEach(function(r) {
                 r.checked = false;
             });
-            var h;
-            ['aboRhPaciente','aboRhDonante','suplidor','estadoUnidad','localizacion'].forEach(function(id) {
-                h = document.getElementById(id);
+            ['aboRhPaciente','aboRhDonante','suplidor','estadoUnidad','localizacion','componente'].forEach(function(id) {
+                var h = document.getElementById(id);
                 if(h) h.value = id === 'estadoUnidad' ? 'recibida' : '';
             });
         }
