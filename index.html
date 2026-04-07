@@ -1423,11 +1423,11 @@
                         <label for="timeReceived">Hora Recibida:</label>
                         <input type="time" id="timeReceived">
                     </div>
-                    <div class="form-group" data-despacho-emg="1">
+                    <div class="form-group" data-solo-despacho="1">
                         <label for="timeDispatched">Hora Despachada:</label>
                         <input type="time" id="timeDispatched">
                     </div>
-                    <div class="form-group" data-despacho-emg="1">
+                    <div class="form-group" data-solo-despacho="1">
                         <label for="inspeccion">Inspección:</label>
                         <select id="inspeccion">
                             <option value="">Seleccionar...</option>
@@ -1436,7 +1436,7 @@
                             <option value="Pendiente">Pendiente</option>
                         </select>
                     </div>
-                    <div class="form-group" data-despacho-emg="1">
+                    <div class="form-group" data-solo-despacho="1">
                         <label for="returned">Devuelta:</label>
                         <select id="returned">
                             <option value="No">No</option>
@@ -1449,11 +1449,11 @@
                         <label for="mt">Técnico Responsable (MT):</label>
                         <input type="text" id="mt" placeholder="Nombre del MT">
                     </div>
-                    <div class="form-group" data-despacho-emg="1">
+                    <div class="form-group" data-solo-despacho="1">
                         <label for="releasedBy">Released By — Nombre del MT:</label>
                         <input type="text" id="releasedBy" placeholder="MT. Nombre Apellido">
                     </div>
-                    <div class="form-group" data-despacho-emg="1">
+                    <div class="form-group" data-solo-despacho="1">
                         <label for="receivedBy">Received By — Nombre del Enfermero:</label>
                         <input type="text" id="receivedBy" placeholder="Lic. Nombre Apellido">
                     </div>
@@ -1479,7 +1479,7 @@
                     </div>
 
                     <!-- Firmas Released + Received — Despacho y Emergencia -->
-                    <div class="form-group form-row-full" data-despacho-emg="1">
+                    <div class="form-group form-row-full" data-solo-despacho="1">
                         <label style="font-weight:700;color:#374151;font-size:1rem;">✍️ Firmas de Autorización</label>
                         <div class="signatures-grid">
                             <div class="sig-box">
@@ -1750,19 +1750,20 @@
         function updateFormMode() {
             var tipo = document.getElementById('tipoOperacion').value;
             var statusBadge = document.getElementById('entryStatus');
-            var esRecibo = (tipo === 'recibo');
+            var esRecibo   = (tipo === 'recibo');
+            var esDespacho = (tipo === 'despacho' || tipo === 'emergencia');
 
-            // Mostrar todos los campos base
+            // Show all fields first
             document.querySelectorAll('#entryForm .form-group').forEach(function(g) {
                 g.style.display = 'flex';
             });
 
-            // Ocultar campos exclusivos de despacho si es recibo
+            // Fields ONLY in despacho/emergencia — hide in recibo
             document.querySelectorAll('#entryForm [data-solo-despacho]').forEach(function(g) {
                 g.style.display = esRecibo ? 'none' : 'flex';
             });
 
-            // Ocultar campos exclusivos de recibo si es despacho
+            // Fields ONLY in recibo — hide in despacho/emergencia
             document.querySelectorAll('#entryForm [data-solo-recibo]').forEach(function(g) {
                 g.style.display = esRecibo ? 'flex' : 'none';
             });
