@@ -3,582 +3,1565 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bludee - Trazabilidad Banco de Sangre</title>
+  <title>Bludee AI — Trazabilidad</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+/*
+ ╔══════════════════════════════════════════════════════════════╗
+ ║         BLUDEE AI — SHARED DESIGN SYSTEM v2.0               ║
+ ║   Archivo CSS común para todos los módulos del sistema      ║
+ ╚══════════════════════════════════════════════════════════════╝
+*/
+
+/* ── Google Fonts ─────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+/* ── CSS Custom Properties (Design Tokens) ─────────────────── */
+:root {
+  /* Color Palette */
+  --bludee-red:         #dc2626;
+  --bludee-red-dark:    #b91c1c;
+  --bludee-red-light:   #ef4444;
+  --bludee-red-bg:      #fef2f2;
+  --bludee-red-border:  #fecaca;
+
+  --bludee-blue:        #2563eb;
+  --bludee-blue-dark:   #1d4ed8;
+  --bludee-blue-light:  #3b82f6;
+  --bludee-blue-bg:     #eff6ff;
+
+  --bludee-green:       #059669;
+  --bludee-green-light: #10b981;
+  --bludee-green-bg:    #ecfdf5;
+
+  --bludee-orange:      #ea580c;
+  --bludee-orange-bg:   #fff7ed;
+
+  --bludee-purple:      #7c3aed;
+  --bludee-purple-bg:   #faf5ff;
+
+  --bludee-cyan:        #0891b2;
+  --bludee-cyan-light:  #06b6d4;
+  --bludee-cyan-bg:     #ecfeff;
+
+  --bludee-yellow:      #d97706;
+  --bludee-yellow-bg:   #fffbeb;
+  --bludee-yellow-border:#f59e0b;
+
+  /* Neutrals */
+  --text-primary:       #1e293b;
+  --text-secondary:     #64748b;
+  --text-muted:         #94a3b8;
+  --surface-0:          #ffffff;
+  --surface-1:          #f8fafc;
+  --surface-2:          #f1f5f9;
+  --border-light:       #e2e8f0;
+  --border-medium:      #cbd5e1;
+
+  /* Background gradient (matches index) */
+  --bg-gradient:        linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  /* Card & Surface */
+  --card-radius:        20px;
+  --card-radius-sm:     12px;
+  --card-shadow:        0 10px 30px rgba(0,0,0,0.10);
+  --card-shadow-hover:  0 20px 40px rgba(0,0,0,0.15);
+  --card-bg:            rgba(255,255,255,0.97);
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* Typography */
+  --font-body:    'DM Sans', 'Segoe UI', sans-serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
+
+  /* Transitions */
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s ease;
+}
+
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  color: var(--text-primary);
+  padding: 0;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Module Wrapper ────────────────────────────────────────── */
+.bludee-page {
+  padding: 20px 20px 40px;
+  min-height: 100vh;
+}
+
+.bludee-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border-radius: var(--card-radius);
+  box-shadow:
+    0 25px 50px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  overflow: hidden;
+}
+
+/* ── Top Navigation Bar ────────────────────────────────────── */
+.bludee-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  gap: 12px;
+}
+
+.bludee-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--bludee-red);
+  text-decoration: none;
+}
+
+.bludee-topbar-brand .brand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bludee-red);
+  animation: pulse 2s infinite;
+}
+
+.bludee-topbar-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.bludee-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bludee-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border-light);
+  border-radius: 50px;
+  padding: 8px 18px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.bludee-back-btn:hover {
+  background: white;
+  border-color: var(--bludee-blue);
+  color: var(--bludee-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* ── Page Header ───────────────────────────────────────────── */
+.bludee-header {
+  background: linear-gradient(135deg, var(--bludee-red), var(--bludee-red-light));
+  color: white;
+  padding: 32px 36px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bludee-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="g" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23g)"/></svg>');
+  opacity: 0.4;
+}
+
+.bludee-header h1 {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 2;
+  letter-spacing: -0.02em;
+}
+
+.bludee-header p {
+  font-size: 1rem;
+  opacity: 0.88;
+  position: relative;
+  z-index: 2;
+}
+
+.bludee-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Breadcrumb ────────────────────────────────────────────── */
+.bludee-breadcrumb {
+  background: var(--surface-2);
+  padding: 12px 30px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bludee-breadcrumb a {
+  color: var(--bludee-blue);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition-fast);
+}
+
+.bludee-breadcrumb a:hover { color: var(--bludee-blue-dark); text-decoration: underline; }
+.bludee-breadcrumb .sep { color: var(--text-muted); }
+.bludee-breadcrumb .current { color: var(--text-primary); font-weight: 600; }
+
+/* ── Content Wrapper ───────────────────────────────────────── */
+.bludee-content {
+  padding: 30px 36px;
+}
+
+/* ── Cards ─────────────────────────────────────────────────── */
+.b-card {
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  padding: 28px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(10px);
+  transition: var(--transition);
+  border: 1px solid rgba(255,255,255,0.7);
+  position: relative;
+  overflow: hidden;
+}
+
+.b-card:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-3px);
+}
+
+.b-card-sm {
+  border-radius: var(--card-radius-sm);
+  padding: 20px;
+}
+
+/* Color accent bar on card top */
+.b-card[data-accent="red"]::before    { background: linear-gradient(90deg, var(--bludee-red), var(--bludee-red-light)); }
+.b-card[data-accent="blue"]::before   { background: linear-gradient(90deg, var(--bludee-blue), var(--bludee-blue-light)); }
+.b-card[data-accent="green"]::before  { background: linear-gradient(90deg, var(--bludee-green), var(--bludee-green-light)); }
+.b-card[data-accent="orange"]::before { background: linear-gradient(90deg, var(--bludee-orange), #f97316); }
+.b-card[data-accent="purple"]::before { background: linear-gradient(90deg, var(--bludee-purple), #8b5cf6); }
+.b-card[data-accent="cyan"]::before   { background: linear-gradient(90deg, var(--bludee-cyan), var(--bludee-cyan-light)); }
+
+.b-card[data-accent]::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+}
+
+/* ── KPI / Stat Cards ──────────────────────────────────────── */
+.b-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.b-kpi {
+  background: white;
+  border-radius: var(--card-radius-sm);
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  border-left: 4px solid var(--bludee-blue);
+  transition: var(--transition);
+}
+
+.b-kpi:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.b-kpi.red    { border-left-color: var(--bludee-red); }
+.b-kpi.green  { border-left-color: var(--bludee-green); }
+.b-kpi.orange { border-left-color: var(--bludee-orange); }
+.b-kpi.purple { border-left-color: var(--bludee-purple); }
+.b-kpi.cyan   { border-left-color: var(--bludee-cyan); }
+
+.b-kpi-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.b-kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.b-kpi-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.b-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.b-btn:active { transform: scale(0.97); }
+
+.b-btn-primary {
+  background: linear-gradient(135deg, var(--bludee-red), var(--bludee-red-light));
+  color: white;
+  box-shadow: 0 4px 14px rgba(220,38,38,0.3);
+}
+.b-btn-primary:hover {
+  background: linear-gradient(135deg, var(--bludee-red-dark), var(--bludee-red));
+  box-shadow: 0 6px 20px rgba(220,38,38,0.4);
+  transform: translateY(-2px);
+}
+
+.b-btn-secondary {
+  background: linear-gradient(135deg, var(--bludee-blue), var(--bludee-blue-light));
+  color: white;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.25);
+}
+.b-btn-secondary:hover {
+  background: linear-gradient(135deg, var(--bludee-blue-dark), var(--bludee-blue));
+  transform: translateY(-2px);
+}
+
+.b-btn-success {
+  background: linear-gradient(135deg, var(--bludee-green), var(--bludee-green-light));
+  color: white;
+  box-shadow: 0 4px 14px rgba(5,150,105,0.25);
+}
+.b-btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(5,150,105,0.35);
+}
+
+.b-btn-ghost {
+  background: var(--surface-2);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-light);
+}
+.b-btn-ghost:hover {
+  background: white;
+  border-color: var(--bludee-blue);
+  color: var(--bludee-blue);
+  transform: translateY(-1px);
+}
+
+.b-btn-danger {
+  background: linear-gradient(135deg, var(--bludee-red), var(--bludee-red-light));
+  color: white;
+}
+
+.b-btn-sm { padding: 6px 14px; font-size: 0.82rem; border-radius: 8px; }
+.b-btn-lg { padding: 14px 30px; font-size: 1rem; border-radius: 12px; }
+.b-btn-icon { padding: 9px; border-radius: 9px; }
+.b-btn-pill { border-radius: 50px; }
+
+.b-btn-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Forms ─────────────────────────────────────────────────── */
+.b-form-section {
+  background: white;
+  border-radius: var(--card-radius);
+  padding: 28px;
+  margin-bottom: 24px;
+  border: 1.5px solid var(--border-light);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.b-form-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.b-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.b-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.b-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.b-field label .required { color: var(--bludee-red); margin-left: 2px; }
+
+.b-input,
+.b-select,
+.b-textarea {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  background: var(--surface-1);
+  border: 1.5px solid var(--border-light);
+  border-radius: 10px;
+  padding: 10px 14px;
+  width: 100%;
+  transition: var(--transition);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.b-input:focus,
+.b-select:focus,
+.b-textarea:focus {
+  border-color: var(--bludee-blue);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+.b-input:hover,
+.b-select:hover {
+  border-color: var(--border-medium);
+}
+
+.b-textarea { resize: vertical; min-height: 90px; }
+
+.b-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%2364748b' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 38px;
+  cursor: pointer;
+}
+
+/* ── Tables ────────────────────────────────────────────────── */
+.b-table-wrapper {
+  background: white;
+  border-radius: var(--card-radius-sm);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  border: 1px solid var(--border-light);
+}
+
+.b-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.b-table thead th {
+  background: linear-gradient(135deg, #1e293b, #334155);
+  color: white;
+  padding: 14px 16px;
+  font-weight: 600;
+  text-align: left;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.b-table thead th:first-child { border-radius: 0; }
+
+.b-table tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.b-table tbody tr:last-child td { border-bottom: none; }
+
+.b-table tbody tr {
+  transition: var(--transition-fast);
+}
+
+.b-table tbody tr:hover {
+  background: var(--bludee-blue-bg);
+}
+
+.b-table tbody tr:hover td { color: var(--text-primary); }
+
+/* ── Badges / Status Chips ─────────────────────────────────── */
+.b-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.b-badge-green  { background: #dcfce7; color: #15803d; }
+.b-badge-red    { background: #fee2e2; color: #b91c1c; }
+.b-badge-yellow { background: #fef9c3; color: #92400e; }
+.b-badge-blue   { background: #dbeafe; color: #1d4ed8; }
+.b-badge-purple { background: #ede9fe; color: #6d28d9; }
+.b-badge-gray   { background: #f1f5f9; color: #475569; }
+.b-badge-orange { background: #ffedd5; color: #c2410c; }
+.b-badge-cyan   { background: #cffafe; color: #0e7490; }
+
+/* ── Tabs ──────────────────────────────────────────────────── */
+.b-tabs {
+  display: flex;
+  background: var(--surface-2);
+  border-bottom: 2px solid var(--border-light);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.b-tabs::-webkit-scrollbar { display: none; }
+
+.b-tab {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 14px 22px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: -2px;
+}
+
+.b-tab:hover {
+  background: rgba(37,99,235,0.07);
+  color: var(--bludee-blue);
+}
+
+.b-tab.active {
+  background: white;
+  color: var(--bludee-red);
+  border-bottom-color: var(--bludee-red);
+}
+
+.b-tab-content { display: none; }
+.b-tab-content.active { display: block; }
+
+/* ── Filters / Search Bar ──────────────────────────────────── */
+.b-filter-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: var(--surface-1);
+  border-radius: var(--card-radius-sm);
+  border: 1.5px solid var(--border-light);
+  margin-bottom: 20px;
+}
+
+.b-search-input {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.b-search-input i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.b-search-input input {
+  padding-left: 36px;
+}
+
+.b-filter-pill {
+  padding: 7px 16px;
+  border: 1.5px solid var(--border-light);
+  background: white;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.b-filter-pill:hover {
+  border-color: var(--bludee-blue);
+  color: var(--bludee-blue);
+}
+
+.b-filter-pill.active {
+  border-color: var(--bludee-blue);
+  background: var(--bludee-blue);
+  color: white;
+}
+
+/* ── Alerts / Notices ──────────────────────────────────────── */
+.b-alert {
+  border-radius: var(--card-radius-sm);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.9rem;
+  border-left: 4px solid;
+}
+
+.b-alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+.b-alert-info    { background: var(--bludee-blue-bg);  color: #1e3a8a; border-color: var(--bludee-blue); }
+.b-alert-success { background: var(--bludee-green-bg); color: #065f46; border-color: var(--bludee-green); }
+.b-alert-warning { background: var(--bludee-yellow-bg);color: #92400e; border-color: var(--bludee-yellow); }
+.b-alert-danger  { background: var(--bludee-red-bg);   color: #991b1b; border-color: var(--bludee-red); }
+
+/* ── Modals ────────────────────────────────────────────────── */
+.b-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.b-modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.b-modal {
+  background: white;
+  border-radius: var(--card-radius);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.b-modal-overlay.open .b-modal {
+  transform: translateY(0);
+}
+
+.b-modal-header {
+  padding: 22px 26px;
+  border-bottom: 1.5px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.b-modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.b-modal-close {
+  background: var(--surface-2);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.b-modal-close:hover { background: var(--bludee-red-bg); color: var(--bludee-red); }
+
+.b-modal-body  { padding: 24px 26px; }
+.b-modal-footer {
+  padding: 16px 26px;
+  border-top: 1.5px solid var(--border-light);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ── Toast Notifications ───────────────────────────────────── */
+#b-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.b-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border-radius: var(--card-radius-sm);
+  padding: 14px 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border-left: 4px solid var(--bludee-blue);
+  min-width: 280px;
+  max-width: 360px;
+  pointer-events: all;
+  animation: toastIn 0.35s ease forwards;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.b-toast.success { border-left-color: var(--bludee-green); }
+.b-toast.error   { border-left-color: var(--bludee-red); }
+.b-toast.warning { border-left-color: var(--bludee-yellow); }
+.b-toast.fade-out { animation: toastOut 0.3s ease forwards; }
+
+/* ── Real-time indicator ───────────────────────────────────── */
+.b-realtime-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--bludee-green);
+}
+
+.b-realtime-dot::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bludee-green);
+  animation: pulse 2s infinite;
+  flex-shrink: 0;
+}
+
+.b-realtime-dot.connecting { color: var(--bludee-yellow); }
+.b-realtime-dot.connecting::before { background: var(--bludee-yellow); }
+
+.b-realtime-dot.offline { color: var(--text-muted); }
+.b-realtime-dot.offline::before { background: var(--text-muted); animation: none; }
+
+/* ── Loading States ────────────────────────────────────────── */
+.b-skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+.b-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  z-index: 10;
+}
+
+.b-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--bludee-red);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+/* ── Empty State ───────────────────────────────────────────── */
+.b-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+}
+
+.b-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 14px;
+  opacity: 0.4;
+}
+
+.b-empty-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.b-empty-text {
+  font-size: 0.88rem;
+}
+
+/* ── Section Headers ───────────────────────────────────────── */
+.b-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.b-section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.b-section-title .b-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.b-icon-red    { background: linear-gradient(135deg, var(--bludee-red), var(--bludee-red-light)); }
+.b-icon-blue   { background: linear-gradient(135deg, var(--bludee-blue), var(--bludee-blue-light)); }
+.b-icon-green  { background: linear-gradient(135deg, var(--bludee-green), var(--bludee-green-light)); }
+.b-icon-orange { background: linear-gradient(135deg, var(--bludee-orange), #f97316); }
+.b-icon-purple { background: linear-gradient(135deg, var(--bludee-purple), #8b5cf6); }
+.b-icon-cyan   { background: linear-gradient(135deg, var(--bludee-cyan), var(--bludee-cyan-light)); }
+
+/* ── Footer ────────────────────────────────────────────────── */
+.bludee-footer {
+  text-align: center;
+  padding: 22px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-light);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.bludee-footer strong { color: var(--bludee-red); }
+
+/* ── Dividers ──────────────────────────────────────────────── */
+.b-divider {
+  height: 1.5px;
+  background: var(--border-light);
+  border: none;
+  margin: 20px 0;
+}
+
+/* ── Grid Helpers ──────────────────────────────────────────── */
+.b-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.b-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.b-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.b-grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+
+@media (max-width: 900px) {
+  .b-grid-4, .b-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .b-grid-4, .b-grid-3, .b-grid-2 { grid-template-columns: 1fr; }
+  .bludee-content { padding: 20px 16px; }
+  .bludee-header h1 { font-size: 1.6rem; }
+}
+
+/* ── Animations ────────────────────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(100%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in { animation: fadeIn 0.4s ease forwards; }
+
+/* ── Print ─────────────────────────────────────────────────── */
+@media print {
+  body { background: white !important; }
+  .bludee-topbar, .b-btn, .bludee-back-btn { display: none !important; }
+  .bludee-container { box-shadow: none !important; }
+}
+
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>
+/**
+ * ╔══════════════════════════════════════════════════════════════╗
+ * ║       BLUDEE AI — SHARED FIREBASE UTILITY v2.0             ║
+ * ║   Inicialización centralizada + helpers de tiempo real     ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ *
+ * Uso en cada módulo:
+ *   → Accede a: window.BludeeDB, window.BludeeAuth, BludeeRT.*
+ */
+
+(function () {
+  'use strict';
+
+  /* ── Firebase Config ──────────────────────────────────────── */
+  var FIREBASE_CONFIG = {
+    apiKey:            "AIzaSyCl3zl4lMGoh8hGhjVJtB3Te7ioDX5X65U",
+    authDomain:        "bludee-pr.firebaseapp.com",
+    projectId:         "bludee-pr",
+    storageBucket:     "bludee-pr.firebasestorage.app",
+    messagingSenderId: "476330144377",
+    appId:             "1:476330144377:web:88d31603514ca265409aa8"
+  };
+
+  /* ── Initialize Firebase (safe, no-duplicate) ─────────────── */
+  var db, auth;
+  try {
+    if (typeof firebase !== 'undefined') {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+      }
+      auth = firebase.auth();
+      db   = firebase.firestore();
+
+      /* Enable offline persistence */
+      db.enablePersistence({ synchronizeTabs: true })
+        .catch(function (err) {
+          if (err.code !== 'failed-precondition' && err.code !== 'unimplemented') {
+            console.warn('Bludee persistence:', err.code);
+          }
+        });
+
+      /* Auth guard — redirect to login if not authenticated */
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = 'login.html';
+        } else {
+          window.BLUDEE_USER = user;
+          document.dispatchEvent(new CustomEvent('bludee:auth', { detail: user }));
+        }
+      });
+
+    } else {
+      console.warn('⚠️ Firebase SDK no disponible — modo offline activado');
+    }
+  } catch (e) {
+    console.warn('⚠️ Error inicializando Firebase:', e.message);
+  }
+
+  /* ── Expose globals ───────────────────────────────────────── */
+  window.BludeeDB   = db;
+  window.BludeeAuth = auth;
+
+  /* ══════════════════════════════════════════════════════════
+   * BludeeRT — Real-time listener manager
+   * ══════════════════════════════════════════════════════════ */
+  window.BludeeRT = (function () {
+    var _listeners = {};  // key → unsubscribe fn
+
+    /**
+     * Listen to a Firestore collection in real time.
+     * @param {string}   key        Unique listener key (allows cleanup)
+     * @param {string}   collection Firestore collection path
+     * @param {object}   opts       { orderBy, orderDir, limit, where: [[field, op, val]] }
+     * @param {function} onData     Callback(docs: Array<{id, ...data}>)
+     * @param {function} onError    Optional error callback
+     */
+    function listenCollection(key, collection, opts, onData, onError) {
+      if (!db) { console.warn('BludeeRT: DB not available'); return; }
+      if (_listeners[key]) { _listeners[key](); }  // detach existing
+
+      var ref = db.collection(collection);
+
+      // Apply where clauses
+      if (opts.where && Array.isArray(opts.where)) {
+        opts.where.forEach(function (w) {
+          ref = ref.where(w[0], w[1], w[2]);
+        });
+      }
+
+      // Apply ordering
+      if (opts.orderBy) {
+        ref = ref.orderBy(opts.orderBy, opts.orderDir || 'asc');
+      }
+
+      // Apply limit
+      if (opts.limit) {
+        ref = ref.limit(opts.limit);
+      }
+
+      _listeners[key] = ref.onSnapshot(
+        function (snapshot) {
+          var docs = [];
+          snapshot.forEach(function (doc) {
+            docs.push(Object.assign({ _id: doc.id }, doc.data()));
+          });
+          updateRealtimeIndicator(key, true);
+          onData(docs);
+        },
+        function (err) {
+          console.error('BludeeRT [' + key + '] error:', err);
+          updateRealtimeIndicator(key, false);
+          if (onError) onError(err);
+        }
+      );
+
+      return _listeners[key];
     }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
-      min-height: 100vh;
-      padding: 20px;
+    /**
+     * Listen to a single Firestore document in real time.
+     */
+    function listenDoc(key, collection, docId, onData, onError) {
+      if (!db) return;
+      if (_listeners[key]) { _listeners[key](); }
+
+      _listeners[key] = db.collection(collection).doc(docId).onSnapshot(
+        function (doc) {
+          if (doc.exists) {
+            onData(Object.assign({ _id: doc.id }, doc.data()));
+          } else {
+            onData(null);
+          }
+        },
+        function (err) {
+          if (onError) onError(err);
+        }
+      );
+
+      return _listeners[key];
     }
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      background: linear-gradient(145deg, #ffffff, #f8fafc);
-      border-radius: 20px;
-      box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-      overflow: hidden;
+    /** Detach a specific listener */
+    function detach(key) {
+      if (_listeners[key]) {
+        _listeners[key]();
+        delete _listeners[key];
+      }
     }
 
-    .header {
-      background: linear-gradient(135deg, #dc2626, #ef4444);
-      color: white;
-      padding: 30px;
-      text-align: center;
+    /** Detach all listeners (call on page unload) */
+    function detachAll() {
+      Object.keys(_listeners).forEach(function (k) {
+        if (typeof _listeners[k] === 'function') _listeners[k]();
+      });
+      _listeners = {};
+    }
+
+    /** Update the real-time dot indicator on the page */
+    function updateRealtimeIndicator(key, connected) {
+      var el = document.getElementById('b-rt-indicator');
+      if (!el) return;
+      el.textContent = connected ? 'Tiempo real activo' : 'Reconectando…';
+      el.className = 'b-realtime-dot' + (connected ? '' : ' connecting');
+    }
+
+    /* Auto-cleanup on page unload */
+    window.addEventListener('beforeunload', detachAll);
+
+    return {
+      listenCollection: listenCollection,
+      listenDoc:        listenDoc,
+      detach:           detach,
+      detachAll:        detachAll
+    };
+  })();
+
+  /* ══════════════════════════════════════════════════════════
+   * BludeeToast — toast notification system
+   * ══════════════════════════════════════════════════════════ */
+  window.BludeeToast = (function () {
+    function ensureContainer() {
+      var c = document.getElementById('b-toast-container');
+      if (!c) {
+        c = document.createElement('div');
+        c.id = 'b-toast-container';
+        document.body.appendChild(c);
+      }
+      return c;
+    }
+
+    /**
+     * Show a toast notification.
+     * @param {string} msg     Message text
+     * @param {string} type    'success' | 'error' | 'warning' | 'info'
+     * @param {number} duration ms, default 4000
+     */
+    function show(msg, type, duration) {
+      type     = type     || 'info';
+      duration = duration || 4000;
+
+      var icons = {
+        success: 'fa-circle-check',
+        error:   'fa-circle-xmark',
+        warning: 'fa-triangle-exclamation',
+        info:    'fa-circle-info'
+      };
+
+      var toast = document.createElement('div');
+      toast.className = 'b-toast ' + type;
+      toast.innerHTML =
+        '<i class="fa-solid ' + (icons[type] || icons.info) + '"></i>' +
+        '<span>' + msg + '</span>';
+
+      ensureContainer().appendChild(toast);
+
+      setTimeout(function () {
+        toast.classList.add('fade-out');
+        setTimeout(function () { toast.remove(); }, 320);
+      }, duration);
+    }
+
+    return { show: show };
+  })();
+
+  /* ══════════════════════════════════════════════════════════
+   * BludeeUI — shared UI helpers
+   * ══════════════════════════════════════════════════════════ */
+  window.BludeeUI = (function () {
+
+    /** Simple tab switcher — add data-tab-group on parent, data-tab on buttons */
+    function initTabs(container) {
+      var btns     = container.querySelectorAll('.b-tab');
+      var contents = container.querySelectorAll('.b-tab-content');
+
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var target = btn.dataset.tab;
+          btns.forEach(function (b) { b.classList.remove('active'); });
+          contents.forEach(function (c) { c.classList.remove('active'); });
+          btn.classList.add('active');
+          var targetEl = container.querySelector('.b-tab-content[data-tab="' + target + '"]');
+          if (targetEl) targetEl.classList.add('active');
+        });
+      });
+
+      // Activate first tab by default
+      if (btns.length > 0 && !container.querySelector('.b-tab.active')) {
+        btns[0].click();
+      }
+    }
+
+    /** Open / close a modal */
+    function openModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.add('open');
+    }
+
+    function closeModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('open');
+    }
+
+    /** Close modals on overlay click */
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('b-modal-overlay')) {
+        e.target.classList.remove('open');
+      }
+    });
+
+    /** Real-time clock */
+    function startClock(elementId) {
+      function tick() {
+        var el = document.getElementById(elementId);
+        if (!el) return;
+        var now = new Date();
+        el.textContent = now.toLocaleString('es-PR', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        });
+      }
+      tick();
+      setInterval(tick, 30000);
+    }
+
+    /** Format Firestore Timestamp or ISO string to locale date */
+    function fmtDate(val) {
+      if (!val) return '—';
+      var d = val.toDate ? val.toDate() : new Date(val);
+      return d.toLocaleString('es-PR', { dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    /** Format date only */
+    function fmtDateOnly(val) {
+      if (!val) return '—';
+      var d = val.toDate ? val.toDate() : new Date(val);
+      return d.toLocaleDateString('es-PR');
+    }
+
+    /** Truncate string */
+    function truncate(str, n) {
+      return str && str.length > n ? str.slice(0, n) + '…' : (str || '');
+    }
+
+    /** Blood type badge HTML */
+    function bloodBadge(tipo) {
+      var colors = {
+        'A+': 'red', 'A-': 'red',
+        'B+': 'blue', 'B-': 'blue',
+        'AB+': 'purple', 'AB-': 'purple',
+        'O+': 'green', 'O-': 'green'
+      };
+      var color = colors[tipo] || 'gray';
+      return '<span class="b-badge b-badge-' + color + '">' + (tipo || '—') + '</span>';
+    }
+
+    /** Status badge HTML */
+    function statusBadge(status) {
+      var map = {
+        'Activo':       'green',
+        'Disponible':   'green',
+        'Aprobado':     'green',
+        'Completado':   'green',
+        'Inactivo':     'gray',
+        'No Disponible':'gray',
+        'Pendiente':    'yellow',
+        'En proceso':   'yellow',
+        'Crítico':      'red',
+        'Rechazado':    'red',
+        'Vencido':      'red',
+        'Eliminado':    'red',
+        'Transfundido': 'blue',
+        'Reservado':    'orange',
+        'Devuelto':     'cyan',
+        'Cuarentenado': 'orange'
+      };
+      var color = map[status] || 'gray';
+      return '<span class="b-badge b-badge-' + color + '">' + (status || '—') + '</span>';
+    }
+
+    /** Log an action to Firestore auditoria collection */
+    function logAudit(accion, modulo, detalle) {
+      if (!db || !window.BLUDEE_USER) return;
+      db.collection('auditoria').add({
+        accion:    accion,
+        modulo:    modulo,
+        detalle:   detalle || '',
+        usuario:   window.BLUDEE_USER.email || 'desconocido',
+        uid:       window.BLUDEE_USER.uid,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function (e) {
+        console.warn('Log audit error:', e.message);
+      });
+    }
+
+    return {
+      initTabs:    initTabs,
+      openModal:   openModal,
+      closeModal:  closeModal,
+      startClock:  startClock,
+      fmtDate:     fmtDate,
+      fmtDateOnly: fmtDateOnly,
+      truncate:    truncate,
+      bloodBadge:  bloodBadge,
+      statusBadge: statusBadge,
+      logAudit:    logAudit
+    };
+  })();
+
+  /* ══════════════════════════════════════════════════════════
+   * Render shared topbar into any element with id="b-topbar"
+   * ══════════════════════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', function () {
+    var topbar = document.getElementById('b-topbar');
+    if (topbar) {
+      topbar.innerHTML =
+        '<a href="index.html" class="bludee-topbar-brand">' +
+          '<span class="brand-dot"></span>' +
+          '<span>Bludee AI</span>' +
+        '</a>' +
+        '<div class="bludee-topbar-center">' +
+          '<span class="b-realtime-dot connecting" id="b-rt-indicator">Conectando…</span>' +
+          '<span style="color:var(--border-medium)">|</span>' +
+          '<span id="b-topbar-clock" style="font-size:0.82rem;color:var(--text-secondary)"></span>' +
+        '</div>' +
+        '<div class="bludee-topbar-right">' +
+          '<a href="index.html" class="bludee-back-btn">' +
+            '<i class="fa-solid fa-house" style="font-size:.8rem"></i> Inicio' +
+          '</a>' +
+          '<button onclick="BludeeAuth && BludeeAuth.signOut().then(function(){ window.location.href=\'login.html\'; })" ' +
+            'class="b-btn b-btn-primary b-btn-sm" title="Cerrar sesión">' +
+            '<i class="fa-solid fa-right-from-bracket"></i>' +
+          '</button>' +
+        '</div>';
+
+      BludeeUI.startClock('b-topbar-clock');
+    }
+
+    /* Init all tab groups on page */
+    document.querySelectorAll('[data-tab-group]').forEach(function (group) {
+      BludeeUI.initTabs(group);
+    });
+  });
+
+})();
+
+  </script>
+  <style>
+    .timeline-flow {
+      display: flex; gap: 0; align-items: stretch;
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      margin-bottom: 24px;
+    }
+    .tl-step {
+      flex: 1; padding: 18px 16px; text-align: center;
+      font-size: 0.82rem; font-weight: 600;
+      border-right: 1px solid rgba(255,255,255,0.2);
       position: relative;
     }
+    .tl-step:last-child { border-right: none; }
+    .tl-step .tl-icon { font-size: 1.4rem; margin-bottom: 6px; }
+    .tl-step .tl-label { font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; }
+    .tl-step .tl-desc { font-size: 0.75rem; opacity: 0.85; }
+    .tl-recibido   { background: linear-gradient(135deg, #059669, #10b981); color: white; }
+    .tl-despachado { background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; }
+    .tl-completado { background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: white; }
+    .tl-devuelto   { background: linear-gradient(135deg, #ea580c, #f97316); color: white; }
 
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-      opacity: 0.3;
+    .comp-badge {
+      display: inline-block; padding: 2px 9px;
+      border-radius: 6px; font-size: 0.76rem; font-weight: 700;
     }
-
-    .header h1 {
-      font-size: 2.2rem;
-      margin-bottom: 8px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .header p {
-      font-size: 1.1rem;
-      opacity: 0.9;
-      position: relative;
-      z-index: 2;
-    }
-
-    .breadcrumb {
-      background: #f1f5f9;
-      padding: 15px 30px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .breadcrumb a {
-      color: #1e40af;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .breadcrumb a:hover {
-      text-decoration: underline;
-    }
-
-    .form-container {
-      padding: 40px;
-    }
-
-    .top-grid {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 30px;
-      margin-bottom: 30px;
-    }
-
-    .form-section {
-      background: white;
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 25px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      border: 1px solid #e2e8f0;
-      position: relative;
-    }
-
-    .form-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--section-color);
-      border-radius: 12px 12px 0 0;
-    }
-
-    .section-filters { --section-color: linear-gradient(135deg, #1e40af, #3b82f6); }
-    .section-summary { --section-color: linear-gradient(135deg, #059669, #10b981); }
-    .section-timeline { --section-color: linear-gradient(135deg, #7c3aed, #8b5cf6); }
-    .section-table { --section-color: linear-gradient(135deg, #dc2626, #ef4444); }
-
-    .section-title {
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .section-icon {
-      font-size: 1.5rem;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    label {
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-    }
-
-    select, input {
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: #fafafa;
-    }
-
-    select:focus, input:focus {
-      outline: none;
-      border-color: #3b82f6;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .back-button {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 2px solid #e5e7eb;
-      border-radius: 50px;
-      padding: 12px 20px;
-      color: #374151;
-      text-decoration: none;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-      z-index: 1000;
-    }
-
-    .back-button:hover {
-      background: white;
-      border-color: #3b82f6;
-      color: #1e40af;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+    .comp-prbc           { background: #fee2e2; color: #991b1b; }
+    .comp-plaquetas      { background: #dbeafe; color: #1e40af; }
+    .comp-plasma         { background: #fef3c7; color: #92400e; }
+    .comp-crioprecipitado{ background: #ede9fe; color: #6d28d9; }
 
     .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 15px;
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 14px;
     }
-
     .summary-card {
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 15px;
-      text-align: center;
-      border: 1px solid #e2e8f0;
-      transition: all 0.3s ease;
+      background: white; border-radius: 12px; padding: 18px;
+      text-align: center; box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+      border-top: 3px solid var(--sc);
     }
+    .sc-received  { --sc: #059669; }
+    .sc-dispatched{ --sc: #2563eb; }
+    .sc-completed { --sc: #7c3aed; }
+    .sc-returned  { --sc: #ea580c; }
+    .summary-num { font-size: 2rem; font-weight: 800; color: var(--sc); }
+    .summary-lbl { font-size: 0.78rem; color: var(--text-secondary); font-weight: 500; margin-top: 4px; }
 
-    .summary-card:hover {
-      background: #f1f5f9;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .summary-number {
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .summary-label {
-      font-size: 0.85rem;
-      color: #6b7280;
-      font-weight: 500;
-    }
-
-    .summary-received { color: #059669; }
-    .summary-dispatched { color: #2563eb; }
-    .summary-completed { color: #7c3aed; }
-    .summary-returned { color: #dc2626; }
-
-    .timeline {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 15px 0;
-      margin: 20px 0;
-    }
-
-    .timeline-item {
-      min-width: 150px;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 0.85rem;
-      font-weight: 500;
-      border: 2px solid;
-      transition: all 0.3s ease;
-    }
-
-    .timeline-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .timeline-recibido {
-      background: #d1fae5;
-      border-color: #10b981;
-      color: #065f46;
-    }
-
-    .timeline-despachado {
-      background: #dbeafe;
-      border-color: #3b82f6;
-      color: #1e40af;
-    }
-
-    .timeline-completado {
-      background: #e0e7ff;
-      border-color: #8b5cf6;
-      color: #5b21b6;
-    }
-
-    .timeline-devuelto {
-      background: #fee2e2;
-      border-color: #ef4444;
-      color: #991b1b;
-    }
-
-    .search-bar {
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    .search-bar input {
-      width: 100%;
-      padding-left: 40px;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #9ca3af;
-      font-size: 16px;
-    }
-
-    .table-container {
-      overflow-x: auto;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-    }
-
-    .trace-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-
-    .trace-table th,
-    .trace-table td {
-      padding: 12px 8px;
-      text-align: left;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .trace-table th {
-      background: #f1f5f9;
-      font-weight: 600;
-      color: #374151;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .trace-table tr:hover {
-      background: #f9fafb;
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-
-    .status-disponible {
-      background: #d1fae5;
-      color: #065f46;
-    }
-
-    .status-despachada {
-      background: #dbeafe;
-      color: #1e40af;
-    }
-
-    .status-completada {
-      background: #e0e7ff;
-      color: #5b21b6;
-    }
-
-    .status-devuelta {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .component-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-
-    .component-prbc {
-      background: #fef2f2;
-      color: #991b1b;
-    }
-
-    .component-plaquetas {
-      background: #eff6ff;
-      color: #1e40af;
-    }
-
-    .component-plasma {
-      background: #fefce8;
-      color: #a16207;
-    }
-
-    .component-crioprecipitado {
-      background: #f0fdf4;
-      color: #166534;
-    }
-
-    .filter-buttons {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .filter-btn {
-      padding: 8px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 20px;
-      background: #f8fafc;
-      color: #374151;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .filter-btn:hover,
-    .filter-btn.active {
-      background: #3b82f6;
-      border-color: #3b82f6;
-      color: white;
-    }
-
-    .export-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-bottom: 20px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #dc2626, #ef4444);
-      color: white;
-      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #b91c1c, #dc2626);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
-    }
-
-    .btn-secondary {
-      background: #f8fafc;
-      color: #374151;
-      border: 2px solid #e5e7eb;
-    }
-
-    .btn-secondary:hover {
-      background: #f1f5f9;
-      border-color: #cbd5e1;
-      transform: translateY(-1px);
-    }
-
-    .component-detail {
-      font-weight: 600;
-      color: #1f2937;
-    }
-
-    .date-cell {
-      font-family: monospace;
-      color: #6b7280;
-    }
-
-    .movement-cell {
-      font-weight: 500;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        margin: 10px;
-        border-radius: 16px;
-      }
-
-      .header {
-        padding: 20px;
-      }
-
-      .header h1 {
-        font-size: 1.8rem;
-      }
-
-      .form-container {
-        padding: 20px;
-      }
-
-      .top-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-
-      .summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .timeline {
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .timeline-item {
-        min-width: auto;
-      }
-
-      .filter-buttons {
-        justify-content: center;
-      }
-
-      .export-buttons {
-        justify-content: center;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .trace-table {
-        font-size: 0.85rem;
-      }
-
-      .trace-table th,
-      .trace-table td {
-        padding: 8px 4px;
-      }
+    @media(max-width:700px) {
+      .summary-grid { grid-template-columns: repeat(2,1fr); }
+      .timeline-flow { flex-direction: column; }
     }
   </style>
 </head>
-<body>
-  <a href="index.html" class="back-button">
-    ← Volver al Menú
-  </a>
+<body class="bludee-page">
+  <div id="b-topbar" class="bludee-topbar"></div>
 
-  <div class="container">
-    <div class="header">
-      <h1>🔄 Trazabilidad - Banco de Sangre</h1>
-      <p>Sistema Bludee - Seguimiento Completo de Componentes</p>
+  <div class="bludee-container" style="margin-top:16px;">
+    <div class="bludee-header">
+      <h1><i class="fa-solid fa-route" style="margin-right:10px;"></i>Trazabilidad de Componentes</h1>
+      <p>Seguimiento completo del ciclo de vida de cada unidad de sangre</p>
+      <span class="bludee-header-badge">
+        <i class="fa-solid fa-circle" style="font-size:.5rem;color:#4ade80;"></i>
+        Tiempo real activo
+      </span>
     </div>
 
-    <div class="breadcrumb">
-      <a href="index.html">🗃️ Bludee</a> / 
-      <a href="index.html">Reportes y Análisis</a> / 
-      <span>Trazabilidad</span>
+    <div class="bludee-breadcrumb">
+      <i class="fa-solid fa-house" style="font-size:.8rem;"></i>
+      <a href="index.html">Inicio</a><span class="sep">›</span>
+      <a href="index.html">Reportes y Análisis</a><span class="sep">›</span>
+      <span class="current">Trazabilidad</span>
     </div>
 
-    <div class="form-container">
-      <div class="top-grid">
+    <div class="bludee-content">
+
+      <!-- Flujo de proceso -->
+      <div class="timeline-flow">
+        <div class="tl-step tl-recibido">
+          <div class="tl-icon"><i class="fa-solid fa-inbox"></i></div>
+          <div class="tl-label">Recepción</div>
+          <div class="tl-desc">Unidades recibidas</div>
+        </div>
+        <div class="tl-step tl-despachado">
+          <div class="tl-icon"><i class="fa-solid fa-truck-fast"></i></div>
+          <div class="tl-label">Despacho</div>
+          <div class="tl-desc">Enviadas a clínica</div>
+        </div>
+        <div class="tl-step tl-completado">
+          <div class="tl-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="tl-label">Completado</div>
+          <div class="tl-desc">Transfusión finalizada</div>
+        </div>
+        <div class="tl-step tl-devuelto">
+          <div class="tl-icon"><i class="fa-solid fa-rotate-left"></i></div>
+          <div class="tl-label">Devolución</div>
+          <div class="tl-desc">Unidades devueltas</div>
+        </div>
+      </div>
+
+      <!-- Filtros + resumen -->
+      <div class="b-grid-2" style="margin-bottom:24px;">
         <!-- Filtros -->
-        <div class="form-section section-filters">
-          <h2 class="section-title">
-            <span class="section-icon">🗓️</span>
+        <div class="b-card" data-accent="green">
+          <div class="b-section-title" style="margin-bottom:18px;">
+            <span class="b-icon b-icon-green"><i class="fa-solid fa-filter"></i></span>
             Filtros de Búsqueda
-          </h2>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="mes">📅 Mes</label>
-              <select id="mes" onchange="actualizarDatos()">
-                <option value="07">Julio</option>
-                <option value="06">Junio</option>
-                <option value="05">Mayo</option>
-                <option value="04">Abril</option>
+          </div>
+          <div class="b-form-grid">
+            <div class="b-field">
+              <label>Mes</label>
+              <select class="b-select" id="mes" value="04" onchange="actualizarDatos()">
+                <option value="01">Enero</option>
+                <option value="02">Febrero</option>
                 <option value="03">Marzo</option>
+                <option value="04" selected="selected">Abril</option>
+                <option value="05">Mayo</option>
+                <option value="06">Junio</option>
+                <option value="07">Julio</option>
+                <option value="08">Agosto</option>
+                <option value="09">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
               </select>
             </div>
-            
-            <div class="form-group">
-              <label for="anio">📅 Año</label>
-              <select id="anio" onchange="actualizarDatos()">
+            <div class="b-field">
+              <label>Año</label>
+              <select class="b-select" id="anio" onchange="actualizarDatos()">
+                <option value="2026" selected>2026</option>
                 <option value="2025">2025</option>
                 <option value="2024">2024</option>
-                <option value="2023">2023</option>
               </select>
             </div>
-
-            <div class="form-group">
-              <label for="componente_filtro">🩸 Tipo de Componente</label>
-              <select id="componente_filtro" onchange="filtrarTabla()">
+            <div class="b-field">
+              <label>Tipo de Componente</label>
+              <select class="b-select" id="componente_filtro" onchange="filtrarTabla()">
                 <option value="">Todos</option>
                 <option value="PRBC">PRBC</option>
                 <option value="Plaquetas">Plaquetas</option>
@@ -586,105 +1569,76 @@
                 <option value="Crioprecipitado">Crioprecipitado</option>
               </select>
             </div>
-
-            <div class="form-group">
-              <label for="id_componente">🔍 ID Específico</label>
-              <input type="text" id="id_componente" placeholder="Ej: A123" oninput="filtrarTabla()">
+            <div class="b-field">
+              <label>ID Específico</label>
+              <input class="b-input" type="text" id="id_componente" placeholder="Ej: A123" oninput="filtrarTabla()">
             </div>
           </div>
         </div>
 
-        <!-- Resumen -->
-        <div class="form-section section-summary">
-          <h2 class="section-title">
-            <span class="section-icon">📊</span>
+        <!-- Resumen período -->
+        <div class="b-card" data-accent="blue">
+          <div class="b-section-title" style="margin-bottom:18px;">
+            <span class="b-icon b-icon-blue"><i class="fa-solid fa-chart-bar"></i></span>
             Resumen del Período
-            <span style="font-size: 0.9rem; font-weight: normal; color: #6b7280;" id="periodo_actual">
-              Julio 2025
-            </span>
-          </h2>
-          
+            <span style="font-size:.82rem;color:var(--text-muted);font-weight:400;" id="periodo_actual">Abril 2026</span>
+            <span class="b-realtime-dot" id="b-rt-indicator" style="margin-left:auto;">Tiempo real</span>
+          </div>
           <div class="summary-grid">
-            <div class="summary-card">
-              <div class="summary-number summary-received" id="total_recibidas">20</div>
-              <div class="summary-label">Recibidas</div>
+            <div class="summary-card sc-received">
+              <div class="summary-num" id="total_recibidas">—</div>
+              <div class="summary-lbl">Recibidas</div>
             </div>
-            <div class="summary-card">
-              <div class="summary-number summary-dispatched" id="total_despachadas">15</div>
-              <div class="summary-label">Despachadas</div>
+            <div class="summary-card sc-dispatched">
+              <div class="summary-num" id="total_despachadas">—</div>
+              <div class="summary-lbl">Despachadas</div>
             </div>
-            <div class="summary-card">
-              <div class="summary-number summary-completed" id="total_completadas">10</div>
-              <div class="summary-label">Completadas</div>
+            <div class="summary-card sc-completed">
+              <div class="summary-num" id="total_completadas">—</div>
+              <div class="summary-lbl">Completadas</div>
             </div>
-            <div class="summary-card">
-              <div class="summary-number summary-returned" id="total_devueltas">2</div>
-              <div class="summary-label">Devueltas</div>
+            <div class="summary-card sc-returned">
+              <div class="summary-num" id="total_devueltas">—</div>
+              <div class="summary-lbl">Devueltas</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Flujo de Proceso -->
-      <div class="form-section section-timeline">
-        <h2 class="section-title">
-          <span class="section-icon">⚡</span>
-          Flujo del Proceso
-        </h2>
-        <div class="timeline">
-          <div class="timeline-item timeline-recibido">
-            <div>📥 Recepción</div>
-            <div>Unidades recibidas en banco</div>
+      <!-- Tabla de trazabilidad -->
+      <div class="b-card" data-accent="cyan">
+        <div class="b-section-header">
+          <div class="b-section-title">
+            <span class="b-icon b-icon-cyan"><i class="fa-solid fa-table-list"></i></span>
+            Registro de Trazabilidad
           </div>
-          <div class="timeline-item timeline-despachado">
-            <div>🚚 Despacho</div>
-            <div>Enviadas a áreas clínicas</div>
-          </div>
-          <div class="timeline-item timeline-completado">
-            <div>✅ Completado</div>
-            <div>Transfusión finalizada</div>
-          </div>
-          <div class="timeline-item timeline-devuelto">
-            <div>↩️ Devolución</div>
-            <div>Unidades devueltas</div>
+          <div class="b-btn-group">
+            <button class="b-btn b-btn-ghost b-btn-sm" onclick="exportarDatos('excel')">
+              <i class="fa-solid fa-file-excel"></i> Excel
+            </button>
+            <button class="b-btn b-btn-primary b-btn-sm" onclick="exportarDatos('pdf')">
+              <i class="fa-solid fa-file-pdf"></i> PDF
+            </button>
           </div>
         </div>
-      </div>
 
-      <!-- Tabla de Trazabilidad -->
-      <div class="form-section section-table">
-        <h2 class="section-title">
-          <span class="section-icon">📋</span>
-          Registro de Trazabilidad
-          <span style="font-size: 0.9rem; color: #6b7280; font-weight: normal;">
-            Historial completo de movimientos
-          </span>
-        </h2>
-
-        <div class="search-bar">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="search_table" placeholder="Buscar en trazabilidad..." oninput="filtrarTabla()">
+        <!-- Filtros rápidos + búsqueda -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+          <div class="b-search-input b-field" style="flex:1;min-width:200px;position:relative;">
+            <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.82rem;pointer-events:none;"></i>
+            <input class="b-input" type="text" id="search_table" placeholder="Buscar en trazabilidad…" oninput="filtrarTabla()" style="padding-left:36px;">
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="b-filter-pill active" onclick="filtrarPorEstado('todos',this)">Todos</button>
+            <button class="b-filter-pill" onclick="filtrarPorEstado('Disponible',this)">Disponibles</button>
+            <button class="b-filter-pill" onclick="filtrarPorEstado('Despachada',this)">Despachadas</button>
+            <button class="b-filter-pill" onclick="filtrarPorEstado('Completada',this)">Completadas</button>
+            <button class="b-filter-pill" onclick="filtrarPorEstado('Devuelta',this)">Devueltas</button>
+          </div>
         </div>
 
-        <div class="filter-buttons">
-          <button class="filter-btn active" onclick="filtrarPorEstado('todos')">Todos</button>
-          <button class="filter-btn" onclick="filtrarPorEstado('Disponible')">Disponibles</button>
-          <button class="filter-btn" onclick="filtrarPorEstado('Despachada')">Despachadas</button>
-          <button class="filter-btn" onclick="filtrarPorEstado('Completada')">Completadas</button>
-          <button class="filter-btn" onclick="filtrarPorEstado('Devuelta')">Devueltas</button>
-        </div>
-
-        <div class="export-buttons">
-          <button class="btn btn-secondary" onclick="exportarDatos('excel')">
-            📊 Exportar Excel
-          </button>
-          <button class="btn btn-primary" onclick="exportarDatos('pdf')">
-            📄 Exportar PDF
-          </button>
-        </div>
-
-        <div class="table-container">
-          <table class="trace-table">
+        <div class="b-table-wrapper">
+          <table class="b-table">
             <thead>
               <tr>
                 <th>Fecha</th>
@@ -694,174 +1648,118 @@
                 <th>Área Destino</th>
                 <th>Paciente</th>
                 <th>Estado</th>
-                <th>Tiempo</th>
+                <th>Hora</th>
               </tr>
             </thead>
             <tbody id="trace_tbody">
-              <tr>
-                <td class="date-cell">2025-07-10</td>
-                <td class="component-detail">A123</td>
-                <td><span class="component-badge component-prbc">PRBC</span></td>
-                <td class="movement-cell">Recibido</td>
-                <td>—</td>
-                <td>—</td>
-                <td><span class="status-badge status-disponible">Disponible</span></td>
-                <td>08:30</td>
-              </tr>
-              <tr>
-                <td class="date-cell">2025-07-11</td>
-                <td class="component-detail">A123</td>
-                <td><span class="component-badge component-prbc">PRBC</span></td>
-                <td class="movement-cell">Despachado</td>
-                <td>Medicina</td>
-                <td>Ana M.</td>
-                <td><span class="status-badge status-despachada">Despachada</span></td>
-                <td>14:45</td>
-              </tr>
-              <tr>
-                <td class="date-cell">2025-07-13</td>
-                <td class="component-detail">A123</td>
-                <td><span class="component-badge component-prbc">PRBC</span></td>
-                <td class="movement-cell">Completada</td>
-                <td>Medicina</td>
-                <td>Ana M.</td>
-                <td><span class="status-badge status-completada">Completada</span></td>
-                <td>16:20</td>
-              </tr>
-              <tr>
-                <td class="date-cell">2025-07-13</td>
-                <td class="component-detail">B456</td>
-                <td><span class="component-badge component-plasma">Plasma</span></td>
-                <td class="movement-cell">Devuelta</td>
-                <td>Emergencia</td>
-                <td>Roberto T.</td>
-                <td><span class="status-badge status-devuelta">Devuelta</span></td>
-                <td>18:10</td>
-              </tr>
-              <tr>
-                <td class="date-cell">2025-07-14</td>
-                <td class="component-detail">C789</td>
-                <td><span class="component-badge component-plaquetas">Plaquetas</span></td>
-                <td class="movement-cell">Recibido</td>
-                <td>—</td>
-                <td>—</td>
-                <td><span class="status-badge status-disponible">Disponible</span></td>
-                <td>09:15</td>
-              </tr>
-              <tr>
-                <td class="date-cell">2025-07-15</td>
-                <td class="component-detail">D012</td>
-                <td><span class="component-badge component-crioprecipitado">Crioprecipitado</span></td>
-                <td class="movement-cell">Despachado</td>
-                <td>Cirugía</td>
-                <td>María L.</td>
-                <td><span class="status-badge status-despachada">Despachada</span></td>
-                <td>11:30</td>
-              </tr>
+              <!-- Datos en tiempo real desde Firebase -->
             </tbody>
           </table>
         </div>
       </div>
+
     </div>
+    <div class="bludee-footer"><strong>Bludee AI</strong> — Trazabilidad · Puerto Rico</div>
   </div>
 
   <script>
-    const meses = {
-      '01': 'Enero', '02': 'Febrero', '03': 'Marzo', '04': 'Abril',
-      '05': 'Mayo', '06': 'Junio', '07': 'Julio', '08': 'Agosto',
-      '09': 'Septiembre', '10': 'Octubre', '11': 'Noviembre', '12': 'Diciembre'
-    };
+    var meses = {'01':'Enero','02':'Febrero','03':'Marzo','04':'Abril','05':'Mayo','06':'Junio','07':'Julio','08':'Agosto','09':'Septiembre','10':'Octubre','11':'Noviembre','12':'Diciembre'};
+    var currentFilter = 'todos';
+    var allTraceRows = [];
 
-    let currentFilter = 'todos';
-    let allRows = [];
+    // Static data (demo) + real-time data from Firebase
+    var DEMO_ROWS = []; // datos en tiempo real desde Firebase
 
-    function actualizarDatos() {
-      const mes = document.getElementById('mes').value;
-      const anio = document.getElementById('anio').value;
-      
-      // Actualizar el título del período
-      document.getElementById('periodo_actual').textContent = `${meses[mes]} ${anio}`;
-      
-      // Simular datos diferentes según el período
-      const estadisticas = {
-        '2025-07': { recibidas: 20, despachadas: 15, completadas: 10, devueltas: 2 },
-        '2025-06': { recibidas: 18, despachadas: 14, completadas: 12, devueltas: 1 },
-        '2025-05': { recibidas: 22, despachadas: 17, completadas: 15, devueltas: 3 }
-      };
-      
-      const key = `${anio}-${mes}`;
-      const stats = estadisticas[key] || estadisticas['2025-07'];
-      
-      document.getElementById('total_recibidas').textContent = stats.recibidas;
-      document.getElementById('total_despachadas').textContent = stats.despachadas;
-      document.getElementById('total_completadas').textContent = stats.completadas;
-      document.getElementById('total_devueltas').textContent = stats.devueltas;
+    function renderRows(rows) {
+      var tbody = document.getElementById('trace_tbody');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted);">Sin registros encontrados</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map(function(r) {
+        var stMap = {Disponible:'green',Despachada:'blue',Completada:'purple',Devuelta:'orange'};
+        var tc = r.tipo.toLowerCase().replace(/\s/g,'');
+        return '<tr><td style="font-family:monospace;font-size:.85rem;">'+r.fecha+'</td>' +
+          '<td><strong>'+r.id+'</strong></td>' +
+          '<td><span class="comp-badge comp-'+tc+'">'+r.tipo+'</span></td>' +
+          '<td>'+r.mov+'</td>' +
+          '<td>'+r.area+'</td>' +
+          '<td>'+r.paciente+'</td>' +
+          '<td>'+BludeeUI.statusBadge(r.estado)+'</td>' +
+          '<td style="font-family:monospace;font-size:.85rem;">'+r.hora+'</td></tr>';
+      }).join('');
     }
 
-    function filtrarPorEstado(estado) {
+    function actualizarDatos() {
+      var mes = document.getElementById('mes').value;
+      var anio = document.getElementById('anio').value;
+      document.getElementById('periodo_actual').textContent = meses[mes]+' '+anio;
+      var stats = {'2026-04':{r:0,d:0,c:0,dev:0},'2025-07':{r:20,d:15,c:10,dev:2},'2025-06':{r:18,d:14,c:12,dev:1},'2025-05':{r:22,d:17,c:15,dev:3}};
+      var s = stats[anio+'-'+mes] || {r:0,d:0,c:0,dev:0};
+      document.getElementById('total_recibidas').textContent   = s.r;
+      document.getElementById('total_despachadas').textContent = s.d;
+      document.getElementById('total_completadas').textContent = s.c;
+      document.getElementById('total_devueltas').textContent   = s.dev;
+    }
+
+    function filtrarPorEstado(estado, btn) {
       currentFilter = estado;
-      
-      // Actualizar botones activos
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      event.target.classList.add('active');
-      
+      document.querySelectorAll('.b-filter-pill').forEach(function(b){ b.classList.remove('active'); });
+      if (btn) btn.classList.add('active');
       filtrarTabla();
     }
 
     function filtrarTabla() {
-      const searchTerm = document.getElementById('search_table').value.toLowerCase();
-      const componenteFiltro = document.getElementById('componente_filtro').value.toLowerCase();
-      const idFiltro = document.getElementById('id_componente').value.toLowerCase();
-      const rows = document.querySelectorAll('#trace_tbody tr');
-      
-      rows.forEach(row => {
-        const texto = row.textContent.toLowerCase();
-        const estado = row.querySelector('.status-badge').textContent.trim();
-        const tipo = row.querySelector('.component-badge').textContent.trim();
-        const id = row.cells[1].textContent.toLowerCase();
-        
-        let mostrar = true;
-        
-        // Filtro por texto de búsqueda
-        if (searchTerm && !texto.includes(searchTerm)) {
-          mostrar = false;
-        }
-        
-        // Filtro por estado
-        if (currentFilter !== 'todos' && estado !== currentFilter) {
-          mostrar = false;
-        }
-        
-        // Filtro por tipo de componente
-        if (componenteFiltro && !tipo.toLowerCase().includes(componenteFiltro)) {
-          mostrar = false;
-        }
-        
-        // Filtro por ID específico
-        if (idFiltro && !id.includes(idFiltro)) {
-          mostrar = false;
-        }
-        
-        row.style.display = mostrar ? '' : 'none';
+      var q   = document.getElementById('search_table').value.toLowerCase();
+      var ct  = document.getElementById('componente_filtro').value.toLowerCase();
+      var idf = document.getElementById('id_componente').value.toLowerCase();
+      var rows= document.querySelectorAll('#trace_tbody tr');
+      rows.forEach(function(row) {
+        var txt = row.textContent.toLowerCase();
+        var ok  = true;
+        if (q   && !txt.includes(q))   ok = false;
+        if (ct  && !txt.includes(ct))  ok = false;
+        if (idf && !txt.includes(idf)) ok = false;
+        if (currentFilter !== 'todos' && !txt.includes(currentFilter.toLowerCase())) ok = false;
+        row.style.display = ok ? '' : 'none';
       });
     }
 
-    function exportarDatos(formato) {
-      if (formato === 'excel') {
-        alert('Exportando datos a Excel... (Función simulada)');
-      } else if (formato === 'pdf') {
-        alert('Generando reporte PDF... (Función simulada)');
-      }
+    function exportarDatos(fmt) {
+      BludeeToast.show('Exportando trazabilidad a '+fmt.toUpperCase()+'…', 'info');
     }
 
-    // Inicializar la página
-    window.addEventListener('load', function() {
+    function iniciarListener() {
+      BludeeRT.listenCollection('trazabilidad-rt', 'entradas_unidades',
+        { orderBy: 'fechaGuardado', orderDir: 'desc', limit: 200 },
+        function(docs) {
+          var rows = docs.map(function(d) {
+            return {
+              fecha:    (d.fecha||d.fechaGuardado||'').slice(0,10),
+              id:       d.numeroUnidad || d._id,
+              tipo:     d.componente   || d.tipo_componente || '—',
+              mov:      d.estadoUnidad === 'despachada' ? 'Despachado' : d.estadoUnidad === 'devuelta' ? 'Devuelto' : 'Recibido',
+              area:     d.area_destino || d.localizacion || '—',
+              paciente: d.paciente     || d.nombre_paciente || '—',
+              estado:   d.estadoUnidad ? d.estadoUnidad.charAt(0).toUpperCase()+d.estadoUnidad.slice(1) : 'Disponible',
+              hora:     (d.fecha||d.fechaGuardado||'').slice(11,16) || '—'
+            };
+          });
+          allTraceRows = rows;
+          renderRows(allTraceRows);
+          actualizarDatos();
+        }
+      );
+    }
+
+    document.addEventListener('bludee:auth', function() {
+      renderRows(DEMO_ROWS);
       actualizarDatos();
-      
-      // Guardar referencia a todas las filas para filtrado
-      allRows = Array.from(document.querySelectorAll('#trace_tbody tr'));
+      iniciarListener();
+    });
+    document.addEventListener('DOMContentLoaded', function(){
+      renderRows([]);  // Firebase listener will populate
+      actualizarDatos();
     });
   </script>
 </body>
