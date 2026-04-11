@@ -3,578 +3,1509 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bludee - Notas Clínicas Internas</title>
+  <title>Bludee AI — Notas Clínicas Internas</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+/*
+ ╔══════════════════════════════════════════════════════════════╗
+ ║         BLUDEE AI — SHARED DESIGN SYSTEM v2.0               ║
+ ║   Archivo CSS común para todos los módulos del sistema      ║
+ ╚══════════════════════════════════════════════════════════════╝
+*/
+
+/* ── Google Fonts ─────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+/* ── CSS Custom Properties (Design Tokens) ─────────────────── */
+:root {
+  /* Color Palette */
+  --bludee-red:         #dc2626;
+  --bludee-red-dark:    #b91c1c;
+  --bludee-red-light:   #ef4444;
+  --bludee-red-bg:      #fef2f2;
+  --bludee-red-border:  #fecaca;
+
+  --bludee-blue:        #2563eb;
+  --bludee-blue-dark:   #1d4ed8;
+  --bludee-blue-light:  #3b82f6;
+  --bludee-blue-bg:     #eff6ff;
+
+  --bludee-green:       #059669;
+  --bludee-green-light: #10b981;
+  --bludee-green-bg:    #ecfdf5;
+
+  --bludee-orange:      #ea580c;
+  --bludee-orange-bg:   #fff7ed;
+
+  --bludee-purple:      #7c3aed;
+  --bludee-purple-bg:   #faf5ff;
+
+  --bludee-cyan:        #0891b2;
+  --bludee-cyan-light:  #06b6d4;
+  --bludee-cyan-bg:     #ecfeff;
+
+  --bludee-yellow:      #d97706;
+  --bludee-yellow-bg:   #fffbeb;
+  --bludee-yellow-border:#f59e0b;
+
+  /* Neutrals */
+  --text-primary:       #1e293b;
+  --text-secondary:     #64748b;
+  --text-muted:         #94a3b8;
+  --surface-0:          #ffffff;
+  --surface-1:          #f8fafc;
+  --surface-2:          #f1f5f9;
+  --border-light:       #e2e8f0;
+  --border-medium:      #cbd5e1;
+
+  /* Background gradient (matches index) */
+  --bg-gradient:        linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  /* Card & Surface */
+  --card-radius:        20px;
+  --card-radius-sm:     12px;
+  --card-shadow:        0 10px 30px rgba(0,0,0,0.10);
+  --card-shadow-hover:  0 20px 40px rgba(0,0,0,0.15);
+  --card-bg:            rgba(255,255,255,0.97);
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* Typography */
+  --font-body:    'DM Sans', 'Segoe UI', sans-serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
+
+  /* Transitions */
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s ease;
+}
+
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  color: var(--text-primary);
+  padding: 0;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Module Wrapper ────────────────────────────────────────── */
+.bludee-page {
+  padding: 20px 20px 40px;
+  min-height: 100vh;
+}
+
+.bludee-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border-radius: var(--card-radius);
+  box-shadow:
+    0 25px 50px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  overflow: hidden;
+}
+
+/* ── Top Navigation Bar ────────────────────────────────────── */
+.bludee-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  gap: 12px;
+}
+
+.bludee-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--bludee-red);
+  text-decoration: none;
+}
+
+.bludee-topbar-brand .brand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bludee-red);
+  animation: pulse 2s infinite;
+}
+
+.bludee-topbar-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.bludee-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bludee-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border-light);
+  border-radius: 50px;
+  padding: 8px 18px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.bludee-back-btn:hover {
+  background: white;
+  border-color: var(--bludee-blue);
+  color: var(--bludee-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* ── Page Header ───────────────────────────────────────────── */
+.bludee-header {
+  background: linear-gradient(135deg, var(--bludee-red), var(--bludee-red-light));
+  color: white;
+  padding: 32px 36px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bludee-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="g" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23g)"/></svg>');
+  opacity: 0.4;
+}
+
+.bludee-header h1 {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 2;
+  letter-spacing: -0.02em;
+}
+
+.bludee-header p {
+  font-size: 1rem;
+  opacity: 0.88;
+  position: relative;
+  z-index: 2;
+}
+
+.bludee-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Breadcrumb ────────────────────────────────────────────── */
+.bludee-breadcrumb {
+  background: var(--surface-2);
+  padding: 12px 30px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bludee-breadcrumb a {
+  color: var(--bludee-blue);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition-fast);
+}
+
+.bludee-breadcrumb a:hover { color: var(--bludee-blue-dark); text-decoration: underline; }
+.bludee-breadcrumb .sep { color: var(--text-muted); }
+.bludee-breadcrumb .current { color: var(--text-primary); font-weight: 600; }
+
+/* ── Content Wrapper ───────────────────────────────────────── */
+.bludee-content {
+  padding: 30px 36px;
+}
+
+/* ── Cards ─────────────────────────────────────────────────── */
+.b-card {
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  padding: 28px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(10px);
+  transition: var(--transition);
+  border: 1px solid rgba(255,255,255,0.7);
+  position: relative;
+  overflow: hidden;
+}
+
+.b-card:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-3px);
+}
+
+.b-card-sm {
+  border-radius: var(--card-radius-sm);
+  padding: 20px;
+}
+
+/* Color accent bar on card top */
+.b-card[data-accent="red"]::before    { background: linear-gradient(90deg, var(--bludee-red), var(--bludee-red-light)); }
+.b-card[data-accent="blue"]::before   { background: linear-gradient(90deg, var(--bludee-blue), var(--bludee-blue-light)); }
+.b-card[data-accent="green"]::before  { background: linear-gradient(90deg, var(--bludee-green), var(--bludee-green-light)); }
+.b-card[data-accent="orange"]::before { background: linear-gradient(90deg, var(--bludee-orange), #f97316); }
+.b-card[data-accent="purple"]::before { background: linear-gradient(90deg, var(--bludee-purple), #8b5cf6); }
+.b-card[data-accent="cyan"]::before   { background: linear-gradient(90deg, var(--bludee-cyan), var(--bludee-cyan-light)); }
+
+.b-card[data-accent]::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+}
+
+/* ── KPI / Stat Cards ──────────────────────────────────────── */
+.b-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.b-kpi {
+  background: white;
+  border-radius: var(--card-radius-sm);
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  border-left: 4px solid var(--bludee-blue);
+  transition: var(--transition);
+}
+
+.b-kpi:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.b-kpi.red    { border-left-color: var(--bludee-red); }
+.b-kpi.green  { border-left-color: var(--bludee-green); }
+.b-kpi.orange { border-left-color: var(--bludee-orange); }
+.b-kpi.purple { border-left-color: var(--bludee-purple); }
+.b-kpi.cyan   { border-left-color: var(--bludee-cyan); }
+
+.b-kpi-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.b-kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.b-kpi-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.b-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.b-btn:active { transform: scale(0.97); }
+
+.b-btn-primary {
+  background: linear-gradient(135deg, var(--bludee-red), var(--bludee-red-light));
+  color: white;
+  box-shadow: 0 4px 14px rgba(220,38,38,0.3);
+}
+.b-btn-primary:hover {
+  background: linear-gradient(135deg, var(--bludee-red-dark), var(--bludee-red));
+  box-shadow: 0 6px 20px rgba(220,38,38,0.4);
+  transform: translateY(-2px);
+}
+
+.b-btn-secondary {
+  background: linear-gradient(135deg, var(--bludee-blue), var(--bludee-blue-light));
+  color: white;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.25);
+}
+.b-btn-secondary:hover {
+  background: linear-gradient(135deg, var(--bludee-blue-dark), var(--bludee-blue));
+  transform: translateY(-2px);
+}
+
+.b-btn-success {
+  background: linear-gradient(135deg, var(--bludee-green), var(--bludee-green-light));
+  color: white;
+  box-shadow: 0 4px 14px rgba(5,150,105,0.25);
+}
+.b-btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(5,150,105,0.35);
+}
+
+.b-btn-ghost {
+  background: var(--surface-2);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-light);
+}
+.b-btn-ghost:hover {
+  background: white;
+  border-color: var(--bludee-blue);
+  color: var(--bludee-blue);
+  transform: translateY(-1px);
+}
+
+.b-btn-danger {
+  background: linear-gradient(135deg, var(--bludee-red), var(--bludee-red-light));
+  color: white;
+}
+
+.b-btn-sm { padding: 6px 14px; font-size: 0.82rem; border-radius: 8px; }
+.b-btn-lg { padding: 14px 30px; font-size: 1rem; border-radius: 12px; }
+.b-btn-icon { padding: 9px; border-radius: 9px; }
+.b-btn-pill { border-radius: 50px; }
+
+.b-btn-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Forms ─────────────────────────────────────────────────── */
+.b-form-section {
+  background: white;
+  border-radius: var(--card-radius);
+  padding: 28px;
+  margin-bottom: 24px;
+  border: 1.5px solid var(--border-light);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.b-form-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.b-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.b-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.b-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.b-field label .required { color: var(--bludee-red); margin-left: 2px; }
+
+.b-input,
+.b-select,
+.b-textarea {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  background: var(--surface-1);
+  border: 1.5px solid var(--border-light);
+  border-radius: 10px;
+  padding: 10px 14px;
+  width: 100%;
+  transition: var(--transition);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.b-input:focus,
+.b-select:focus,
+.b-textarea:focus {
+  border-color: var(--bludee-blue);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+.b-input:hover,
+.b-select:hover {
+  border-color: var(--border-medium);
+}
+
+.b-textarea { resize: vertical; min-height: 90px; }
+
+.b-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%2364748b' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 38px;
+  cursor: pointer;
+}
+
+/* ── Tables ────────────────────────────────────────────────── */
+.b-table-wrapper {
+  background: white;
+  border-radius: var(--card-radius-sm);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  border: 1px solid var(--border-light);
+}
+
+.b-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.b-table thead th {
+  background: linear-gradient(135deg, #1e293b, #334155);
+  color: white;
+  padding: 14px 16px;
+  font-weight: 600;
+  text-align: left;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.b-table thead th:first-child { border-radius: 0; }
+
+.b-table tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.b-table tbody tr:last-child td { border-bottom: none; }
+
+.b-table tbody tr {
+  transition: var(--transition-fast);
+}
+
+.b-table tbody tr:hover {
+  background: var(--bludee-blue-bg);
+}
+
+.b-table tbody tr:hover td { color: var(--text-primary); }
+
+/* ── Badges / Status Chips ─────────────────────────────────── */
+.b-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.b-badge-green  { background: #dcfce7; color: #15803d; }
+.b-badge-red    { background: #fee2e2; color: #b91c1c; }
+.b-badge-yellow { background: #fef9c3; color: #92400e; }
+.b-badge-blue   { background: #dbeafe; color: #1d4ed8; }
+.b-badge-purple { background: #ede9fe; color: #6d28d9; }
+.b-badge-gray   { background: #f1f5f9; color: #475569; }
+.b-badge-orange { background: #ffedd5; color: #c2410c; }
+.b-badge-cyan   { background: #cffafe; color: #0e7490; }
+
+/* ── Tabs ──────────────────────────────────────────────────── */
+.b-tabs {
+  display: flex;
+  background: var(--surface-2);
+  border-bottom: 2px solid var(--border-light);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.b-tabs::-webkit-scrollbar { display: none; }
+
+.b-tab {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 14px 22px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: -2px;
+}
+
+.b-tab:hover {
+  background: rgba(37,99,235,0.07);
+  color: var(--bludee-blue);
+}
+
+.b-tab.active {
+  background: white;
+  color: var(--bludee-red);
+  border-bottom-color: var(--bludee-red);
+}
+
+.b-tab-content { display: none; }
+.b-tab-content.active { display: block; }
+
+/* ── Filters / Search Bar ──────────────────────────────────── */
+.b-filter-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: var(--surface-1);
+  border-radius: var(--card-radius-sm);
+  border: 1.5px solid var(--border-light);
+  margin-bottom: 20px;
+}
+
+.b-search-input {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.b-search-input i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.b-search-input input {
+  padding-left: 36px;
+}
+
+.b-filter-pill {
+  padding: 7px 16px;
+  border: 1.5px solid var(--border-light);
+  background: white;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.b-filter-pill:hover {
+  border-color: var(--bludee-blue);
+  color: var(--bludee-blue);
+}
+
+.b-filter-pill.active {
+  border-color: var(--bludee-blue);
+  background: var(--bludee-blue);
+  color: white;
+}
+
+/* ── Alerts / Notices ──────────────────────────────────────── */
+.b-alert {
+  border-radius: var(--card-radius-sm);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.9rem;
+  border-left: 4px solid;
+}
+
+.b-alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+.b-alert-info    { background: var(--bludee-blue-bg);  color: #1e3a8a; border-color: var(--bludee-blue); }
+.b-alert-success { background: var(--bludee-green-bg); color: #065f46; border-color: var(--bludee-green); }
+.b-alert-warning { background: var(--bludee-yellow-bg);color: #92400e; border-color: var(--bludee-yellow); }
+.b-alert-danger  { background: var(--bludee-red-bg);   color: #991b1b; border-color: var(--bludee-red); }
+
+/* ── Modals ────────────────────────────────────────────────── */
+.b-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.b-modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.b-modal {
+  background: white;
+  border-radius: var(--card-radius);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.b-modal-overlay.open .b-modal {
+  transform: translateY(0);
+}
+
+.b-modal-header {
+  padding: 22px 26px;
+  border-bottom: 1.5px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.b-modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.b-modal-close {
+  background: var(--surface-2);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.b-modal-close:hover { background: var(--bludee-red-bg); color: var(--bludee-red); }
+
+.b-modal-body  { padding: 24px 26px; }
+.b-modal-footer {
+  padding: 16px 26px;
+  border-top: 1.5px solid var(--border-light);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ── Toast Notifications ───────────────────────────────────── */
+#b-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.b-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border-radius: var(--card-radius-sm);
+  padding: 14px 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border-left: 4px solid var(--bludee-blue);
+  min-width: 280px;
+  max-width: 360px;
+  pointer-events: all;
+  animation: toastIn 0.35s ease forwards;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.b-toast.success { border-left-color: var(--bludee-green); }
+.b-toast.error   { border-left-color: var(--bludee-red); }
+.b-toast.warning { border-left-color: var(--bludee-yellow); }
+.b-toast.fade-out { animation: toastOut 0.3s ease forwards; }
+
+/* ── Real-time indicator ───────────────────────────────────── */
+.b-realtime-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--bludee-green);
+}
+
+.b-realtime-dot::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bludee-green);
+  animation: pulse 2s infinite;
+  flex-shrink: 0;
+}
+
+.b-realtime-dot.connecting { color: var(--bludee-yellow); }
+.b-realtime-dot.connecting::before { background: var(--bludee-yellow); }
+
+.b-realtime-dot.offline { color: var(--text-muted); }
+.b-realtime-dot.offline::before { background: var(--text-muted); animation: none; }
+
+/* ── Loading States ────────────────────────────────────────── */
+.b-skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+.b-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  z-index: 10;
+}
+
+.b-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--bludee-red);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+/* ── Empty State ───────────────────────────────────────────── */
+.b-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+}
+
+.b-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 14px;
+  opacity: 0.4;
+}
+
+.b-empty-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.b-empty-text {
+  font-size: 0.88rem;
+}
+
+/* ── Section Headers ───────────────────────────────────────── */
+.b-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.b-section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.b-section-title .b-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.b-icon-red    { background: linear-gradient(135deg, var(--bludee-red), var(--bludee-red-light)); }
+.b-icon-blue   { background: linear-gradient(135deg, var(--bludee-blue), var(--bludee-blue-light)); }
+.b-icon-green  { background: linear-gradient(135deg, var(--bludee-green), var(--bludee-green-light)); }
+.b-icon-orange { background: linear-gradient(135deg, var(--bludee-orange), #f97316); }
+.b-icon-purple { background: linear-gradient(135deg, var(--bludee-purple), #8b5cf6); }
+.b-icon-cyan   { background: linear-gradient(135deg, var(--bludee-cyan), var(--bludee-cyan-light)); }
+
+/* ── Footer ────────────────────────────────────────────────── */
+.bludee-footer {
+  text-align: center;
+  padding: 22px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-light);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.bludee-footer strong { color: var(--bludee-red); }
+
+/* ── Dividers ──────────────────────────────────────────────── */
+.b-divider {
+  height: 1.5px;
+  background: var(--border-light);
+  border: none;
+  margin: 20px 0;
+}
+
+/* ── Grid Helpers ──────────────────────────────────────────── */
+.b-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.b-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.b-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.b-grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+
+@media (max-width: 900px) {
+  .b-grid-4, .b-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .b-grid-4, .b-grid-3, .b-grid-2 { grid-template-columns: 1fr; }
+  .bludee-content { padding: 20px 16px; }
+  .bludee-header h1 { font-size: 1.6rem; }
+}
+
+/* ── Animations ────────────────────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(100%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in { animation: fadeIn 0.4s ease forwards; }
+
+/* ── Print ─────────────────────────────────────────────────── */
+@media print {
+  body { background: white !important; }
+  .bludee-topbar, .b-btn, .bludee-back-btn { display: none !important; }
+  .bludee-container { box-shadow: none !important; }
+}
+
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>
+/**
+ * ╔══════════════════════════════════════════════════════════════╗
+ * ║       BLUDEE AI — SHARED FIREBASE UTILITY v2.0             ║
+ * ║   Inicialización centralizada + helpers de tiempo real     ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ *
+ * Uso en cada módulo:
+ *   → Accede a: window.BludeeDB, window.BludeeAuth, BludeeRT.*
+ */
+
+(function () {
+  'use strict';
+
+  /* ── Firebase Config ──────────────────────────────────────── */
+  var FIREBASE_CONFIG = {
+    apiKey:            "AIzaSyCl3zl4lMGoh8hGhjVJtB3Te7ioDX5X65U",
+    authDomain:        "bludee-pr.firebaseapp.com",
+    projectId:         "bludee-pr",
+    storageBucket:     "bludee-pr.firebasestorage.app",
+    messagingSenderId: "476330144377",
+    appId:             "1:476330144377:web:88d31603514ca265409aa8"
+  };
+
+  /* ── Initialize Firebase (safe, no-duplicate) ─────────────── */
+  var db, auth;
+  try {
+    if (typeof firebase !== 'undefined') {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+      }
+      auth = firebase.auth();
+      db   = firebase.firestore();
+
+      /* Enable offline persistence */
+      db.enablePersistence({ synchronizeTabs: true })
+        .catch(function (err) {
+          if (err.code !== 'failed-precondition' && err.code !== 'unimplemented') {
+            console.warn('Bludee persistence:', err.code);
+          }
+        });
+
+      /* Auth guard — redirect to login if not authenticated */
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = 'login.html';
+        } else {
+          window.BLUDEE_USER = user;
+          document.dispatchEvent(new CustomEvent('bludee:auth', { detail: user }));
+        }
+      });
+
+    } else {
+      console.warn('⚠️ Firebase SDK no disponible — modo offline activado');
+    }
+  } catch (e) {
+    console.warn('⚠️ Error inicializando Firebase:', e.message);
+  }
+
+  /* ── Expose globals ───────────────────────────────────────── */
+  window.BludeeDB   = db;
+  window.BludeeAuth = auth;
+
+  /* ══════════════════════════════════════════════════════════
+   * BludeeRT — Real-time listener manager
+   * ══════════════════════════════════════════════════════════ */
+  window.BludeeRT = (function () {
+    var _listeners = {};  // key → unsubscribe fn
+
+    /**
+     * Listen to a Firestore collection in real time.
+     * @param {string}   key        Unique listener key (allows cleanup)
+     * @param {string}   collection Firestore collection path
+     * @param {object}   opts       { orderBy, orderDir, limit, where: [[field, op, val]] }
+     * @param {function} onData     Callback(docs: Array<{id, ...data}>)
+     * @param {function} onError    Optional error callback
+     */
+    function listenCollection(key, collection, opts, onData, onError) {
+      if (!db) { console.warn('BludeeRT: DB not available'); return; }
+      if (_listeners[key]) { _listeners[key](); }  // detach existing
+
+      var ref = db.collection(collection);
+
+      // Apply where clauses
+      if (opts.where && Array.isArray(opts.where)) {
+        opts.where.forEach(function (w) {
+          ref = ref.where(w[0], w[1], w[2]);
+        });
+      }
+
+      // Apply ordering
+      if (opts.orderBy) {
+        ref = ref.orderBy(opts.orderBy, opts.orderDir || 'asc');
+      }
+
+      // Apply limit
+      if (opts.limit) {
+        ref = ref.limit(opts.limit);
+      }
+
+      _listeners[key] = ref.onSnapshot(
+        function (snapshot) {
+          var docs = [];
+          snapshot.forEach(function (doc) {
+            docs.push(Object.assign({ _id: doc.id }, doc.data()));
+          });
+          updateRealtimeIndicator(key, true);
+          onData(docs);
+        },
+        function (err) {
+          console.error('BludeeRT [' + key + '] error:', err);
+          updateRealtimeIndicator(key, false);
+          if (onError) onError(err);
+        }
+      );
+
+      return _listeners[key];
     }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
-      min-height: 100vh;
-      padding: 20px;
+    /**
+     * Listen to a single Firestore document in real time.
+     */
+    function listenDoc(key, collection, docId, onData, onError) {
+      if (!db) return;
+      if (_listeners[key]) { _listeners[key](); }
+
+      _listeners[key] = db.collection(collection).doc(docId).onSnapshot(
+        function (doc) {
+          if (doc.exists) {
+            onData(Object.assign({ _id: doc.id }, doc.data()));
+          } else {
+            onData(null);
+          }
+        },
+        function (err) {
+          if (onError) onError(err);
+        }
+      );
+
+      return _listeners[key];
     }
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      background: linear-gradient(145deg, #ffffff, #f8fafc);
-      border-radius: 20px;
-      box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-      overflow: hidden;
+    /** Detach a specific listener */
+    function detach(key) {
+      if (_listeners[key]) {
+        _listeners[key]();
+        delete _listeners[key];
+      }
     }
 
-    .header {
-      background: linear-gradient(135deg, #dc2626, #ef4444);
-      color: white;
-      padding: 30px;
-      text-align: center;
-      position: relative;
+    /** Detach all listeners (call on page unload) */
+    function detachAll() {
+      Object.keys(_listeners).forEach(function (k) {
+        if (typeof _listeners[k] === 'function') _listeners[k]();
+      });
+      _listeners = {};
     }
 
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-      opacity: 0.3;
+    /** Update the real-time dot indicator on the page */
+    function updateRealtimeIndicator(key, connected) {
+      var el = document.getElementById('b-rt-indicator');
+      if (!el) return;
+      el.textContent = connected ? 'Tiempo real activo' : 'Reconectando…';
+      el.className = 'b-realtime-dot' + (connected ? '' : ' connecting');
     }
 
-    .header h1 {
-      font-size: 2.2rem;
-      margin-bottom: 8px;
-      position: relative;
-      z-index: 2;
+    /* Auto-cleanup on page unload */
+    window.addEventListener('beforeunload', detachAll);
+
+    return {
+      listenCollection: listenCollection,
+      listenDoc:        listenDoc,
+      detach:           detach,
+      detachAll:        detachAll
+    };
+  })();
+
+  /* ══════════════════════════════════════════════════════════
+   * BludeeToast — toast notification system
+   * ══════════════════════════════════════════════════════════ */
+  window.BludeeToast = (function () {
+    function ensureContainer() {
+      var c = document.getElementById('b-toast-container');
+      if (!c) {
+        c = document.createElement('div');
+        c.id = 'b-toast-container';
+        document.body.appendChild(c);
+      }
+      return c;
     }
 
-    .header p {
-      font-size: 1.1rem;
-      opacity: 0.9;
-      position: relative;
-      z-index: 2;
+    /**
+     * Show a toast notification.
+     * @param {string} msg     Message text
+     * @param {string} type    'success' | 'error' | 'warning' | 'info'
+     * @param {number} duration ms, default 4000
+     */
+    function show(msg, type, duration) {
+      type     = type     || 'info';
+      duration = duration || 4000;
+
+      var icons = {
+        success: 'fa-circle-check',
+        error:   'fa-circle-xmark',
+        warning: 'fa-triangle-exclamation',
+        info:    'fa-circle-info'
+      };
+
+      var toast = document.createElement('div');
+      toast.className = 'b-toast ' + type;
+      toast.innerHTML =
+        '<i class="fa-solid ' + (icons[type] || icons.info) + '"></i>' +
+        '<span>' + msg + '</span>';
+
+      ensureContainer().appendChild(toast);
+
+      setTimeout(function () {
+        toast.classList.add('fade-out');
+        setTimeout(function () { toast.remove(); }, 320);
+      }, duration);
     }
 
-    .breadcrumb {
-      background: #f1f5f9;
-      padding: 15px 30px;
-      border-bottom: 1px solid #e2e8f0;
+    return { show: show };
+  })();
+
+  /* ══════════════════════════════════════════════════════════
+   * BludeeUI — shared UI helpers
+   * ══════════════════════════════════════════════════════════ */
+  window.BludeeUI = (function () {
+
+    /** Simple tab switcher — add data-tab-group on parent, data-tab on buttons */
+    function initTabs(container) {
+      var btns     = container.querySelectorAll('.b-tab');
+      var contents = container.querySelectorAll('.b-tab-content');
+
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var target = btn.dataset.tab;
+          btns.forEach(function (b) { b.classList.remove('active'); });
+          contents.forEach(function (c) { c.classList.remove('active'); });
+          btn.classList.add('active');
+          var targetEl = container.querySelector('.b-tab-content[data-tab="' + target + '"]');
+          if (targetEl) targetEl.classList.add('active');
+        });
+      });
+
+      // Activate first tab by default
+      if (btns.length > 0 && !container.querySelector('.b-tab.active')) {
+        btns[0].click();
+      }
     }
 
-    .breadcrumb a {
-      color: #1e40af;
-      text-decoration: none;
-      font-weight: 500;
+    /** Open / close a modal */
+    function openModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.add('open');
     }
 
-    .breadcrumb a:hover {
-      text-decoration: underline;
+    function closeModal(id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('open');
     }
 
-    .form-container {
-      padding: 40px;
+    /** Close modals on overlay click */
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('b-modal-overlay')) {
+        e.target.classList.remove('open');
+      }
+    });
+
+    /** Real-time clock */
+    function startClock(elementId) {
+      function tick() {
+        var el = document.getElementById(elementId);
+        if (!el) return;
+        var now = new Date();
+        el.textContent = now.toLocaleString('es-PR', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        });
+      }
+      tick();
+      setInterval(tick, 30000);
     }
 
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 30px;
-      margin-bottom: 30px;
+    /** Format Firestore Timestamp or ISO string to locale date */
+    function fmtDate(val) {
+      if (!val) return '—';
+      var d = val.toDate ? val.toDate() : new Date(val);
+      return d.toLocaleString('es-PR', { dateStyle: 'short', timeStyle: 'short' });
     }
 
-    .form-section {
-      background: white;
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 25px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      border: 1px solid #e2e8f0;
-      position: relative;
+    /** Format date only */
+    function fmtDateOnly(val) {
+      if (!val) return '—';
+      var d = val.toDate ? val.toDate() : new Date(val);
+      return d.toLocaleDateString('es-PR');
     }
 
-    .form-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--section-color);
-      border-radius: 12px 12px 0 0;
+    /** Truncate string */
+    function truncate(str, n) {
+      return str && str.length > n ? str.slice(0, n) + '…' : (str || '');
     }
 
-    .section-incident { --section-color: linear-gradient(135deg, #dc2626, #ef4444); }
-    .section-details { --section-color: linear-gradient(135deg, #ea580c, #f97316); }
-    .section-actions { --section-color: linear-gradient(135deg, #1e40af, #3b82f6); }
-    .section-history { --section-color: linear-gradient(135deg, #7c3aed, #8b5cf6); }
-    .section-stats { --section-color: linear-gradient(135deg, #059669, #10b981); }
-
-    .section-title {
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    /** Blood type badge HTML */
+    function bloodBadge(tipo) {
+      var colors = {
+        'A+': 'red', 'A-': 'red',
+        'B+': 'blue', 'B-': 'blue',
+        'AB+': 'purple', 'AB-': 'purple',
+        'O+': 'green', 'O-': 'green'
+      };
+      var color = colors[tipo] || 'gray';
+      return '<span class="b-badge b-badge-' + color + '">' + (tipo || '—') + '</span>';
     }
 
-    .section-icon {
-      font-size: 1.5rem;
+    /** Status badge HTML */
+    function statusBadge(status) {
+      var map = {
+        'Activo':       'green',
+        'Disponible':   'green',
+        'Aprobado':     'green',
+        'Completado':   'green',
+        'Inactivo':     'gray',
+        'No Disponible':'gray',
+        'Pendiente':    'yellow',
+        'En proceso':   'yellow',
+        'Crítico':      'red',
+        'Rechazado':    'red',
+        'Vencido':      'red',
+        'Eliminado':    'red',
+        'Transfundido': 'blue',
+        'Reservado':    'orange',
+        'Devuelto':     'cyan',
+        'Cuarentenado': 'orange'
+      };
+      var color = map[status] || 'gray';
+      return '<span class="b-badge b-badge-' + color + '">' + (status || '—') + '</span>';
     }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
+    /** Log an action to Firestore auditoria collection */
+    function logAudit(accion, modulo, detalle) {
+      if (!db || !window.BLUDEE_USER) return;
+      db.collection('auditoria').add({
+        accion:    accion,
+        modulo:    modulo,
+        detalle:   detalle || '',
+        usuario:   window.BLUDEE_USER.email || 'desconocido',
+        uid:       window.BLUDEE_USER.uid,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function (e) {
+        console.warn('Log audit error:', e.message);
+      });
     }
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
+    return {
+      initTabs:    initTabs,
+      openModal:   openModal,
+      closeModal:  closeModal,
+      startClock:  startClock,
+      fmtDate:     fmtDate,
+      fmtDateOnly: fmtDateOnly,
+      truncate:    truncate,
+      bloodBadge:  bloodBadge,
+      statusBadge: statusBadge,
+      logAudit:    logAudit
+    };
+  })();
+
+  /* ══════════════════════════════════════════════════════════
+   * Render shared topbar into any element with id="b-topbar"
+   * ══════════════════════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', function () {
+    var topbar = document.getElementById('b-topbar');
+    if (topbar) {
+      topbar.innerHTML =
+        '<a href="index.html" class="bludee-topbar-brand">' +
+          '<span class="brand-dot"></span>' +
+          '<span>Bludee AI</span>' +
+        '</a>' +
+        '<div class="bludee-topbar-center">' +
+          '<span class="b-realtime-dot connecting" id="b-rt-indicator">Conectando…</span>' +
+          '<span style="color:var(--border-medium)">|</span>' +
+          '<span id="b-topbar-clock" style="font-size:0.82rem;color:var(--text-secondary)"></span>' +
+        '</div>' +
+        '<div class="bludee-topbar-right">' +
+          '<a href="index.html" class="bludee-back-btn">' +
+            '<i class="fa-solid fa-house" style="font-size:.8rem"></i> Inicio' +
+          '</a>' +
+          '<button onclick="BludeeAuth && BludeeAuth.signOut().then(function(){ window.location.href=\'login.html\'; })" ' +
+            'class="b-btn b-btn-primary b-btn-sm" title="Cerrar sesión">' +
+            '<i class="fa-solid fa-right-from-bracket"></i>' +
+          '</button>' +
+        '</div>';
+
+      BludeeUI.startClock('b-topbar-clock');
     }
 
-    .form-group.full-width {
-      grid-column: 1 / -1;
-    }
+    /* Init all tab groups on page */
+    document.querySelectorAll('[data-tab-group]').forEach(function (group) {
+      BludeeUI.initTabs(group);
+    });
+  });
 
-    label {
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-    }
+})();
 
-    .required {
-      color: #dc2626;
-    }
-
-    input, select, textarea {
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: #fafafa;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #3b82f6;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .back-button {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 2px solid #e5e7eb;
-      border-radius: 50px;
-      padding: 12px 20px;
-      color: #374151;
-      text-decoration: none;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-      z-index: 1000;
-    }
-
-    .back-button:hover {
-      background: white;
-      border-color: #3b82f6;
-      color: #1e40af;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .severity-selector {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-
+  </script>
+  <style>
+    .severity-selector { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 8px; }
     .severity-option {
-      padding: 12px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      text-align: center;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      padding: 12px 8px; border-radius: 10px; text-align: center;
+      cursor: pointer; font-size: 0.82rem; font-weight: 700;
+      border: 2.5px solid transparent; transition: all 0.2s;
+      letter-spacing: 0.04em;
     }
+    .severity-bajo    { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+    .severity-medio   { background: #fefce8; color: #a16207; border-color: #fde68a; }
+    .severity-alto    { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .severity-critico { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+    .severity-option.active { transform: scale(1.04); box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+    .severity-bajo.active    { border-color: #16a34a; background: #dcfce7; }
+    .severity-medio.active   { border-color: #d97706; background: #fef9c3; }
+    .severity-alto.active    { border-color: #ea580c; background: #ffedd5; }
+    .severity-critico.active { border-color: #dc2626; background: #fee2e2; }
 
-    .severity-option:hover {
-      transform: translateY(-1px);
-    }
-
-    .severity-bajo {
-      background: #f0fdf4;
-      color: #166534;
-      border-color: #bbf7d0;
-    }
-
-    .severity-bajo.active {
-      background: #16a34a;
-      color: white;
-      border-color: #16a34a;
-    }
-
-    .severity-medio {
-      background: #fefce8;
-      color: #a16207;
-      border-color: #fde047;
-    }
-
-    .severity-medio.active {
-      background: #eab308;
-      color: white;
-      border-color: #eab308;
-    }
-
-    .severity-alto {
-      background: #fff7ed;
-      color: #c2410c;
-      border-color: #fed7aa;
-    }
-
-    .severity-alto.active {
-      background: #ea580c;
-      color: white;
-      border-color: #ea580c;
-    }
-
-    .severity-critico {
-      background: #fef2f2;
-      color: #991b1b;
-      border-color: #fecaca;
-    }
-
-    .severity-critico.active {
-      background: #dc2626;
-      color: white;
-      border-color: #dc2626;
-    }
-
-    .specific-fields {
-      display: none;
-      margin-top: 20px;
-      padding: 20px;
-      background: #f8fafc;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-    }
-
-    .specific-fields.show {
-      display: block;
-    }
-
-    .specific-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .button-container {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      margin-top: 30px;
-    }
-
-    .btn {
-      padding: 15px 30px;
-      border: none;
-      border-radius: 10px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 160px;
-      justify-content: center;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #dc2626, #ef4444);
-      color: white;
-      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #b91c1c, #dc2626);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
-    }
-
-    .btn-secondary {
-      background: #f8fafc;
-      color: #374151;
-      border: 2px solid #e5e7eb;
-    }
-
-    .btn-secondary:hover {
-      background: #f1f5f9;
-      border-color: #cbd5e1;
-      transform: translateY(-1px);
-    }
+    .specific-fields { display: none; margin-top: 20px; padding: 20px; background: var(--surface-1); border-radius: 12px; border: 1.5px solid var(--border-light); }
+    .specific-fields.show { display: block; animation: fadeIn 0.3s ease; }
+    .specific-title { font-weight: 700; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
     .incident-card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      border: 1px solid #e2e8f0;
-      border-left: 4px solid var(--severity-color);
+      background: white; border-radius: 14px; padding: 20px;
+      border-left: 4px solid var(--sev-color, #e2e8f0);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.06); margin-bottom: 14px;
       transition: all 0.3s ease;
     }
+    .incident-card:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,0.1); }
+    .sev-critico { --sev-color: #dc2626; }
+    .sev-alto    { --sev-color: #ea580c; }
+    .sev-medio   { --sev-color: #d97706; }
+    .sev-bajo    { --sev-color: #16a34a; }
+    .inc-header  { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .inc-type    { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+    .inc-meta    { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; }
+    .inc-desc    { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px; }
+    .inc-footer  { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; }
 
-    .incident-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
+    .success-banner { display: none; padding: 16px; border-radius: 12px; background: var(--bludee-green-bg); border: 1.5px solid var(--bludee-green); color: #065f46; font-weight: 600; text-align: center; margin-top: 16px; }
+    .success-banner.show { display: block; animation: fadeIn 0.4s ease; }
 
-    .incident-header {
-      display: flex;
-      justify-content: between;
-      align-items: flex-start;
-      margin-bottom: 15px;
-    }
-
-    .incident-type {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #1f2937;
-    }
-
-    .incident-severity {
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    .incident-meta {
-      font-size: 0.85rem;
-      color: #6b7280;
-      margin-bottom: 10px;
-    }
-
-    .incident-description {
-      color: #374151;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      margin-bottom: 15px;
-    }
-
-    .incident-footer {
-      display: flex;
-      justify-content: between;
-      align-items: center;
-      font-size: 0.85rem;
-      color: #6b7280;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 15px;
-    }
-
-    .stat-item {
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 15px;
-      border: 1px solid #e2e8f0;
-      text-align: center;
-    }
-
-    .stat-number {
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .stat-label {
-      font-size: 0.85rem;
-      color: #6b7280;
-      font-weight: 500;
-    }
-
-    .stat-critico { color: #dc2626; }
-    .stat-alto { color: #ea580c; }
-    .stat-medio { color: #eab308; }
-    .stat-bajo { color: #16a34a; }
-
-    .search-bar {
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    .search-bar input {
-      width: 100%;
-      padding-left: 40px;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #9ca3af;
-      font-size: 16px;
-    }
-
-    .filter-tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .filter-tab {
-      padding: 8px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 20px;
-      background: #f8fafc;
-      color: #374151;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .filter-tab:hover,
-    .filter-tab.active {
-      background: #3b82f6;
-      border-color: #3b82f6;
-      color: white;
-    }
-
-    .success-message {
-      display: none;
-      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-      border: 2px solid #10b981;
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 20px;
-      text-align: center;
-      color: #065f46;
-      font-weight: 600;
-      animation: slideDown 0.3s ease;
-    }
-
-    .success-message.show {
-      display: block;
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        margin: 10px;
-        border-radius: 16px;
-      }
-
-      .header {
-        padding: 20px;
-      }
-
-      .header h1 {
-        font-size: 1.8rem;
-      }
-
-      .form-container {
-        padding: 20px;
-      }
-
-      .main-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-
-      .severity-selector {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .button-container {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .btn {
-        width: 100%;
-        max-width: 300px;
-      }
-    }
+    @media(max-width:640px) { .severity-selector { grid-template-columns: repeat(2,1fr); } }
   </style>
 </head>
-<body>
-  <a href="index.html" class="back-button">
-    ← Volver al Menú
-  </a>
+<body class="bludee-page">
+  <div id="b-topbar" class="bludee-topbar"></div>
 
-  <div class="container">
-    <div class="header">
-      <h1>🚨 Notas Clínicas Internas</h1>
-      <p>Sistema Bludee - Reporte de Incidentes</p>
+  <div class="bludee-container" style="margin-top:16px;">
+    <div class="bludee-header">
+      <h1><i class="fa-solid fa-triangle-exclamation" style="margin-right:10px;"></i>Notas Clínicas Internas</h1>
+      <p>Reporte y seguimiento de incidentes clínicos relacionados con transfusiones</p>
+      <span class="bludee-header-badge">
+        <i class="fa-solid fa-circle" style="font-size:.5rem;color:#4ade80;"></i>
+        Firebase tiempo real
+      </span>
+    </div>
+    <div class="bludee-breadcrumb">
+      <i class="fa-solid fa-house" style="font-size:.8rem;"></i>
+      <a href="index.html">Inicio</a><span class="sep">›</span>
+      <a href="index.html">Calidad y Seguridad</a><span class="sep">›</span>
+      <span class="current">Notas Clínicas Internas</span>
     </div>
 
-    <div class="breadcrumb">
-      <a href="index.html">🗃️ Bludee</a> / 
-      <a href="index.html">Calidad y Seguridad</a> / 
-      <span>Notas Clínicas Internas</span>
-    </div>
+    <div class="bludee-content">
+      <div class="b-grid-2" style="gap:24px;align-items:start;margin-bottom:24px;">
 
-    <div class="form-container">
-      <div class="main-grid">
-        <!-- Formulario Principal -->
-        <div class="main-form">
-          <!-- Información Básica del Incidente -->
-          <div class="form-section section-incident">
-            <h2 class="section-title">
-              <span class="section-icon">🚨</span>
+        <!-- Formulario principal -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div class="b-card" data-accent="red">
+            <div class="b-section-title" style="margin-bottom:18px;">
+              <span class="b-icon b-icon-red"><i class="fa-solid fa-triangle-exclamation"></i></span>
               Nuevo Reporte de Incidente
-            </h2>
-            
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="tipo_incidente">Tipo de Incidente <span class="required">*</span></label>
-                <select id="tipo_incidente" onchange="mostrarCamposEspecificos()">
-                  <option value="">Seleccionar tipo...</option>
+            </div>
+            <div class="b-form-grid">
+              <div class="b-field">
+                <label>Tipo de Incidente <span style="color:var(--bludee-red);">*</span></label>
+                <select class="b-select" id="tipo_incidente" onchange="mostrarCamposEspecificos()">
+                  <option value="">Seleccionar tipo…</option>
                   <option value="reaccion_adversa">🩸 Reacción Adversa</option>
                   <option value="unidad_defectuosa">🔴 Unidad Defectuosa</option>
                   <option value="error_identificacion">🆔 Error de Identificación</option>
@@ -582,31 +1513,26 @@
                   <option value="transfusion_incompleta">⏹️ Transfusión Incompleta</option>
                 </select>
               </div>
-
-              <div class="form-group">
-                <label for="fecha_incidente">Fecha y Hora del Incidente <span class="required">*</span></label>
-                <input type="datetime-local" id="fecha_incidente">
+              <div class="b-field">
+                <label>Fecha y Hora del Incidente <span style="color:var(--bludee-red);">*</span></label>
+                <input class="b-input" type="datetime-local" id="fecha_incidente">
               </div>
-
-              <div class="form-group">
-                <label for="paciente_nombre">Nombre del Paciente (si aplica)</label>
-                <input type="text" id="paciente_nombre" placeholder="Nombre completo del paciente">
+              <div class="b-field">
+                <label>Nombre del Paciente (si aplica)</label>
+                <input class="b-input" type="text" id="paciente_nombre" placeholder="Nombre completo">
               </div>
-
-              <div class="form-group">
-                <label for="paciente_record">Número de Récord (si aplica)</label>
-                <input type="text" id="paciente_record" placeholder="00000000">
+              <div class="b-field">
+                <label>Número de Récord (si aplica)</label>
+                <input class="b-input" type="text" id="paciente_record" placeholder="00000000">
               </div>
-
-              <div class="form-group">
-                <label for="unidad_id">ID de Unidad/Componente (si aplica)</label>
-                <input type="text" id="unidad_id" placeholder="Ej: A123">
+              <div class="b-field">
+                <label>ID de Unidad/Componente</label>
+                <input class="b-input" type="text" id="unidad_id" placeholder="Ej: A123">
               </div>
-
-              <div class="form-group">
-                <label for="area_involucrada">Área Involucrada</label>
-                <select id="area_involucrada">
-                  <option value="">Seleccionar área...</option>
+              <div class="b-field">
+                <label>Área Involucrada</label>
+                <select class="b-select" id="area_involucrada">
+                  <option value="">Seleccionar área…</option>
                   <option value="banco_sangre">Banco de Sangre</option>
                   <option value="medicina">Medicina</option>
                   <option value="cirugia">Cirugía</option>
@@ -617,535 +1543,334 @@
               </div>
             </div>
 
-            <div class="form-group full-width">
-              <label>Nivel de Severidad <span class="required">*</span></label>
+            <!-- Severidad -->
+            <div class="b-field" style="margin-top:18px;">
+              <label>Nivel de Severidad <span style="color:var(--bludee-red);">*</span></label>
               <div class="severity-selector">
-                <div class="severity-option severity-bajo" onclick="seleccionarSeveridad('bajo')">
-                  🟢 BAJO
-                </div>
-                <div class="severity-option severity-medio" onclick="seleccionarSeveridad('medio')">
-                  🟡 MEDIO
-                </div>
-                <div class="severity-option severity-alto" onclick="seleccionarSeveridad('alto')">
-                  🟠 ALTO
-                </div>
-                <div class="severity-option severity-critico" onclick="seleccionarSeveridad('critico')">
-                  🔴 CRÍTICO
-                </div>
+                <div class="severity-option severity-bajo" onclick="seleccionarSeveridad('bajo',this)">🟢 BAJO</div>
+                <div class="severity-option severity-medio" onclick="seleccionarSeveridad('medio',this)">🟡 MEDIO</div>
+                <div class="severity-option severity-alto" onclick="seleccionarSeveridad('alto',this)">🟠 ALTO</div>
+                <div class="severity-option severity-critico" onclick="seleccionarSeveridad('critico',this)">🔴 CRÍTICO</div>
               </div>
-              <input type="hidden" id="severidad_selected" value="">
+              <input type="hidden" id="severidad_selected">
             </div>
 
-            <!-- Campos Específicos por Tipo -->
+            <!-- Campos específicos por tipo -->
             <div id="campos_reaccion_adversa" class="specific-fields">
-              <div class="specific-title">🩸 Detalles de Reacción Adversa</div>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="sintomas">Síntomas Observados</label>
-                  <textarea id="sintomas" rows="3" placeholder="Describa los síntomas..."></textarea>
-                </div>
-                <div class="form-group">
-                  <label for="tiempo_aparicion">Tiempo de Aparición (minutos)</label>
-                  <input type="number" id="tiempo_aparicion" placeholder="Ej: 15">
-                </div>
-                <div class="form-group">
-                  <label for="volumen_transfundido">Volumen Transfundido</label>
-                  <input type="text" id="volumen_transfundido" placeholder="Ej: 150 mL">
-                </div>
-                <div class="form-group">
-                  <label for="medico_notificado">Médico Notificado</label>
-                  <input type="text" id="medico_notificado" placeholder="Dr./Dra. Apellido">
-                </div>
+              <div class="specific-title"><i class="fa-solid fa-droplet"></i> Detalles de Reacción Adversa</div>
+              <div class="b-form-grid">
+                <div class="b-field" style="grid-column:1/-1"><label>Síntomas Observados</label><textarea class="b-input" id="sintomas" rows="2" placeholder="Describa los síntomas…"></textarea></div>
+                <div class="b-field"><label>Tiempo de Aparición (min)</label><input class="b-input" type="number" id="tiempo_aparicion" placeholder="Ej: 15"></div>
+                <div class="b-field"><label>Volumen Transfundido</label><input class="b-input" type="text" id="volumen_transfundido" placeholder="Ej: 150 mL"></div>
+                <div class="b-field"><label>Médico Notificado</label><input class="b-input" type="text" id="medico_notificado" placeholder="Dr./Dra. Apellido"></div>
               </div>
             </div>
-
             <div id="campos_unidad_defectuosa" class="specific-fields">
-              <div class="specific-title">🔴 Detalles de Unidad Defectuosa</div>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="tipo_defecto">Tipo de Defecto</label>
-                  <select id="tipo_defecto">
-                    <option value="">Seleccionar...</option>
-                    <option value="turbidez">Turbidez</option>
-                    <option value="coagulos">Coágulos</option>
-                    <option value="bolsa_rota">Bolsa rota/dañada</option>
-                    <option value="color_anormal">Color anormal</option>
-                    <option value="precipitado">Precipitado</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="proveedor_banco">Proveedor/Banco Origen</label>
-                  <input type="text" id="proveedor_banco" placeholder="Nombre del proveedor">
-                </div>
-                <div class="form-group">
-                  <label for="lote_serie">Lote/Serie</label>
-                  <input type="text" id="lote_serie" placeholder="Número de lote">
-                </div>
-                <div class="form-group">
-                  <label for="accion_unidad">Acción con la Unidad</label>
-                  <select id="accion_unidad">
-                    <option value="">Seleccionar...</option>
-                    <option value="descartada">Descartada</option>
-                    <option value="devuelta">Devuelta al proveedor</option>
-                    <option value="en_cuarentena">En cuarentena</option>
-                    <option value="enviada_laboratorio">Enviada a laboratorio</option>
-                  </select>
-                </div>
+              <div class="specific-title"><i class="fa-solid fa-circle-xmark"></i> Detalles de Unidad Defectuosa</div>
+              <div class="b-form-grid">
+                <div class="b-field"><label>Tipo de Defecto</label><select class="b-select" id="tipo_defecto"><option value="">Seleccionar…</option><option>Turbidez</option><option>Coágulos</option><option>Bolsa rota/dañada</option><option>Color anormal</option><option>Precipitado</option><option>Otro</option></select></div>
+                <div class="b-field"><label>Proveedor/Banco Origen</label><input class="b-input" type="text" id="proveedor_banco" placeholder="Nombre del proveedor"></div>
+                <div class="b-field"><label>Lote/Serie</label><input class="b-input" type="text" id="lote_serie" placeholder="Número de lote"></div>
+                <div class="b-field"><label>Acción con la Unidad</label><select class="b-select" id="accion_unidad"><option value="">Seleccionar…</option><option value="descartada">Descartada</option><option value="devuelta">Devuelta al proveedor</option><option value="en_cuarentena">En cuarentena</option><option value="enviada_laboratorio">Enviada a laboratorio</option></select></div>
               </div>
             </div>
-
             <div id="campos_error_identificacion" class="specific-fields">
-              <div class="specific-title">🆔 Detalles de Error de Identificación</div>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="tipo_error_id">Tipo de Error</label>
-                  <select id="tipo_error_id">
-                    <option value="">Seleccionar...</option>
-                    <option value="paciente">Error en identificación de paciente</option>
-                    <option value="muestra">Error en identificación de muestra</option>
-                    <option value="unidad">Error en identificación de unidad</option>
-                    <option value="etiquetado">Error en etiquetado</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="momento_detectado">Momento Detectado</label>
-                  <select id="momento_detectado">
-                    <option value="">Seleccionar...</option>
-                    <option value="pre_transfusion">Pre-transfusión</option>
-                    <option value="durante_transfusion">Durante transfusión</option>
-                    <option value="post_transfusion">Post-transfusión</option>
-                    <option value="revision_rutina">Revisión de rutina</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="proceso_error">Proceso donde Ocurrió</label>
-                  <input type="text" id="proceso_error" placeholder="Describa el proceso...">
-                </div>
+              <div class="specific-title"><i class="fa-solid fa-id-card"></i> Detalles de Error de Identificación</div>
+              <div class="b-form-grid">
+                <div class="b-field"><label>Tipo de Error</label><select class="b-select" id="tipo_error"><option value="">Seleccionar…</option><option>Etiquetado incorrecto</option><option>Confusión de paciente</option><option>Error en muestra</option><option>Otro</option></select></div>
+                <div class="b-field"><label>¿Se administró la unidad?</label><select class="b-select" id="unidad_administrada"><option value="">Seleccionar…</option><option value="si">Sí</option><option value="no">No (interceptado)</option></select></div>
               </div>
             </div>
-
             <div id="campos_retraso_clinico" class="specific-fields">
-              <div class="specific-title">⏰ Detalles de Retraso Clínico</div>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="tiempo_retraso">Tiempo de Retraso</label>
-                  <input type="text" id="tiempo_retraso" placeholder="Ej: 2 horas">
-                </div>
-                <div class="form-group">
-                  <label for="causa_retraso">Causa del Retraso</label>
-                  <select id="causa_retraso">
-                    <option value="">Seleccionar...</option>
-                    <option value="falta_personal">Falta de personal</option>
-                    <option value="equipo_averiado">Equipo averiado</option>
-                    <option value="falta_componente">Falta de componente</option>
-                    <option value="procedimiento">Demora en procedimiento</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="area_responsable">Área Responsable</label>
-                  <input type="text" id="area_responsable" placeholder="Área responsable del retraso">
-                </div>
-                <div class="form-group">
-                  <label for="impacto_paciente">Impacto en el Paciente</label>
-                  <select id="impacto_paciente">
-                    <option value="">Seleccionar...</option>
-                    <option value="ninguno">Ninguno</option>
-                    <option value="minimo">Mínimo</option>
-                    <option value="moderado">Moderado</option>
-                    <option value="significativo">Significativo</option>
-                  </select>
-                </div>
+              <div class="specific-title"><i class="fa-solid fa-clock"></i> Detalles de Retraso Clínico</div>
+              <div class="b-form-grid">
+                <div class="b-field"><label>Tiempo de Retraso (min)</label><input class="b-input" type="number" id="tiempo_retraso" placeholder="Ej: 30"></div>
+                <div class="b-field"><label>Causa del Retraso</label><input class="b-input" type="text" id="causa_retraso" placeholder="Descripción breve"></div>
               </div>
             </div>
-
             <div id="campos_transfusion_incompleta" class="specific-fields">
-              <div class="specific-title">⏹️ Detalles de Transfusión Incompleta</div>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="volumen_transfundido_inc">Volumen Transfundido</label>
-                  <input type="text" id="volumen_transfundido_inc" placeholder="Ej: 150 mL">
-                </div>
-                <div class="form-group">
-                  <label for="volumen_total">Volumen Total</label>
-                  <input type="text" id="volumen_total" placeholder="Ej: 250 mL">
-                </div>
-                <div class="form-group">
-                  <label for="razon_interrupcion">Razón de Interrupción</label>
-                  <select id="razon_interrupcion">
-                    <option value="">Seleccionar...</option>
-                    <option value="reaccion_adversa">Reacción adversa</option>
-                    <option value="decision_medica">Decisión médica</option>
-                    <option value="problema_tecnico">Problema técnico</option>
-                    <option value="estado_paciente">Estado del paciente</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="disposicion_unidad">Disposición de Unidad Restante</label>
-                  <select id="disposicion_unidad">
-                    <option value="">Seleccionar...</option>
-                    <option value="descartada">Descartada</option>
-                    <option value="devuelta_banco">Devuelta al banco</option>
-                    <option value="reutilizada">Reutilizada para otro paciente</option>
-                    <option value="cuarentena">En cuarentena</option>
-                  </select>
-                </div>
+              <div class="specific-title"><i class="fa-solid fa-stop"></i> Detalles de Transfusión Incompleta</div>
+              <div class="b-form-grid">
+                <div class="b-field"><label>Volumen Transfundido</label><input class="b-input" type="text" id="vol_transfundido_inc" placeholder="Ej: 100 mL de 250 mL"></div>
+                <div class="b-field"><label>Motivo de Interrupción</label><input class="b-input" type="text" id="motivo_interrupcion" placeholder="Razón de la interrupción"></div>
               </div>
             </div>
           </div>
 
-          <!-- Descripción y Acciones -->
-          <div class="form-section section-details">
-            <h2 class="section-title">
-              <span class="section-icon">📝</span>
-              Descripción Detallada y Acciones
-            </h2>
-            
-            <div class="form-grid">
-              <div class="form-group full-width">
-                <label for="descripcion_detallada">Descripción Detallada del Incidente <span class="required">*</span></label>
-                <textarea id="descripcion_detallada" rows="5" placeholder="Describa el incidente de manera detallada, incluyendo contexto, secuencia de eventos y cualquier información relevante..."></textarea>
-              </div>
-
-              <div class="form-group full-width">
-                <label for="acciones_inmediatas">Acciones Inmediatas Tomadas <span class="required">*</span></label>
-                <textarea id="acciones_inmediatas" rows="4" placeholder="Describa las acciones que se tomaron inmediatamente después del incidente..."></textarea>
-              </div>
-
-              <div class="form-group">
-                <label for="supervisor_notificado">¿Supervisor Notificado?</label>
-                <select id="supervisor_notificado" onchange="mostrarSupervisor()">
-                  <option value="">Seleccionar...</option>
-                  <option value="si">Sí</option>
-                  <option value="no">No</option>
+          <!-- Descripción + Acciones -->
+          <div class="b-card" data-accent="blue">
+            <div class="b-section-title" style="margin-bottom:16px;">
+              <span class="b-icon b-icon-blue"><i class="fa-solid fa-file-pen"></i></span>
+              Descripción y Acciones Tomadas
+            </div>
+            <div class="b-field" style="margin-bottom:14px;">
+              <label>Descripción Detallada <span style="color:var(--bludee-red);">*</span></label>
+              <textarea class="b-input" id="descripcion_detallada" rows="4" placeholder="Describa el incidente detalladamente, contexto, secuencia de eventos…"></textarea>
+            </div>
+            <div class="b-field" style="margin-bottom:14px;">
+              <label>Acciones Inmediatas Tomadas <span style="color:var(--bludee-red);">*</span></label>
+              <textarea class="b-input" id="acciones_inmediatas" rows="3" placeholder="Acciones tomadas inmediatamente después del incidente…"></textarea>
+            </div>
+            <div class="b-form-grid">
+              <div class="b-field">
+                <label>¿Supervisor Notificado?</label>
+                <select class="b-select" id="supervisor_notificado" onchange="mostrarSupervisor()">
+                  <option value="">Seleccionar…</option>
+                  <option value="si">Sí</option><option value="no">No</option>
                 </select>
               </div>
-
-              <div class="form-group" id="supervisor_nombre_group" style="display: none;">
-                <label for="supervisor_nombre">Nombre del Supervisor</label>
-                <input type="text" id="supervisor_nombre" placeholder="Nombre del supervisor notificado">
+              <div class="b-field" id="supervisor_nombre_group" style="display:none;margin-top:12px;border-left:3px solid var(--bludee-blue);padding-left:12px;">
+                <label>Nombre del Supervisor</label>
+                <input class="b-input" type="text" id="supervisor_nombre" placeholder="Nombre del supervisor">
               </div>
-
-              <div class="form-group">
-                <label for="seguimiento_requerido">¿Seguimiento Requerido?</label>
-                <select id="seguimiento_requerido">
-                  <option value="">Seleccionar...</option>
-                  <option value="si">Sí</option>
-                  <option value="no">No</option>
+              <div class="b-field">
+                <label>¿Seguimiento Requerido?</label>
+                <select class="b-select" id="seguimiento_requerido">
+                  <option value="">Seleccionar…</option>
+                  <option value="si">Sí</option><option value="no">No</option>
                 </select>
               </div>
-
-              <div class="form-group">
-                <label for="tecnologo_reporta">Tecnólogo Médico que Reporta <span class="required">*</span></label>
-                <input type="text" id="tecnologo_reporta" value="Norma I. Medina" readonly>
+              <div class="b-field">
+                <label>Tecnólogo que Reporta <span style="color:var(--bludee-red);">*</span></label>
+                <input class="b-input" type="text" id="tecnologo_reporta" value="Norma I. Medina" readonly>
               </div>
             </div>
           </div>
 
-          <!-- Botones de Acción -->
-          <div class="button-container">
-            <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
-              🔄 Limpiar Formulario
+          <div class="b-btn-group">
+            <button class="b-btn b-btn-ghost" onclick="limpiarFormulario()">
+              <i class="fa-solid fa-rotate"></i> Limpiar
             </button>
-            <button type="button" class="btn btn-primary" onclick="guardarIncidente()">
-              💾 Guardar Reporte
+            <button class="b-btn b-btn-primary" onclick="guardarIncidente()">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar Reporte
             </button>
           </div>
-
-          <div class="success-message" id="success_message">
-            ✅ Reporte de incidente guardado exitosamente
+          <div class="success-banner" id="success_message">
+            <i class="fa-solid fa-circle-check"></i> Reporte guardado en Firebase exitosamente
           </div>
         </div>
 
-        <!-- Panel Lateral -->
-        <div class="sidebar">
-          <!-- Estadísticas Rápidas -->
-          <div class="form-section section-stats">
-            <h3 class="section-title">
-              <span class="section-icon">📊</span>
+        <!-- Panel lateral -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div class="b-card" data-accent="cyan">
+            <div class="b-section-title" style="margin-bottom:16px;">
+              <span class="b-icon b-icon-cyan"><i class="fa-solid fa-chart-column"></i></span>
               Estadísticas del Mes
-            </h3>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <div class="stat-number stat-critico">2</div>
-                <div class="stat-label">Críticos</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number stat-alto">1</div>
-                <div class="stat-label">Altos</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number stat-medio">4</div>
-                <div class="stat-label">Medios</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number stat-bajo">8</div>
-                <div class="stat-label">Bajos</div>
-              </div>
+              <span class="b-realtime-dot" id="b-rt-indicator" style="margin-left:auto;">Tiempo real</span>
+            </div>
+            <div class="b-kpi-grid" style="grid-template-columns:repeat(2,1fr);">
+              <div class="b-kpi red"><div class="b-kpi-label">Críticos</div><div class="b-kpi-value" id="cnt-critico">—</div></div>
+              <div class="b-kpi orange"><div class="b-kpi-label">Altos</div><div class="b-kpi-value" id="cnt-alto">—</div></div>
+              <div class="b-kpi" style="border-left-color:#d97706;"><div class="b-kpi-label">Medios</div><div class="b-kpi-value" id="cnt-medio">—</div></div>
+              <div class="b-kpi green"><div class="b-kpi-label">Bajos</div><div class="b-kpi-value" id="cnt-bajo">—</div></div>
             </div>
           </div>
-
-          <!-- Acceso Rápido -->
-          <div class="form-section section-actions">
-            <h3 class="section-title">
-              <span class="section-icon">⚡</span>
+          <div class="b-card" data-accent="purple">
+            <div class="b-section-title" style="margin-bottom:14px;">
+              <span class="b-icon b-icon-purple"><i class="fa-solid fa-bolt"></i></span>
               Acceso Rápido
-            </h3>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              <button class="btn btn-secondary" style="min-width: auto;">
-                📋 Ver Todos los Incidentes
-              </button>
-              <button class="btn btn-secondary" style="min-width: auto;">
-                📊 Generar Reporte Mensual
-              </button>
-              <button class="btn btn-secondary" style="min-width: auto;">
-                🔍 Buscar por Paciente
-              </button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <button class="b-btn b-btn-ghost" onclick="filtrarPorTipo('todos',null)"><i class="fa-solid fa-list"></i> Ver Todos los Incidentes</button>
+              <button class="b-btn b-btn-ghost" onclick="BludeeToast.show('Generando reporte mensual…','info')"><i class="fa-solid fa-file-chart-column"></i> Reporte Mensual</button>
+              <button class="b-btn b-btn-ghost" onclick="focusBuscar()"><i class="fa-solid fa-magnifying-glass"></i> Buscar por Paciente</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Historial de Incidentes -->
-      <div class="form-section section-history">
-        <h2 class="section-title">
-          <span class="section-icon">📋</span>
-          Historial de Incidentes Recientes
-        </h2>
-
-        <div class="search-bar">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="search_incidents" placeholder="Buscar incidentes..." oninput="filtrarIncidentes()">
+      <!-- Historial de incidentes en tiempo real -->
+      <div class="b-card" data-accent="red">
+        <div class="b-section-header">
+          <div class="b-section-title">
+            <span class="b-icon b-icon-red"><i class="fa-solid fa-clipboard-list"></i></span>
+            Historial de Incidentes Recientes
+          </div>
         </div>
-
-        <div class="filter-tabs">
-          <div class="filter-tab active" onclick="filtrarPorTipo('todos')">Todos</div>
-          <div class="filter-tab" onclick="filtrarPorTipo('reaccion_adversa')">Reacciones</div>
-          <div class="filter-tab" onclick="filtrarPorTipo('unidad_defectuosa')">Unidades</div>
-          <div class="filter-tab" onclick="filtrarPorTipo('error_identificacion')">Errores ID</div>
-          <div class="filter-tab" onclick="filtrarPorTipo('retraso_clinico')">Retrasos</div>
-          <div class="filter-tab" onclick="filtrarPorTipo('transfusion_incompleta')">Incompletas</div>
+        <!-- Search + filter pills -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+          <div style="flex:1;min-width:200px;position:relative;">
+            <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.82rem;pointer-events:none;"></i>
+            <input class="b-input" type="text" id="search_incidents" placeholder="Buscar incidentes…" oninput="filtrarIncidentes()" style="padding-left:36px;">
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="b-filter-pill active" onclick="filtrarPorTipo('todos',this)">Todos</button>
+            <button class="b-filter-pill" onclick="filtrarPorTipo('reaccion_adversa',this)">Reacciones</button>
+            <button class="b-filter-pill" onclick="filtrarPorTipo('unidad_defectuosa',this)">Unidades</button>
+            <button class="b-filter-pill" onclick="filtrarPorTipo('error_identificacion',this)">Errores ID</button>
+            <button class="b-filter-pill" onclick="filtrarPorTipo('retraso_clinico',this)">Retrasos</button>
+          </div>
         </div>
 
         <div id="incidents_container">
-          <div class="incident-card" style="--severity-color: #dc2626;" data-type="reaccion_adversa">
-            <div class="incident-header">
-              <div class="incident-type">🩸 Reacción Adversa</div>
-              <div class="incident-severity" style="background: #fef2f2; color: #991b1b;">CRÍTICO</div>
-            </div>
-            <div class="incident-meta">
-              Paciente: Ana Martínez | Unidad: A123 | 15 Jul 2025 - 14:30
-            </div>
-            <div class="incident-description">
-              Paciente presentó fiebre y escalofríos a los 10 minutos de iniciada la transfusión. Se suspendió inmediatamente...
-            </div>
-            <div class="incident-footer">
-              <span>Reportado por: Norma I. Medina</span>
-              <span>Estado: En investigación</span>
-            </div>
-          </div>
-
-          <div class="incident-card" style="--severity-color: #eab308;" data-type="error_identificacion">
-            <div class="incident-header">
-              <div class="incident-type">🆔 Error de Identificación</div>
-              <div class="incident-severity" style="background: #fefce8; color: #a16207;">MEDIO</div>
-            </div>
-            <div class="incident-meta">
-              Paciente: Roberto Torres | Área: Medicina | 14 Jul 2025 - 09:15
-            </div>
-            <div class="incident-description">
-              Error en la identificación del paciente detectado antes de la transfusión durante la verificación cruzada...
-            </div>
-            <div class="incident-footer">
-              <span>Reportado por: Carlos Pérez</span>
-              <span>Estado: Cerrado</span>
-            </div>
-          </div>
-
-          <div class="incident-card" style="--severity-color: #16a34a;" data-type="retraso_clinico">
-            <div class="incident-header">
-              <div class="incident-type">⏰ Retraso Clínico</div>
-              <div class="incident-severity" style="background: #f0fdf4; color: #166534;">BAJO</div>
-            </div>
-            <div class="incident-meta">
-              Área: Cirugía | 13 Jul 2025 - 16:45
-            </div>
-            <div class="incident-description">
-              Retraso de 30 minutos en la entrega de componente por demora en el transporte interno...
-            </div>
-            <div class="incident-footer">
-              <span>Reportado por: Ana García</span>
-              <span>Estado: Cerrado</span>
-            </div>
+          <div class="b-empty" id="incidents-loading">
+            <div class="b-empty-icon"><i class="fa-solid fa-spinner fa-spin"></i></div>
+            <div class="b-empty-title">Conectando con Firebase…</div>
+            <div class="b-empty-text">Los incidentes aparecerán aquí en tiempo real</div>
           </div>
         </div>
       </div>
     </div>
+    <div class="bludee-footer"><strong>Bludee AI</strong> — Notas Clínicas Internas · Puerto Rico</div>
   </div>
 
   <script>
-    let severidadSeleccionada = '';
-    let currentFilter = 'todos';
+    var severidadSeleccionada = '';
+    var currentFilter = 'todos';
 
-    function seleccionarSeveridad(severidad) {
-      // Remover clase active de todas las opciones
-      document.querySelectorAll('.severity-option').forEach(opt => {
-        opt.classList.remove('active');
-      });
-      
-      // Agregar clase active a la seleccionada
-      document.querySelector(`.severity-${severidad}`).classList.add('active');
-      
-      // Guardar selección
-      severidadSeleccionada = severidad;
-      document.getElementById('severidad_selected').value = severidad;
+    function seleccionarSeveridad(sev, el) {
+      document.querySelectorAll('.severity-option').forEach(function(o){ o.classList.remove('active'); });
+      if (el) el.classList.add('active');
+      severidadSeleccionada = sev;
+      document.getElementById('severidad_selected').value = sev;
     }
 
     function mostrarCamposEspecificos() {
-      const tipo = document.getElementById('tipo_incidente').value;
-      
-      // Ocultar todos los campos específicos
-      document.querySelectorAll('.specific-fields').forEach(field => {
-        field.classList.remove('show');
-      });
-      
-      // Mostrar el campo específico correspondiente
+      var tipo = document.getElementById('tipo_incidente').value;
+      document.querySelectorAll('.specific-fields').forEach(function(f){ f.classList.remove('show'); });
       if (tipo) {
-        const campoEspecifico = document.getElementById(`campos_${tipo}`);
-        if (campoEspecifico) {
-          campoEspecifico.classList.add('show');
-        }
+        var el = document.getElementById('campos_'+tipo);
+        if (el) el.classList.add('show');
       }
     }
 
     function mostrarSupervisor() {
-      const supervisorNotificado = document.getElementById('supervisor_notificado').value;
-      const supervisorGroup = document.getElementById('supervisor_nombre_group');
-      
-      if (supervisorNotificado === 'si') {
-        supervisorGroup.style.display = 'block';
-      } else {
-        supervisorGroup.style.display = 'none';
-        document.getElementById('supervisor_nombre').value = '';
-      }
+      var v = document.getElementById('supervisor_notificado').value;
+      document.getElementById('supervisor_nombre_group').style.display = v==='si' ? 'block' : 'none';
+      if (v!=='si') document.getElementById('supervisor_nombre').value = '';
     }
 
     function guardarIncidente() {
-      // Validaciones básicas
-      const tipoIncidente = document.getElementById('tipo_incidente').value;
-      const fechaIncidente = document.getElementById('fecha_incidente').value;
-      const descripcion = document.getElementById('descripcion_detallada').value;
-      const acciones = document.getElementById('acciones_inmediatas').value;
-      
-      if (!tipoIncidente) {
-        alert('Por favor, seleccione el tipo de incidente.');
-        return;
-      }
-      
-      if (!fechaIncidente) {
-        alert('Por favor, ingrese la fecha y hora del incidente.');
-        return;
-      }
-      
-      if (!severidadSeleccionada) {
-        alert('Por favor, seleccione el nivel de severidad.');
-        return;
-      }
-      
-      if (!descripcion.trim()) {
-        alert('Por favor, proporcione una descripción detallada del incidente.');
-        return;
-      }
-      
-      if (!acciones.trim()) {
-        alert('Por favor, describa las acciones inmediatas tomadas.');
-        return;
-      }
+      var tipo  = document.getElementById('tipo_incidente').value;
+      var fecha = document.getElementById('fecha_incidente').value;
+      var desc  = document.getElementById('descripcion_detallada').value.trim();
+      var acc   = document.getElementById('acciones_inmediatas').value.trim();
+      if (!tipo)  { BludeeToast.show('Selecciona el tipo de incidente','warning'); return; }
+      if (!fecha) { BludeeToast.show('Ingresa la fecha del incidente','warning'); return; }
+      if (!severidadSeleccionada) { BludeeToast.show('Selecciona el nivel de severidad','warning'); return; }
+      if (!desc)  { BludeeToast.show('Proporciona una descripción detallada','warning'); return; }
+      if (!acc)   { BludeeToast.show('Describe las acciones tomadas','warning'); return; }
+      guardarEnFirebase(tipo, fecha, desc, acc);
+    }
 
-      // Mostrar mensaje de éxito
-      const successMessage = document.getElementById('success_message');
-      successMessage.classList.add('show');
-      
-      // Ocultar mensaje después de 3 segundos y limpiar formulario
-      setTimeout(() => {
-        successMessage.classList.remove('show');
-        limpiarFormulario();
-      }, 3000);
+    async function guardarEnFirebase(tipo, fecha, desc, acc) {
+      if (!BludeeDB) { BludeeToast.show('Firebase no disponible','error'); return; }
+      try {
+        await BludeeDB.collection('incidentes_clinicos').add({
+          tipo_incidente:       tipo,
+          fecha_incidente:      fecha,
+          severidad:            severidadSeleccionada,
+          paciente_nombre:      document.getElementById('paciente_nombre').value,
+          paciente_record:      document.getElementById('paciente_record').value,
+          unidad_id:            document.getElementById('unidad_id').value,
+          area_involucrada:     document.getElementById('area_involucrada').value,
+          descripcion:          desc,
+          acciones_inmediatas:  acc,
+          supervisor_notificado:document.getElementById('supervisor_notificado').value,
+          supervisor_nombre:    document.getElementById('supervisor_nombre').value,
+          seguimiento:          document.getElementById('seguimiento_requerido').value,
+          tecnologo_reporta:    document.getElementById('tecnologo_reporta').value,
+          guardadoPor:          window.BLUDEE_USER ? window.BLUDEE_USER.email : '—',
+          fechaGuardado:        new Date().toISOString()
+        });
+        BludeeUI.logAudit('INCIDENTE_REGISTRADO','notas_clinicas', tipo+' / '+severidadSeleccionada);
+        document.getElementById('success_message').classList.add('show');
+        setTimeout(function(){ document.getElementById('success_message').classList.remove('show'); limpiarFormulario(); }, 3000);
+      } catch(e) { BludeeToast.show('Error guardando: '+e.message,'error'); }
     }
 
     function limpiarFormulario() {
-      // Limpiar todos los campos
-      document.querySelectorAll('input:not([readonly]), select, textarea').forEach(field => {
-        if (field.type === 'datetime-local' || field.type === 'date' || field.type === 'time') {
-          field.value = '';
-        } else if (field.tagName === 'SELECT') {
-          field.selectedIndex = 0;
-        } else if (field.type !== 'hidden') {
-          field.value = '';
-        }
+      document.querySelectorAll('input:not([readonly]),select,textarea').forEach(function(f){
+        if (f.type==='checkbox'||f.type==='radio') f.checked=false;
+        else if (f.tagName==='SELECT') f.selectedIndex=0;
+        else if (f.type!=='hidden') f.value='';
       });
-      
-      // Resetear severidad
-      document.querySelectorAll('.severity-option').forEach(opt => {
-        opt.classList.remove('active');
-      });
-      severidadSeleccionada = '';
-      document.getElementById('severidad_selected').value = '';
-      
-      // Ocultar campos específicos
-      document.querySelectorAll('.specific-fields').forEach(field => {
-        field.classList.remove('show');
-      });
-      
-      // Ocultar supervisor
-      document.getElementById('supervisor_nombre_group').style.display = 'none';
+      document.querySelectorAll('.severity-option').forEach(function(o){ o.classList.remove('active'); });
+      severidadSeleccionada=''; document.getElementById('severidad_selected').value='';
+      document.querySelectorAll('.specific-fields').forEach(function(f){ f.classList.remove('show'); });
+      document.getElementById('supervisor_nombre_group').style.display='none';
+      document.getElementById('tecnologo_reporta').value='Norma I. Medina';
     }
 
-    function filtrarPorTipo(tipo) {
+    function filtrarPorTipo(tipo, btn) {
       currentFilter = tipo;
-      
-      // Actualizar tabs activos
-      document.querySelectorAll('.filter-tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      event.target.classList.add('active');
-      
-      // Filtrar incidentes
+      document.querySelectorAll('.b-filter-pill').forEach(function(b){ b.classList.remove('active'); });
+      if (btn) btn.classList.add('active');
       filtrarIncidentes();
     }
 
     function filtrarIncidentes() {
-      const searchTerm = document.getElementById('search_incidents').value.toLowerCase();
-      const incidentCards = document.querySelectorAll('.incident-card');
-      
-      incidentCards.forEach(card => {
-        const texto = card.textContent.toLowerCase();
-        const tipo = card.getAttribute('data-type');
-        
-        let mostrar = true;
-        
-        // Filtro por texto
-        if (searchTerm && !texto.includes(searchTerm)) {
-          mostrar = false;
-        }
-        
-        // Filtro por tipo
-        if (currentFilter !== 'todos' && tipo !== currentFilter) {
-          mostrar = false;
-        }
-        
-        card.style.display = mostrar ? 'block' : 'none';
+      var q    = document.getElementById('search_incidents').value.toLowerCase();
+      document.querySelectorAll('.incident-card').forEach(function(c) {
+        var txt  = c.textContent.toLowerCase();
+        var tipo = c.dataset.type;
+        var ok   = true;
+        if (q && !txt.includes(q)) ok = false;
+        if (currentFilter!=='todos' && tipo!==currentFilter) ok = false;
+        c.style.display = ok ? 'block' : 'none';
       });
     }
 
-    // Auto-completar fecha actual
+    function focusBuscar() { document.getElementById('search_incidents').focus(); }
+
+    // Real-time listener for stats
+    function iniciarListener() {
+      // Real-time listener for incidents list
+      BludeeRT.listenCollection('incidentes-list','incidentes_clinicos',
+        { orderBy:'fechaGuardado', orderDir:'desc', limit:50 },
+        function(docs) {
+          if (!docs.length) return;
+          var cont = document.getElementById('incidents_container');
+          var sevColors = {critico:'red',alto:'orange',medio:'yellow',bajo:'green'};
+          var sevLabels = {critico:'CRÍTICO',alto:'ALTO',medio:'MEDIO',bajo:'BAJO'};
+          var tipoLabels = {
+            reaccion_adversa:'Reacción Adversa', unidad_defectuosa:'Unidad Defectuosa',
+            error_identificacion:'Error de Identificación', retraso_clinico:'Retraso Clínico',
+            transfusion_incompleta:'Transfusión Incompleta'
+          };
+          // Prepend new Firebase docs before static examples
+          docs.slice(0,10).forEach(function(d) {
+            if (document.querySelector('[data-fbid="'+d._id+'"]')) return;
+            var div = document.createElement('div');
+            div.className = 'incident-card sev-'+(d.severidad||'info')+' animate-in';
+            div.dataset.type = d.tipo_incidente||'';
+            div.dataset.fbid = d._id;
+            var sc = sevColors[d.severidad]||'gray';
+            var sl = sevLabels[d.severidad]||'INFO';
+            div.innerHTML = '<div class="inc-header"><div class="inc-type">'+(tipoLabels[d.tipo_incidente]||d.tipo_incidente||'—')+'</div>'+
+              '<span class="b-badge b-badge-'+sc+'">'+sl+'</span></div>'+
+              '<div class="inc-meta">'+(d.paciente_nombre||'Sin paciente')+' | '+(d.area_involucrada||'—')+' | '+(d.fecha_incidente||'—').slice(0,16)+'</div>'+
+              '<div class="inc-desc">'+(d.descripcion||'—').slice(0,120)+(d.descripcion&&d.descripcion.length>120?'…':'')+'</div>'+
+              '<div class="inc-footer"><span>'+(d.tecnologo_reporta||'—')+'</span><span>'+(d.seguimiento==='si'?'⚠️ Seguimiento requerido':'Cerrado')+'</span></div>';
+            cont.prepend(div);
+          });
+          // Update stats
+          document.getElementById('cnt-critico').textContent = docs.filter(function(d){ return d.severidad==='critico'; }).length;
+          document.getElementById('cnt-alto').textContent    = docs.filter(function(d){ return d.severidad==='alto'; }).length;
+          document.getElementById('cnt-medio').textContent   = docs.filter(function(d){ return d.severidad==='medio'; }).length;
+          document.getElementById('cnt-bajo').textContent    = docs.filter(function(d){ return d.severidad==='bajo'; }).length;
+        }
+      );
+    }
+
+    // OLD listener removed
+    function _iniciarListenerOLD_unused() {
+      BludeeRT.listenCollection('incidentes-rt','incidentes_clinicos',
+        { orderBy:'fechaGuardado', orderDir:'desc', limit:200 },
+        function(docs) {
+          document.getElementById('cnt-critico').textContent = docs.filter(function(d){ return d.severidad==='critico'; }).length;
+          document.getElementById('cnt-alto').textContent    = docs.filter(function(d){ return d.severidad==='alto'; }).length;
+          document.getElementById('cnt-medio').textContent   = docs.filter(function(d){ return d.severidad==='medio'; }).length;
+          document.getElementById('cnt-bajo').textContent    = docs.filter(function(d){ return d.severidad==='bajo'; }).length;
+        }
+      );
+    }
+
     window.addEventListener('load', function() {
-      const now = new Date();
-      const datetime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-      document.getElementById('fecha_incidente').value = datetime;
+      var now=new Date(), dt=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+      document.getElementById('fecha_incidente').value=dt;
     });
+    document.addEventListener('bludee:auth', function() { iniciarListener(); });
   </script>
 </body>
 </html>
